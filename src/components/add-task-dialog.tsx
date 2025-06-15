@@ -1,6 +1,7 @@
 
 "use client"
 
+import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -36,13 +37,13 @@ interface AddTaskDialogProps {
 export default function AddTaskDialog({ open, onOpenChange, onSave, taskToEdit }: AddTaskDialogProps) {
   const form = useForm<TaskFormValues>({
     resolver: zodResolver(taskFormSchema),
-    defaultValues: taskToEdit 
-      ? { 
-          title: taskToEdit.title, 
-          description: taskToEdit.description, 
+    defaultValues: taskToEdit
+      ? {
+          title: taskToEdit.title,
+          description: taskToEdit.description,
           dueDate: taskToEdit.dueDate ? new Date(taskToEdit.dueDate) : undefined,
           priority: taskToEdit.priority as 'low' | 'medium' | 'high' | undefined
-        } 
+        }
       : {
           title: "",
           description: "",
@@ -50,15 +51,15 @@ export default function AddTaskDialog({ open, onOpenChange, onSave, taskToEdit }
           priority: 'medium',
         },
   });
-  
+
   // Reset form when taskToEdit changes or dialog opens for new task
   React.useEffect(() => {
     if (open) {
       form.reset(
         taskToEdit
-          ? { 
-              title: taskToEdit.title, 
-              description: taskToEdit.description, 
+          ? {
+              title: taskToEdit.title,
+              description: taskToEdit.description,
               dueDate: taskToEdit.dueDate ? new Date(taskToEdit.dueDate) : undefined,
               priority: taskToEdit.priority as 'low' | 'medium' | 'high' | undefined
             }
