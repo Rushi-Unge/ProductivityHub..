@@ -5,7 +5,7 @@ import * as React from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Activity, ArrowUpRight, Briefcase, CheckCircle, DollarSign, ListChecks, Users, Zap, Eye, StickyNote, LineChart, Edit3, ThumbsUp } from "lucide-react";
+import { Activity, ArrowUpRight, Briefcase, CheckCircle, DollarSign, ListChecks, Users, Zap, Eye, StickyNote, LineChart, Edit3, ThumbsUp, TrendingUp, TrendingDown } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { format, parseISO, formatDistanceToNow } from "date-fns";
@@ -28,7 +28,7 @@ const initialDashboardTasks: Task[] = [
 // Duplicated and simplified Note interface and initial data for Dashboard
 const initialDashboardNotes: Note[] = [
   { id: "n3", title: "Book Insights: 'Atomic Habits'", content: "Key takeaways:\n- Focus on systems, not goals.\n- Make it obvious, attractive, easy, satisfying.", createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), color: "bg-blue-200 dark:bg-blue-700/30" },
-  { id: "n1", title: "Project Ideas for ProHub", content: "1. AI-driven task suggestions.\n2. Team collaboration module.", createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), color: "bg-yellow-200 dark:bg-yellow-700/30", imageUrl:"https://placehold.co/300x200.png?text=MindMap" },
+  { id: "n1", title: "Project Ideas for ProHub", content: "1. AI-driven task suggestions.\n2. Team collaboration module.", createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), color: "bg-yellow-200 dark:bg-yellow-700/30", imageUrl:"https://placehold.co/300x200.png?text=MindMap", imageFilename: "mindmap.png" },
   { id: "n2", title: "Weekly Goals (Current)", content: "- Finalize Q4 budget presentation.\n- Conduct user interviews.", createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), color: "bg-green-200 dark:bg-green-700/30" },
 ];
 
@@ -168,7 +168,7 @@ export default function DashboardPage() {
                     <div className="flex-1 min-w-0">
                       <p className={`font-medium truncate ${task.status === 'completed' ? 'line-through text-muted-foreground' : 'text-foreground'}`}>{task.title}</p>
                       <p className="text-xs text-muted-foreground">
-                        Priority: <Badge variant={task.priority === 'high' ? 'destructive' : task.priority === 'medium' ? 'default' : 'outline'} className={cn("capitalize text-xs px-1.5 py-0", task.priority === 'medium' ? 'bg-warning/80 text-warning-foreground border-warning/80' : '')}>{task.priority}</Badge>
+                        Priority: <Badge variant={task.priority === 'high' ? 'destructive' : task.priority === 'medium' ? 'default' : 'outline'} className={cn("capitalize text-xs px-1.5 py-0", task.priority === 'medium' ? 'bg-warning/80 text-warning-foreground border-warning/80' : '', task.priority === 'low' ? 'bg-info/80 text-info-foreground border-info/80' : '')}>{task.priority}</Badge>
                         {task.dueDate && ` | Due: ${format(parseISO(task.dueDate), "MMM d, yyyy")}`}
                       </p>
                     </div>
@@ -206,8 +206,8 @@ export default function DashboardPage() {
                 {displayedNotes.map(note => (
                   <li key={note.id} className={cn("p-3 rounded-md transition-colors hover:opacity-80", note.color || "bg-muted/50 dark:bg-muted/20")}>
                     <Link href="/notes" className="block group">
-                      <h4 className={cn("font-medium truncate group-hover:underline", note.color?.includes("dark:") || note.color?.includes("700") || note.color?.includes("800") ? "text-primary-foreground" : "text-card-foreground")}>{note.title}</h4>
-                      <p className={cn("text-xs line-clamp-2 group-hover:underline", note.color?.includes("dark:") || note.color?.includes("700") || note.color?.includes("800")  ? "text-primary-foreground/80" : "text-card-foreground/80")}>{note.content}</p>
+                      <h4 className={cn("font-medium truncate group-hover:underline note-card-custom-text", note.color?.includes("dark:") || note.color?.includes("700") || note.color?.includes("800") ? "text-primary-foreground" : "text-card-foreground")}>{note.title}</h4>
+                      <p className={cn("text-xs line-clamp-2 group-hover:underline note-card-custom-muted-text", note.color?.includes("dark:") || note.color?.includes("700") || note.color?.includes("800")  ? "text-primary-foreground/80" : "text-card-foreground/80")}>{note.content}</p>
                       <p className={cn("text-xs mt-1", note.color?.includes("dark:") || note.color?.includes("700") || note.color?.includes("800")  ? "text-primary-foreground/60" : "text-muted-foreground/80")}>{formatDistanceToNow(parseISO(note.createdAt), { addSuffix: true })}</p>
                     </Link>
                   </li>
@@ -257,3 +257,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+
