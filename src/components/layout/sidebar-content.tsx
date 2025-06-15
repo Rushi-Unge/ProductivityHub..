@@ -99,19 +99,19 @@ export function MainSidebarContent() {
 
           <Button
             variant="ghost"
-            size="sm"
-            className="w-full justify-start"
+            size="icon"
+            className="w-full justify-center py-2 h-auto"
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            aria-label="Toggle theme"
           >
-            {theme === "dark" ? <Sun className="mr-2 h-4 w-4" /> : <Moon className="mr-2 h-4 w-4" />}
-            <span>Toggle Theme</span>
+            {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
           </Button>
         </div>
 
         <div className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:space-y-2 hidden">
            <DropdownMenu>
             <DropdownMenuTrigger asChild>
-               <Button variant="ghost" size="icon" className="h-8 w-8">
+               <Button variant="ghost" size="icon" className="h-9 w-9">
                 <Avatar className="h-full w-full">
                   <AvatarImage src="https://placehold.co/100x100.png" alt="User" data-ai-hint="user avatar" />
                   <AvatarFallback>PH</AvatarFallback>
@@ -134,11 +134,11 @@ export function MainSidebarContent() {
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8"
+            className="h-9 w-9"
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             aria-label="Toggle theme"
           >
-            {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
           </Button>
         </div>
       </SidebarFooter>

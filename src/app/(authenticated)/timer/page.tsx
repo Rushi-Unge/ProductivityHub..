@@ -112,7 +112,7 @@ export default function TimerPage() {
   return (
     <div className="flex flex-col items-center gap-8 p-4 md:p-8">
       <div className="flex flex-col items-center gap-8 w-full max-w-2xl">
-        <Card className="w-full bg-gradient-to-br from-secondary/80 to-accent/80 dark:from-secondary/50 dark:to-accent/50 shadow-xl p-6 md:p-10 text-secondary-foreground">
+        <Card className="w-full bg-gradient-to-br from-primary/70 to-accent/70 dark:from-primary/50 dark:to-accent/50 shadow-xl p-6 md:p-10 text-primary-foreground">
           <CardHeader className="text-center pb-6">
             <CardTitle className="text-3xl md:text-4xl font-bold font-headline">
               {mode === 'pomodoro' ? 'Focus Session' : mode === 'shortBreak' ? 'Short Break' : 'Long Break'}
@@ -127,27 +127,27 @@ export default function TimerPage() {
                   <Play className="mr-2 h-5 w-5" /> Start
                 </Button>
               ) : (
-                <Button size="lg" onClick={pauseTimer} variant="outline" className="bg-background/80 hover:bg-background text-primary px-6 py-3 text-lg shadow-md">
+                <Button size="lg" onClick={pauseTimer} variant="outline" className="bg-background/80 hover:bg-background text-foreground px-6 py-3 text-lg shadow-md">
                   <Pause className="mr-2 h-5 w-5" /> Pause
                 </Button>
               )}
-              <Button size="lg" onClick={resetTimer} variant="outline" className="bg-background/80 hover:bg-background text-primary px-6 py-3 text-lg shadow-md">
+              <Button size="lg" onClick={resetTimer} variant="outline" className="bg-background/80 hover:bg-background text-foreground px-6 py-3 text-lg shadow-md">
                 <RotateCcw className="mr-2 h-5 w-5" /> Reset
               </Button>
             </div>
 
             <div className="flex flex-wrap justify-center gap-2 md:gap-3 pt-4">
-              <Button variant={mode === 'pomodoro' ? 'default' : 'outline'} onClick={() => selectMode('pomodoro')} className="shadow-sm">
+              <Button variant={mode === 'pomodoro' ? 'default' : 'outline'} onClick={() => selectMode('pomodoro')} className="shadow-sm text-sm">
                 <Briefcase className="mr-2 h-4 w-4" /> Focus (25 min)
               </Button>
-              <Button variant={mode === 'shortBreak' ? 'default' : 'outline'} onClick={() => selectMode('shortBreak')} className="shadow-sm">
+              <Button variant={mode === 'shortBreak' ? 'default' : 'outline'} onClick={() => selectMode('shortBreak')} className="shadow-sm text-sm">
                 <Coffee className="mr-2 h-4 w-4" /> Short Break (5 min)
               </Button>
-              <Button variant={mode === 'longBreak' ? 'default' : 'outline'} onClick={() => selectMode('longBreak')} className="shadow-sm">
+              <Button variant={mode === 'longBreak' ? 'default' : 'outline'} onClick={() => selectMode('longBreak')} className="shadow-sm text-sm">
                 <Coffee className="mr-2 h-4 w-4" /> Long Break (15 min)
               </Button>
             </div>
-             <p className="text-sm text-secondary-foreground/90 pt-2">Pomodoros completed: {pomodorosCompleted}</p>
+             <p className="text-sm text-primary-foreground/90 pt-2">Pomodoros completed: {pomodorosCompleted}</p>
           </CardContent>
         </Card>
       </div>
@@ -163,7 +163,7 @@ export default function TimerPage() {
                 <span className="font-medium">{task.title}</span>
                 <span className="text-xs text-muted-foreground">{task.progress}%</span>
               </div>
-              <Progress value={task.progress} aria-label={`${task.title} progress`} className="h-2 [&>div]:bg-secondary"/>
+              <Progress value={task.progress} aria-label={`${task.title} progress`} className="h-2"/>
             </div>
           )) : <p className="text-muted-foreground text-center">No tasks associated with this timer session.</p>}
         </CardContent>
@@ -171,3 +171,4 @@ export default function TimerPage() {
     </div>
   );
 }
+

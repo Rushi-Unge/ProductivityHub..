@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, PlusCircle, Edit3, Trash2, TrendingUp, TrendingDown, DollarSign, Percent, ListFilter, FileText } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Edit3, Trash2, TrendingUp, DollarSign, Percent, ListFilter, FileText } from "lucide-react";
 import AddTradeDialog from "@/components/add-trade-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -141,13 +141,13 @@ export default function TradingJournalPage() {
 
   if (!isClient) {
     return (
-       <div className="space-y-6">
+       <div className="space-y-8">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <Skeleton className="h-10 w-64" />
             <Skeleton className="h-10 w-40" />
         </div>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {[1,2,3].map(i => <Skeleton key={i} className="h-24 w-full" />)}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {[1,2,3].map(i => <Skeleton key={i} className="h-28 w-full" />)}
         </div>
         <Skeleton className="h-96 w-full" />
       </div>
@@ -155,7 +155,7 @@ export default function TradingJournalPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold font-headline tracking-tight flex items-center">
@@ -163,17 +163,17 @@ export default function TradingJournalPage() {
           </h1>
           <p className="text-muted-foreground">Log and analyze your trades to improve your skills.</p>
         </div>
-        <Button onClick={openNewTradeDialog}>
-          <PlusCircle className="mr-2 h-4 w-4" /> Add New Trade
+        <Button onClick={openNewTradeDialog} size="lg">
+          <PlusCircle className="mr-2 h-5 w-5" /> Add New Trade
         </Button>
       </div>
 
       {/* Summary Statistics */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <Card className="shadow-lg">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total P&L</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <DollarSign className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className={`text-2xl font-bold ${summaryStats.totalPnl >= 0 ? 'text-success' : 'text-destructive'}`}>
@@ -181,20 +181,20 @@ export default function TradingJournalPage() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="shadow-lg">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Win Rate</CardTitle>
-            <Percent className="h-4 w-4 text-muted-foreground" />
+            <Percent className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{summaryStats.winRate.toFixed(1)}%</div>
             <p className="text-xs text-muted-foreground">{summaryStats.totalTrades} trades closed</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="shadow-lg">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Profit Factor</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <TrendingUp className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{summaryStats.profitFactor}</div>
@@ -204,36 +204,36 @@ export default function TradingJournalPage() {
       </div>
       
       {/* Trades Table */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+      <Card className="shadow-lg">
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
           <div>
             <CardTitle>Trade History</CardTitle>
             <CardDescription>Detailed log of all your past and open trades.</CardDescription>
           </div>
           <Button variant="outline" size="sm" disabled>
-            <ListFilter className="mr-2 h-4 w-4" /> Filter
+            <ListFilter className="mr-2 h-4 w-4" /> Filter Trades
           </Button>
         </CardHeader>
         <CardContent>
           {trades.length === 0 ? (
-            <div className="text-center py-10">
+            <div className="text-center py-12">
               <FileText className="mx-auto h-16 w-16 text-muted-foreground opacity-50" />
               <p className="mt-4 text-lg font-medium text-muted-foreground">No trades logged yet.</p>
-              <p className="text-sm text-muted-foreground">Click "Add New Trade" to get started.</p>
+              <p className="text-sm text-muted-foreground">Click "Add New Trade" to get started logging your performance.</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Asset</TableHead>
+                    <TableHead className="min-w-[100px]">Asset</TableHead>
                     <TableHead>Position</TableHead>
-                    <TableHead>Entry Date</TableHead>
+                    <TableHead className="min-w-[150px]">Entry Date</TableHead>
                     <TableHead>Entry Price</TableHead>
                     <TableHead>Quantity</TableHead>
-                    <TableHead>Exit Date</TableHead>
+                    <TableHead className="min-w-[150px]">Exit Date</TableHead>
                     <TableHead>Exit Price</TableHead>
-                    <TableHead>Strategy</TableHead>
+                    <TableHead className="min-w-[120px]">Strategy</TableHead>
                     <TableHead>P&L</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
@@ -244,7 +244,7 @@ export default function TradingJournalPage() {
                     <TableRow key={trade.id}>
                       <TableCell className="font-medium">{trade.asset}</TableCell>
                       <TableCell>
-                        <span className={`px-2 py-1 text-xs rounded-full ${trade.position === 'long' ? 'bg-success/20 text-success-foreground' : 'bg-destructive/20 text-destructive-foreground'}`}>
+                        <span className={`px-2 py-1 text-xs rounded-full whitespace-nowrap ${trade.position === 'long' ? 'bg-success/20 text-success-foreground' : 'bg-destructive/20 text-destructive-foreground'}`}>
                           {trade.position.toUpperCase()}
                         </span>
                       </TableCell>
@@ -253,12 +253,12 @@ export default function TradingJournalPage() {
                       <TableCell>{trade.quantity}</TableCell>
                       <TableCell>{trade.exitTimestamp ? format(new Date(trade.exitTimestamp), "PPpp") : "N/A"}</TableCell>
                       <TableCell>{trade.exitPrice ? trade.exitPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: trade.asset.toLowerCase().includes('usd') ? 2 : 5 }) : "N/A"}</TableCell>
-                      <TableCell className="max-w-xs truncate">{trade.strategy || "N/A"}</TableCell>
+                      <TableCell className="max-w-[150px] truncate hover:max-w-none hover:whitespace-normal">{trade.strategy || "N/A"}</TableCell>
                       <TableCell className={trade.pnl !== undefined ? (trade.pnl >= 0 ? 'text-success' : 'text-destructive') : ''}>
                         {trade.pnl !== undefined ? trade.pnl.toLocaleString(undefined, { style: 'currency', currency: 'USD' }) : "N/A"}
                       </TableCell>
                       <TableCell>
-                        <span className={`px-2 py-1 text-xs rounded-full ${trade.status === 'open' ? 'bg-blue-500/20 text-blue-700 dark:text-blue-400' : 'bg-gray-500/20 text-gray-700 dark:text-gray-400'}`}>
+                        <span className={`px-2 py-1 text-xs rounded-full whitespace-nowrap ${trade.status === 'open' ? 'bg-blue-500/20 text-blue-700 dark:text-blue-400' : 'bg-gray-500/20 text-gray-700 dark:text-gray-400'}`}>
                             {trade.status.toUpperCase()}
                         </span>
                       </TableCell>

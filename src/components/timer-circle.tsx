@@ -22,14 +22,14 @@ export default function TimerCircle({ timeRemaining, duration, isPaused, classNa
   };
 
   return (
-    <div className={cn("relative w-64 h-64 rounded-full shadow-2xl flex items-center justify-center bg-secondary/10 dark:bg-secondary/20", className)}>
+    <div className={cn("relative w-64 h-64 rounded-full shadow-2xl flex items-center justify-center bg-primary/10 dark:bg-primary/20", className)}>
       <svg className="absolute inset-0 w-full h-full transform -rotate-90" viewBox="0 0 200 200">
         <circle
           cx="100"
           cy="100"
           r={radius}
           strokeWidth="12"
-          className="text-secondary/20 dark:text-secondary/30"
+          className="text-primary/20 dark:text-primary/30"
           fill="transparent"
           stroke="currentColor"
         />
@@ -38,7 +38,7 @@ export default function TimerCircle({ timeRemaining, duration, isPaused, classNa
           cy="100"
           r={radius}
           strokeWidth="12"
-          className="text-secondary transition-all duration-500 ease-linear"
+          className="text-primary transition-all duration-500 ease-linear"
           fill="transparent"
           stroke="currentColor"
           strokeDasharray={circumference}
@@ -47,13 +47,14 @@ export default function TimerCircle({ timeRemaining, duration, isPaused, classNa
         />
       </svg>
       <div className="z-10 text-center">
-        <div className="text-5xl font-bold font-mono text-secondary-foreground tabular-nums">
+        <div className="text-5xl font-bold font-mono text-primary-foreground tabular-nums">
           {formatTime(timeRemaining)}
         </div>
         {isPaused && timeRemaining > 0 && timeRemaining < duration && (
-          <div className="text-sm text-secondary-foreground/80 mt-1">Paused</div>
+          <div className="text-sm text-primary-foreground/80 mt-1">Paused</div>
         )}
       </div>
     </div>
   );
 }
+

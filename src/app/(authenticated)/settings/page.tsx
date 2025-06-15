@@ -64,14 +64,14 @@ export default function SettingsPage() {
       </div>
 
       <Tabs defaultValue="profile" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 mb-6">
+        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 mb-6">
           <TabsTrigger value="profile">Profile</TabsTrigger>
           <TabsTrigger value="security">Security</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile">
-          <Card>
+          <Card className="shadow-md">
             <CardHeader>
               <CardTitle>Profile Information</CardTitle>
               <CardDescription>Update your personal details and avatar.</CardDescription>
@@ -124,7 +124,7 @@ export default function SettingsPage() {
         </TabsContent>
 
         <TabsContent value="security">
-          <Card>
+          <Card className="shadow-md">
             <CardHeader>
               <CardTitle>Security Settings</CardTitle>
               <CardDescription>Manage your password and account security.</CardDescription>
@@ -171,9 +171,9 @@ export default function SettingsPage() {
                       </FormItem>
                     )}
                   />
-                  <div className="flex items-center justify-between space-x-2 rounded-lg border p-4">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0 sm:space-x-2 rounded-lg border p-4">
                     <div className="space-y-0.5">
-                      <Label className="text-base">Two-Factor Authentication (2FA)</Label>
+                      <Label className="text-base font-semibold">Two-Factor Authentication (2FA)</Label>
                       <CardDescription>
                         Add an extra layer of security to your account.
                       </CardDescription>
@@ -190,29 +190,29 @@ export default function SettingsPage() {
         </TabsContent>
 
         <TabsContent value="notifications">
-          <Card>
+          <Card className="shadow-md">
             <CardHeader>
               <CardTitle>Notification Preferences</CardTitle>
               <CardDescription>Choose how you want to be notified.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex items-center justify-between space-x-2 rounded-lg border p-4">
+            <CardContent className="space-y-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0 sm:space-x-2 rounded-lg border p-4">
                 <div className="space-y-0.5">
-                    <Label className="text-base">Email Notifications</Label>
+                    <Label className="text-base font-semibold">Email Notifications</Label>
                     <CardDescription>Receive updates and alerts via email.</CardDescription>
                 </div>
                 <Switch id="email-notifications" defaultChecked aria-label="Toggle email notifications" />
               </div>
-              <div className="flex items-center justify-between space-x-2 rounded-lg border p-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0 sm:space-x-2 rounded-lg border p-4">
                  <div className="space-y-0.5">
-                    <Label className="text-base">Desktop Push Notifications</Label>
+                    <Label className="text-base font-semibold">Desktop Push Notifications</Label>
                     <CardDescription>Get notified directly on your desktop.</CardDescription>
                  </div>
                 <Switch id="desktop-notifications" aria-label="Toggle desktop push notifications" />
               </div>
-               <div className="flex items-center justify-between space-x-2 rounded-lg border p-4">
+               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0 sm:space-x-2 rounded-lg border p-4">
                  <div className="space-y-0.5">
-                    <Label className="text-base">Task Reminders</Label>
+                    <Label className="text-base font-semibold">Task Reminders</Label>
                     <CardDescription>Get reminders for upcoming task deadlines.</CardDescription>
                  </div>
                 <Switch id="task-reminders" defaultChecked aria-label="Toggle task reminders" />
@@ -227,3 +227,4 @@ export default function SettingsPage() {
     </div>
   );
 }
+
