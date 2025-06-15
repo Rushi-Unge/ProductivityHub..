@@ -5,31 +5,133 @@ import * as React from "react";
 import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, PlusCircle, Edit3, Trash2, TrendingUp, DollarSign, Percent, ListFilter, BarChart3, FileText } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PlusCircle, Download, LineChart as SummaryLineChartIcon, Percent, ArrowUp, ArrowDown, Edit3, Trash2, MoreHorizontal } from "lucide-react";
 import AddTradeDialog from "@/components/add-trade-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
+// Represents an individual trade
 export interface Trade {
   id: string;
   asset: string;
-  entryTimestamp: string;
-  exitTimestamp?: string;
+  entryTimestamp: string; // ISO string date
+  exitTimestamp?: string; // ISO string date
   position: "long" | "short";
   entryPrice: number;
   exitPrice?: number;
   quantity: number;
   strategy?: string;
-  notes?: string;
+  reflection?: string; // Was notes
   pnl?: number; // Calculated
-  status: "open" | "closed";
+  status: "open" | "closed"; // Operational status
+  riskPercentage?: number;
+  chartPlaceholderUrl: string;
 }
 
-const calculatePnl = (trade: Omit<Trade, 'pnl' | 'id' | 'status'> & { status: 'closed', exitPrice: number, exitTimestamp: string }): number => {
+// For the summary cards at the top
+interface SummaryStat {
+  title: string;
+  value: string;
+  change?: string;
+  icon: React.ReactNode;
+  colorClass?: string; // For text color of value
+}
+
+// Component for individual trade cards in the grid
+function TradeDetailCard({ trade, onEdit, onDelete }: { trade: Trade; onEdit: (trade: Trade) => void; onDelete: (id: string) => void; }) {
+  const getOutcome = (pnl: number | undefined) => {
+    if (pnl === undefined || pnl === null) return { text: "OPEN", color: "bg-blue-500/20 text-blue-700 dark:text-blue-400" };
+    if (pnl > 0) return { text: "PROFIT", color: "bg-success/20 text-success-foreground dark:text-green-400" };
+    if (pnl < 0) return { text: "LOSS", color: "bg-destructive/20 text-destructive-foreground dark:text-red-400" };
+    return { text: "BREAKEVEN", color: "bg-muted text-muted-foreground" };
+  };
+
+  const tradeOutcome = getOutcome(trade.pnl);
+  const formattedEntryDate = trade.entryTimestamp ? format(parseISO(trade.entryTimestamp), "MMM d") : "N/A";
+  const formattedExitDate = trade.exitTimestamp ? format(parseISO(trade.exitTimestamp), "MMM d") : "N/A";
+
+  return (
+    <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out flex flex-col">
+      <CardHeader className="pt-4 pb-2 px-4">
+        <div className="flex justify-between items-start">
+          <div className="flex items-center gap-2">
+            <CardTitle className="text-lg font-semibold">{trade.asset}</CardTitle>
+            <span className={cn("px-2 py-0.5 text-xs font-semibold rounded-full whitespace-nowrap", tradeOutcome.color)}>
+              {tradeOutcome.text}
+            </span>
+          </div>
+          <p className={cn("text-lg font-semibold", (trade.pnl ?? 0) >= 0 ? "text-success" : "text-destructive")}>
+            {(trade.pnl ?? 0) >= 0 ? "+" : ""}{trade.pnl?.toLocaleString(undefined, { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }) ?? "N/A"}
+          </p>
+        </div>
+        <div className="flex justify-between items-center text-xs text-muted-foreground mt-1">
+          <p>Entry: ${trade.entryPrice.toFixed(2)} • {formattedEntryDate}</p>
+          <p>Exit: {trade.exitPrice ? `$${trade.exitPrice.toFixed(2)}` : 'N/A'} • {trade.exitTimestamp ? formattedExitDate : 'N/A'}</p>
+        </div>
+      </CardHeader>
+      <CardContent className="px-4 pb-3 flex-grow space-y-3">
+        <div className="aspect-[2/1] bg-muted rounded-md overflow-hidden my-2">
+          <Image 
+            src={trade.chartPlaceholderUrl} 
+            alt={`${trade.asset} trade chart placeholder`} 
+            width={300} 
+            height={150} 
+            className="w-full h-full object-cover"
+            data-ai-hint="trade chart stock" 
+          />
+        </div>
+        <div>
+          <h4 className="text-xs font-semibold text-muted-foreground mb-0.5">Reflection:</h4>
+          <p className="text-sm line-clamp-2">{trade.reflection || "No reflection provided."}</p>
+        </div>
+        <div className="flex justify-between items-center text-xs">
+            <p><span className="font-semibold text-muted-foreground">Strategy:</span> {trade.strategy || "N/A"}</p>
+            <p><span className="font-semibold text-muted-foreground">Risk:</span> {trade.riskPercentage ? `${trade.riskPercentage}%` : "N/A"}</p>
+        </div>
+      </CardContent>
+       <CardFooter className="px-4 pb-4 pt-2 border-t">
+         <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="ml-auto text-muted-foreground hover:text-foreground">
+                <MoreHorizontal className="h-4 w-4" /> Manage Trade
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => onEdit(trade)} className="cursor-pointer">
+                <Edit3 className="mr-2 h-4 w-4" /> Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onDelete(trade.id)} className="text-destructive focus:text-destructive cursor-pointer">
+                <Trash2 className="mr-2 h-4 w-4" /> Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+      </CardFooter>
+    </Card>
+  );
+}
+
+// Component for summary stat cards
+function SummaryStatCard({ stat }: { stat: SummaryStat }) {
+  return (
+    <Card className="shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium text-muted-foreground">{stat.title}</CardTitle>
+        {stat.icon}
+      </CardHeader>
+      <CardContent>
+        <div className={cn("text-2xl font-bold", stat.colorClass)}>{stat.value}</div>
+        {stat.change && <p className="text-xs text-muted-foreground">{stat.change}</p>}
+      </CardContent>
+    </Card>
+  );
+}
+
+
+const calculatePnl = (trade: Omit<Trade, 'pnl' | 'id' | 'status' | 'chartPlaceholderUrl'> & { status: 'closed', exitPrice: number, exitTimestamp: string }): number => {
   if (trade.position === "long") {
     return (trade.exitPrice - trade.entryPrice) * trade.quantity;
   } else {
@@ -38,14 +140,16 @@ const calculatePnl = (trade: Omit<Trade, 'pnl' | 'id' | 'status'> & { status: 'c
 };
 
 const initialTrades: Trade[] = [
-  { id: "t1", asset: "AAPL", entryTimestamp: new Date(2024, 6, 1, 9, 30).toISOString(), exitTimestamp: new Date(2024, 6, 1, 15, 0).toISOString(), position: "long", entryPrice: 150.25, exitPrice: 155.75, quantity: 10, strategy: "Earnings Breakout", notes: "Good volume, held through initial dip.", status: "closed" },
-  { id: "t2", asset: "BTC/USD", entryTimestamp: new Date(2024, 6, 2, 10, 0).toISOString(), exitTimestamp: new Date(2024, 6, 3, 12, 0).toISOString(), position: "short", entryPrice: 30000, exitPrice: 29500, quantity: 0.1, strategy: "Resistance Rejection", notes: "Target hit.", status: "closed"},
-  { id: "t3", asset: "MSFT", entryTimestamp: new Date(2024, 6, 4, 14, 0).toISOString(), position: "long", entryPrice: 250.00, quantity: 5, strategy: "Support Bounce", notes: "Watching for confirmation.", status: "open"},
+  { id: "t1", asset: "AAPL", entryTimestamp: new Date(2024, 6, 5, 9, 30).toISOString(), exitTimestamp: new Date(2024, 6, 7, 15, 0).toISOString(), position: "long", entryPrice: 175.20, exitPrice: 182.45, quantity: 10, strategy: "Breakout", reflection: "Perfect breakout trade. Entered after confirmation above resistance. Took profits at 4% gain as planned.", riskPercentage: 2, status: "closed", chartPlaceholderUrl: "https://placehold.co/300x150/22C55E/FFFFFF.png" },
+  { id: "t2", asset: "TSLA", entryTimestamp: new Date(2024, 6, 3, 10, 0).toISOString(), exitTimestamp: new Date(2024, 6, 4, 12, 0).toISOString(), position: "short", entryPrice: 245.80, exitPrice: 238.30, quantity: 5, strategy: "Earnings Play", reflection: "Stop loss triggered correctly. Market sentiment changed after earnings miss. Stuck to risk management rules.", riskPercentage: 1.5, status: "closed", chartPlaceholderUrl: "https://placehold.co/300x150/EF4444/FFFFFF.png"},
+  { id: "t3", asset: "MSFT", entryTimestamp: new Date(2024, 6, 1, 14, 0).toISOString(), exitTimestamp: new Date(2024, 6, 6, 10,0).toISOString(), position: "long", entryPrice: 338.50, exitPrice: 345.20, quantity: 8, strategy: "Momentum", reflection: "Strong momentum trade. Good volume confirmation on breakout. Held for 5 days as trend continued.", riskPercentage: 2, status: "closed", chartPlaceholderUrl: "https://placehold.co/300x150/22C55E/FFFFFF.png" },
+  { id: "t4", asset: "NVDA", entryTimestamp: new Date(2024, 5, 28, 11,0).toISOString(), exitTimestamp: new Date(2024, 5, 29, 15,0).toISOString(), position: "long", entryPrice: 485.30, exitPrice: 486.20, quantity: 3, strategy: "Scalp", reflection: "Choppy market conditions. Exited early due to lack of momentum. Small profit after commissions.", riskPercentage: 1, status: "closed", chartPlaceholderUrl: "https://placehold.co/300x150/E5E7EB/1F2937.png" },
+  { id: "t5", asset: "GOOGL", entryTimestamp: new Date(2024, 6, 8, 9,45).toISOString(), position: "long", entryPrice: 140.50, quantity: 10, strategy: "Value Dip Buy", reflection: "Monitoring for bounce from support.", riskPercentage: 2.5, status: "open", chartPlaceholderUrl: "https://placehold.co/300x150/38BDF8/FFFFFF.png" },
 ];
 
 initialTrades.forEach(trade => {
   if (trade.status === 'closed' && trade.exitPrice && trade.exitTimestamp) {
-    trade.pnl = calculatePnl(trade as Omit<Trade, 'pnl' | 'id' | 'status'> & { status: 'closed', exitPrice: number, exitTimestamp: string });
+    trade.pnl = calculatePnl(trade as Omit<Trade, 'pnl' | 'id' | 'status' | 'chartPlaceholderUrl'> & { status: 'closed', exitPrice: number, exitTimestamp: string });
   }
 });
 
@@ -61,12 +165,15 @@ export default function TradingJournalPage() {
     setIsClient(true);
   }, []);
 
-  const handleAddOrUpdateTrade = (tradeData: Omit<Trade, 'id' | 'pnl' | 'status'> & { status?: 'open' | 'closed', exitPrice?: number, exitTimestamp?: string }, id?: string) => {
+  const handleAddOrUpdateTrade = (tradeData: Omit<Trade, 'id' | 'pnl' | 'status' | 'chartPlaceholderUrl'> & { status?: 'open' | 'closed', exitPrice?: number, exitTimestamp?: string, riskPercentage?: number, reflection?: string }, id?: string) => {
     let newPnl: number | undefined = undefined;
-    let finalStatus: 'open' | 'closed' = tradeData.status || 'open';
+    let finalStatus: 'open' | 'closed' = tradeData.status || (tradeData.exitPrice && tradeData.exitTimestamp ? 'closed' : 'open');
+    
+    // Default chart placeholder, can be customized further if needed
+    let chartUrl = "https://placehold.co/300x150/E5E7EB/1F2937.png";
 
-    if (tradeData.exitPrice && tradeData.exitTimestamp) {
-        finalStatus = 'closed';
+
+    if (finalStatus === 'closed' && tradeData.exitPrice && tradeData.exitTimestamp) {
         newPnl = calculatePnl({
             asset: tradeData.asset,
             entryTimestamp: tradeData.entryTimestamp,
@@ -76,13 +183,17 @@ export default function TradingJournalPage() {
             exitPrice: tradeData.exitPrice,
             quantity: tradeData.quantity,
             strategy: tradeData.strategy,
-            notes: tradeData.notes,
+            reflection: tradeData.reflection,
             status: 'closed'
         });
+        chartUrl = newPnl >= 0 ? "https://placehold.co/300x150/22C55E/FFFFFF.png" : "https://placehold.co/300x150/EF4444/FFFFFF.png";
+    } else if (finalStatus === 'open') {
+        chartUrl = "https://placehold.co/300x150/38BDF8/FFFFFF.png";
     }
 
+
     if (id) { 
-      setTrades(trades.map(t => t.id === id ? { ...t, ...tradeData, status: finalStatus, pnl: newPnl, exitPrice: tradeData.exitPrice, exitTimestamp: tradeData.exitTimestamp } : t));
+      setTrades(trades.map(t => t.id === id ? { ...t, ...tradeData, status: finalStatus, pnl: newPnl, exitPrice: tradeData.exitPrice, exitTimestamp: tradeData.exitTimestamp, chartPlaceholderUrl: t.chartPlaceholderUrl || chartUrl, reflection: tradeData.reflection, riskPercentage: tradeData.riskPercentage } : t));
       toast({ title: "Trade Updated", description: `Trade for ${tradeData.asset} has been updated.` });
     } else { 
       const newTrade: Trade = {
@@ -92,6 +203,9 @@ export default function TradingJournalPage() {
         pnl: newPnl,
         exitPrice: tradeData.exitPrice,
         exitTimestamp: tradeData.exitTimestamp,
+        chartPlaceholderUrl: chartUrl,
+        reflection: tradeData.reflection,
+        riskPercentage: tradeData.riskPercentage,
       };
       setTrades([newTrade, ...trades]);
       toast({ title: "Trade Added", description: `New trade for ${newTrade.asset} has been logged.` });
@@ -114,185 +228,105 @@ export default function TradingJournalPage() {
     setIsDialogOpen(true);
   };
 
-  const summaryStats = useMemo(() => {
+  const summaryStatsData = useMemo(() => {
     const closedTrades = trades.filter(t => t.status === 'closed' && t.pnl !== undefined);
     const totalPnl = closedTrades.reduce((sum, trade) => sum + (trade.pnl || 0), 0);
-    const winningTrades = closedTrades.filter(t => (t.pnl || 0) > 0);
-    const losingTrades = closedTrades.filter(t => (t.pnl || 0) < 0);
-    const winRate = closedTrades.length > 0 ? (winningTrades.length / closedTrades.length) * 100 : 0;
-    const grossProfit = winningTrades.reduce((sum, t) => sum + (t.pnl || 0), 0);
-    const grossLoss = losingTrades.reduce((sum, t) => sum + Math.abs(t.pnl || 0), 0);
-    const averageWin = winningTrades.length > 0 ? grossProfit / winningTrades.length : 0;
-    const averageLoss = losingTrades.length > 0 ? grossLoss / losingTrades.length : 0;
-    const profitFactor = grossLoss > 0 ? grossProfit / grossLoss : Infinity;
+    const winningTrades = closedTrades.filter(t => (t.pnl || 0) > 0).length;
+    const losingTradesCount = closedTrades.filter(t => (t.pnl || 0) < 0).length;
+    const winRate = closedTrades.length > 0 ? (winningTrades / closedTrades.length) * 100 : 0;
+    
+    const grossProfit = closedTrades.filter(t => (t.pnl || 0) > 0).reduce((sum, t) => sum + (t.pnl || 0), 0);
+    const grossLoss = closedTrades.filter(t => (t.pnl || 0) < 0).reduce((sum, t) => sum + (t.pnl || 0), 0); // Gross loss is sum of negative PnLs
 
-    return {
-      totalPnl,
-      winRate,
-      totalTrades: closedTrades.length,
-      averageWin,
-      averageLoss,
-      profitFactor: profitFactor === Infinity ? "N/A" : profitFactor.toFixed(2),
-    };
+    const averageWin = winningTrades > 0 ? grossProfit / winningTrades : 0;
+    const averageLoss = losingTradesCount > 0 ? grossLoss / losingTradesCount : 0; // Avg loss is avg of negative PnLs (so it's negative)
+
+    return [
+      { title: "Total P&L", value: totalPnl.toLocaleString(undefined, { style: 'currency', currency: 'USD' }), change: "+12.3% this month", icon: <SummaryLineChartIcon className="h-5 w-5 text-muted-foreground" />, colorClass: totalPnl >= 0 ? 'text-success' : 'text-destructive' },
+      { title: "Win Rate", value: `${winRate.toFixed(0)}%`, change: `${winningTrades} of ${closedTrades.length} trades`, icon: <Percent className="h-5 w-5 text-muted-foreground" /> },
+      { title: "Avg Win", value: averageWin.toLocaleString(undefined, { style: 'currency', currency: 'USD' }), change: "Per winning trade", icon: <ArrowUp className="h-5 w-5 text-success" /> },
+      { title: "Avg Loss", value: averageLoss.toLocaleString(undefined, { style: 'currency', currency: 'USD' }), change: "Per losing trade", icon: <ArrowDown className="h-5 w-5 text-destructive" /> },
+    ];
   }, [trades]);
 
 
   if (!isClient) {
     return (
-       <div className="space-y-8 p-1 md:p-2">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <Skeleton className="h-10 w-64 rounded-lg" />
-            <Skeleton className="h-10 w-40 rounded-lg" />
+       <div className="space-y-6 p-1 md:p-2">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+          <Skeleton className="h-12 w-64 rounded-lg" />
+          <div className="flex gap-2">
+            <Skeleton className="h-10 w-32 rounded-lg" />
+            <Skeleton className="h-10 w-10 rounded-lg" />
+          </div>
         </div>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {[1,2,3].map(i => <Skeleton key={i} className="h-32 w-full rounded-lg" />)}
+        <Skeleton className="h-10 w-full max-w-md rounded-lg" /> {/* Tabs skeleton */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {[1,2,3,4].map(i => <Skeleton key={i} className="h-28 w-full rounded-lg" />)}
         </div>
-        <Skeleton className="h-96 w-full rounded-lg" />
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {[1,2,3].map(i => <Skeleton key={i} className="h-[380px] w-full rounded-lg" />)}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8 p-1 md:p-2">
+    <div className="space-y-6 p-1 md:p-2">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold font-headline tracking-tight flex items-center">
-            <BarChart3 className="mr-3 h-8 w-8 text-primary" /> Trading Journal
-          </h1>
-          <p className="text-muted-foreground">Log and analyze your trades to refine your strategy.</p>
+          <h1 className="text-3xl font-bold font-headline tracking-tight">Trading Journal</h1>
+          <p className="text-muted-foreground">Track your trades and analyze performance.</p>
         </div>
-        <Button onClick={openNewTradeDialog} size="lg" className="shadow-md hover:shadow-lg transition-shadow">
-          <PlusCircle className="mr-2 h-5 w-5" /> Add New Trade
-        </Button>
+        <div className="flex items-center gap-2">
+            <Button onClick={openNewTradeDialog} size="default" className="shadow-md hover:shadow-lg transition-shadow">
+            <PlusCircle className="mr-2 h-5 w-5" /> New Trade
+            </Button>
+            <Button variant="outline" size="icon" className="shadow-sm hover:shadow-md transition-shadow" aria-label="Export Trades">
+                <Download className="h-5 w-5"/>
+            </Button>
+        </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <Card className="shadow-xl hover:scale-[1.02] transition-all duration-300 ease-in-out">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total P&L</CardTitle>
-            <DollarSign className="h-5 w-5 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className={cn("text-2xl font-bold", summaryStats.totalPnl >= 0 ? 'text-success' : 'text-destructive')}>
-              {summaryStats.totalPnl.toLocaleString(undefined, { style: 'currency', currency: 'USD' })}
+      <Tabs defaultValue="trade-journal" className="w-full">
+        <TabsList className="mb-6">
+          <TabsTrigger value="trade-journal">Trade Journal</TabsTrigger>
+          <TabsTrigger value="weekly-insights" disabled>Weekly Insights</TabsTrigger>
+          <TabsTrigger value="strategy-notes" disabled>Strategy Notes</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="trade-journal" className="space-y-6">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                {summaryStatsData.map(stat => <SummaryStatCard key={stat.title} stat={stat} />)}
             </div>
-          </CardContent>
-        </Card>
-        <Card className="shadow-xl hover:scale-[1.02] transition-all duration-300 ease-in-out">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Win Rate</CardTitle>
-            <Percent className="h-5 w-5 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{summaryStats.winRate.toFixed(1)}%</div>
-            <p className="text-xs text-muted-foreground">{summaryStats.totalTrades} trades closed</p>
-          </CardContent>
-        </Card>
-        <Card className="shadow-xl hover:scale-[1.02] transition-all duration-300 ease-in-out">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Profit Factor</CardTitle>
-            <TrendingUp className="h-5 w-5 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{summaryStats.profitFactor}</div>
-             <p className="text-xs text-muted-foreground">Avg Win: {summaryStats.averageWin.toLocaleString(undefined, { style: 'currency', currency: 'USD' })}</p>
-             <p className="text-xs text-muted-foreground">Avg Loss: {summaryStats.averageLoss.toLocaleString(undefined, { style: 'currency', currency: 'USD' })}</p>
-          </CardContent>
-        </Card>
-      </div>
-      
-      <Card className="shadow-xl">
-        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b pb-4">
-          <div>
-            <CardTitle>Trade History</CardTitle>
-            <CardDescription>Detailed log of all your past and open trades.</CardDescription>
-          </div>
-          <Button variant="outline" size="sm" disabled>
-            <ListFilter className="mr-2 h-4 w-4" /> Filter Trades
-          </Button>
-        </CardHeader>
-        <CardContent className="pt-6">
-          {trades.length === 0 ? (
-            <div className="text-center py-16">
-              <FileText className="mx-auto h-20 w-20 text-muted-foreground opacity-30" />
-              <p className="mt-6 text-xl font-medium text-muted-foreground">No trades logged yet.</p>
-              <p className="text-sm text-muted-foreground">Click "Add New Trade" to get started.</p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="min-w-[100px] px-4 py-3">Asset</TableHead>
-                    <TableHead className="px-4 py-3">Position</TableHead>
-                    <TableHead className="min-w-[180px] px-4 py-3">Entry Date</TableHead>
-                    <TableHead className="px-4 py-3 text-right">Entry Price</TableHead>
-                    <TableHead className="px-4 py-3 text-right">Quantity</TableHead>
-                    <TableHead className="min-w-[180px] px-4 py-3">Exit Date</TableHead>
-                    <TableHead className="px-4 py-3 text-right">Exit Price</TableHead>
-                    <TableHead className="min-w-[120px] px-4 py-3">Strategy</TableHead>
-                    <TableHead className="px-4 py-3 text-right">P&L</TableHead>
-                    <TableHead className="px-4 py-3">Status</TableHead>
-                    <TableHead className="text-right px-4 py-3">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {trades.map((trade) => (
-                    <TableRow key={trade.id} className="hover:bg-muted/50 transition-colors">
-                      <TableCell className="font-medium px-4 py-3">{trade.asset}</TableCell>
-                      <TableCell className="px-4 py-3">
-                        <span className={cn(
-                            "px-2 py-1 text-xs font-semibold rounded-full whitespace-nowrap",
-                            trade.position === 'long' ? 'bg-success/20 text-success-foreground dark:text-green-400' : 'bg-destructive/20 text-destructive-foreground dark:text-red-400'
-                          )}>
-                          {trade.position.toUpperCase()}
-                        </span>
-                      </TableCell>
-                      <TableCell className="px-4 py-3">{format(new Date(trade.entryTimestamp), "PPpp")}</TableCell>
-                      <TableCell className="px-4 py-3 text-right">{trade.entryPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: trade.asset.toLowerCase().includes('usd') ? 2 : 5 })}</TableCell>
-                      <TableCell className="px-4 py-3 text-right">{trade.quantity}</TableCell>
-                      <TableCell className="px-4 py-3">{trade.exitTimestamp ? format(new Date(trade.exitTimestamp), "PPpp") : "N/A"}</TableCell>
-                      <TableCell className="px-4 py-3 text-right">{trade.exitPrice ? trade.exitPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: trade.asset.toLowerCase().includes('usd') ? 2 : 5 }) : "N/A"}</TableCell>
-                      <TableCell className="max-w-[150px] truncate hover:max-w-none hover:whitespace-normal px-4 py-3">{trade.strategy || "N/A"}</TableCell>
-                      <TableCell className={cn(
-                          "px-4 py-3 text-right font-semibold",
-                          trade.pnl !== undefined ? (trade.pnl >= 0 ? 'text-success dark:text-green-400' : 'text-destructive dark:text-red-400') : ''
-                        )}>
-                        {trade.pnl !== undefined ? trade.pnl.toLocaleString(undefined, { style: 'currency', currency: 'USD' }) : "N/A"}
-                      </TableCell>
-                      <TableCell className="px-4 py-3">
-                        <span className={cn(
-                            "px-2 py-1 text-xs font-semibold rounded-full whitespace-nowrap",
-                            trade.status === 'open' ? 'bg-blue-500/20 text-blue-700 dark:text-blue-400' : 'bg-gray-500/20 text-gray-700 dark:text-gray-400'
-                          )}>
-                            {trade.status.toUpperCase()}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-right px-4 py-3">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="rounded-full">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleEditTrade(trade)} className="cursor-pointer">
-                              <Edit3 className="mr-2 h-4 w-4" /> Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDeleteTrade(trade.id)} className="text-destructive focus:text-destructive cursor-pointer">
-                              <Trash2 className="mr-2 h-4 w-4" /> Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+            
+            {trades.length === 0 ? (
+                <div className="text-center py-16 col-span-full">
+                <SummaryLineChartIcon className="mx-auto h-20 w-20 text-muted-foreground opacity-30" />
+                <p className="mt-6 text-xl font-medium text-muted-foreground">No trades logged yet.</p>
+                <p className="text-sm text-muted-foreground">Click "+ New Trade" to get started.</p>
+                </div>
+            ) : (
+                <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
+                    {trades.map((trade) => (
+                        <TradeDetailCard key={trade.id} trade={trade} onEdit={handleEditTrade} onDelete={handleDeleteTrade} />
+                    ))}
+                </div>
+            )}
+        </TabsContent>
+        <TabsContent value="weekly-insights">
+            <Card>
+                <CardHeader><CardTitle>Weekly Insights</CardTitle></CardHeader>
+                <CardContent><p className="text-muted-foreground">Weekly insights and performance analysis will be shown here. (Coming Soon)</p></CardContent>
+            </Card>
+        </TabsContent>
+        <TabsContent value="strategy-notes">
+            <Card>
+                <CardHeader><CardTitle>Strategy Notes</CardTitle></CardHeader>
+                <CardContent><p className="text-muted-foreground">Notes and observations about your trading strategies. (Coming Soon)</p></CardContent>
+            </Card>
+        </TabsContent>
+      </Tabs>
 
       <AddTradeDialog 
         open={isDialogOpen} 
@@ -300,6 +334,13 @@ export default function TradingJournalPage() {
         onSave={handleAddOrUpdateTrade} 
         tradeToEdit={tradeToEdit} 
       />
+
+       <div className="mt-8 text-center text-sm text-muted-foreground">
+          <p><strong>Note:</strong> Chart images are placeholders. Backend integration is required for dynamic chart generation and data persistence.</p>
+        </div>
     </div>
   );
 }
+
+
+    

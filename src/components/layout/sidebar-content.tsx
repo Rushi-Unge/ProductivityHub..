@@ -10,7 +10,7 @@ import {
   SidebarSeparator,
 } from "@/components/ui/sidebar";
 import { SidebarNavItem } from "./sidebar-nav-item";
-import { LayoutDashboard, ListChecks, Timer, BookText, FileText, Settings as SettingsIcon, Sun, Moon, LogOut, StickyNote, BarChart3 } from "lucide-react";
+import { LayoutDashboard, ListChecks, Timer, FileText, Settings as SettingsIcon, Sun, Moon, LogOut, StickyNote, LineChart } from "lucide-react"; // Changed BarChart3 to LineChart
 import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -23,7 +23,7 @@ const navItems = [
   { href: "/tasks", icon: <ListChecks className="h-5 w-5" />, label: "Tasks" },
   { href: "/timer", icon: <Timer className="h-5 w-5" />, label: "Timer" },
   { href: "/notes", icon: <StickyNote className="h-5 w-5" />, label: "Notes" },
-  { href: "/analytics", icon: <BarChart3 className="h-5 w-5" />, label: "Trading Journal" }, 
+  { href: "/analytics", icon: <LineChart className="h-5 w-5" />, label: "Trading Journal" }, 
   { href: "/docs", icon: <FileText className="h-5 w-5" />, label: "Docs" },
   { href: "/settings", icon: <SettingsIcon className="h-5 w-5" />, label: "Settings" },
 ];
@@ -112,11 +112,12 @@ export function MainSidebarContent() {
           <Button
             variant="ghost"
             size="icon"
-            className="w-full justify-center py-2 h-auto hover:bg-sidebar-accent transition-colors duration-200"
+            className="w-full justify-start px-2 h-auto hover:bg-sidebar-accent transition-colors duration-200 flex items-center gap-2"
             onClick={toggleTheme}
             aria-label="Toggle theme"
           >
             {currentTheme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            <span className="font-medium">Toggle Theme</span>
           </Button>
         </div>
 
@@ -158,3 +159,5 @@ export function MainSidebarContent() {
     </>
   );
 }
+
+    
