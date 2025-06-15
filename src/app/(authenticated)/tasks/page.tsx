@@ -40,9 +40,9 @@ const initialTasks: Task[] = [
 
 
 const mockFocusTasks = [
-    {id: "f1", title: "Review quarterly reports", detail: "Due EOD"},
-    {id: "f2", title: "Finalize design system updates", detail: "High priority"},
-    {id: "f3", title: "Client follow-up call", detail: "Scheduled for 3 PM"},
+    {id: "f1", title: "Review quarterly reports"},
+    {id: "f2", title: "Finalize design system updates"},
+    {id: "f3", title: "Client follow-up call"},
 ];
 
 
@@ -141,7 +141,7 @@ export default function TasksPage() {
             return {
                 ...originalTask,
                 aiPriority: aiData.priority,
-                aiReason: aiData.reason,
+                aiReason: aiData.reason, // Keep aiReason for potential detailed views, but won't show in list item
             };
             }
             return {...originalTask, aiReason: originalTask.status === 'pending' ? originalTask.aiReason : undefined, aiPriority: originalTask.status === 'pending' ? originalTask.aiPriority : undefined};
@@ -169,7 +169,7 @@ export default function TasksPage() {
         });
       });
 
-      toast({ title: "Tasks Prioritized by AI", description: "Your tasks have been reordered and annotated." });
+      toast({ title: "Tasks Prioritized by AI", description: "Your tasks have been reordered." });
     } catch (error) {
       console.error("AI Prioritization Error:", error);
       toast({ title: "AI Error", description: "Could not prioritize tasks. Please try again.", variant: "destructive" });
@@ -194,7 +194,10 @@ export default function TasksPage() {
         break;
       case 'all':
       default:
-        break;
+        // For 'all', we show pending first, then completed.
+        // Within pending, AI priority, then normal priority, then due date.
+        // Within completed, by completion date.
+        break; 
     }
     
     return processedTasks.sort((a, b) => {
@@ -203,7 +206,7 @@ export default function TasksPage() {
         
         if (a.status === 'pending') { 
             if (a.aiPriority !== undefined && b.aiPriority !== undefined) return a.aiPriority - b.aiPriority;
-            if (a.aiPriority !== undefined) return -1;
+            if (a.aiPriority !== undefined) return -1; // Tasks with AI priority come first
             if (b.aiPriority !== undefined) return 1;
 
             const priorityOrder = { high: 1, medium: 2, low: 3, default: 4 };
@@ -211,11 +214,12 @@ export default function TasksPage() {
             const bPrio = priorityOrder[b.priority as keyof typeof priorityOrder] || priorityOrder.default;
             if (aPrio !== bPrio) return aPrio - bPrio;
             
-            const dateA = a.dueDate ? new Date(a.dueDate).getTime() : Infinity;
+            const dateA = a.dueDate ? new Date(a.dueDate).getTime() : Infinity; // Tasks without due date go last
             const dateB = b.dueDate ? new Date(b.dueDate).getTime() : Infinity;
             return dateA - dateB;
         }
         
+        // For completed tasks, sort by completedAt descending (most recent first)
         if (a.status === 'completed') { 
             const dateA = a.completedAt ? new Date(a.completedAt).getTime() : 0;
             const dateB = b.completedAt ? new Date(b.completedAt).getTime() : 0;
@@ -228,19 +232,19 @@ export default function TasksPage() {
 
   if (!isClient) {
     return (
-      <div className="space-y-6 p-4 md:p-6 animate-pulse">
+      <div className="space-y-6 p-4 md:p-8 animate-pulse">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
             <Skeleton className="h-10 w-64 rounded-xl" />
             <Skeleton className="h-10 w-32 rounded-xl" />
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-1 space-y-4">
-                <Skeleton className="h-48 rounded-2xl" />
+                <Skeleton className="h-40 rounded-2xl" /> {/* Reduced height for focus card skeleton */}
                 <Skeleton className="h-10 w-full rounded-xl" />
             </div>
             <div className="lg:col-span-2 space-y-4">
-                <Skeleton className="h-10 w-full sm:w-auto rounded-xl" />
-                <Skeleton className="h-80 rounded-2xl" />
+                <Skeleton className="h-10 w-full rounded-xl" /> {/* Tabs skeleton */}
+                <Skeleton className="h-80 rounded-2xl" /> {/* Task list skeleton */}
             </div>
         </div>
       </div>
@@ -248,7 +252,7 @@ export default function TasksPage() {
   }
 
   return (
-    <div className="space-y-6 p-4 md:p-6">
+    <div className="space-y-6 p-4 md:p-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold font-headline tracking-tight">Task Manager</h1>
@@ -262,44 +266,43 @@ export default function TasksPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         <div className="lg:col-span-1 space-y-6">
             <Card className="rounded-2xl shadow-lg bg-card border">
-                <CardHeader className="pb-3">
+                <CardHeader className="pb-3 pt-4">
                 <CardTitle className="text-lg font-semibold flex items-center text-primary">
                     <Target className="mr-2 h-5 w-5" /> Today's Focus
                 </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
                 {mockFocusTasks.length > 0 ? mockFocusTasks.map(ft => (
-                    <div key={ft.id} className="p-3 bg-muted/50 dark:bg-muted/20 rounded-xl border border-border/70">
-                        <h4 className="font-medium text-sm text-card-foreground">{ft.title}</h4>
-                        <p className="text-xs text-muted-foreground">{ft.detail}</p>
+                    <div key={ft.id} className="p-2.5 bg-muted/50 dark:bg-muted/20 rounded-lg border border-border/70">
+                        <h4 className="font-medium text-sm text-card-foreground truncate">{ft.title}</h4>
                     </div>
                 )) : <p className="text-sm text-muted-foreground text-center py-2">No focus tasks set.</p>}
-                <Button variant="outline" className="w-full rounded-xl border-dashed border-primary/50 text-primary hover:bg-primary/10 hover:text-primary mt-2">
+                <Button variant="outline" className="w-full rounded-xl border-dashed border-primary/50 text-primary hover:bg-primary/10 hover:text-primary mt-2 h-9 text-sm">
                     <PlusCircle className="mr-2 h-4 w-4" /> Add Focus Task
                 </Button>
                 </CardContent>
             </Card>
-             <Button onClick={handleAiPrioritize} disabled={isLoadingAi || tasks.filter(t=>t.status === 'pending').length === 0} className="w-full shadow-md hover:shadow-lg transition-shadow rounded-xl bg-accent text-accent-foreground hover:bg-accent/90">
+             <Button onClick={handleAiPrioritize} disabled={isLoadingAi || tasks.filter(t=>t.status === 'pending').length === 0} className="w-full shadow-md hover:shadow-lg transition-shadow rounded-xl bg-accent text-accent-foreground hover:bg-accent/90 h-10">
                 <Brain className="mr-2 h-4 w-4" /> {isLoadingAi ? "AI Thinking..." : "Prioritize with AI"}
             </Button>
         </div>
 
         <div className="lg:col-span-2">
           <Card className="rounded-2xl shadow-lg border">
-             <CardHeader className="pt-4 pb-3 border-b"> {/* Added border-b */}
-                <div className="flex flex-col sm:flex-row justify-between items-center gap-2">
+             <CardHeader className="pt-4 pb-0 border-b">
+                <div className="flex flex-col sm:flex-row justify-between items-center gap-2 mb-3"> {/* Added mb-3 */}
                     <CardTitle className="text-lg font-semibold text-card-foreground whitespace-nowrap">
                         {activeTab === "all" && "All Tasks"}
-                        {activeTab === "high" && "High Priority"}
-                        {activeTab === "dueToday" && "Due Today"}
+                        {activeTab === "high" && "High Priority Tasks"}
+                        {activeTab === "dueToday" && "Tasks Due Today"}
                         {activeTab === "completed" && "Completed Tasks"}
                     </CardTitle>
                     <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)} className="w-full sm:w-auto">
-                    <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 rounded-xl p-1 bg-muted/70 dark:bg-muted/40 h-auto sm:h-10">
-                        <TabsTrigger value="all" className="rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-1.5">All</TabsTrigger>
-                        <TabsTrigger value="high" className="rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-1.5">High</TabsTrigger>
-                        <TabsTrigger value="dueToday" className="rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-1.5">Due Today</TabsTrigger>
-                        <TabsTrigger value="completed" className="rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-1.5">Done</TabsTrigger>
+                    <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 rounded-xl p-1 bg-muted/70 dark:bg-muted/40 h-auto sm:h-9">
+                        <TabsTrigger value="all" className="rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-1">All</TabsTrigger>
+                        <TabsTrigger value="high" className="rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-1">High</TabsTrigger>
+                        <TabsTrigger value="dueToday" className="rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-1">Due Today</TabsTrigger>
+                        <TabsTrigger value="completed" className="rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-1">Done</TabsTrigger>
                     </TabsList>
                     </Tabs>
                 </div>
@@ -307,20 +310,20 @@ export default function TasksPage() {
             <CardContent className="p-4 min-h-[300px]">
               {isLoadingAi && activeTab !== "completed" ? (
                 <div className="space-y-3 pt-2">
-                    {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-16 w-full rounded-xl"/>)}
+                    {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-14 w-full rounded-xl"/>)} {/* Adjusted skeleton height */}
                 </div>
               ) : filteredAndSortedTasks.length === 0 ? (
-                <div className="text-center py-10 text-muted-foreground flex flex-col items-center justify-center h-full">
-                  <ThumbsUp className="mx-auto h-16 w-16 opacity-30" />
-                  <p className="mt-4 text-lg font-medium">
+                <div className="text-center py-10 text-muted-foreground flex flex-col items-center justify-center h-full min-h-[200px]">
+                  <ThumbsUp className="mx-auto h-12 w-12 opacity-30" />
+                  <p className="mt-4 text-md font-medium">
                     No tasks here!
                   </p>
-                  <p className="text-sm">
+                  <p className="text-xs">
                     {activeTab === "all" ? "Add a new task to get started." : "Try a different filter or add tasks."}
                   </p>
                 </div>
               ) : (
-                <div className="space-y-3 pt-2">
+                <div className="space-y-2.5 pt-2"> {/* Reduced spacing between items */}
                   {filteredAndSortedTasks.map(task => (
                     <TaskListItem
                       key={task.id}

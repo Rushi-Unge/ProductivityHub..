@@ -4,7 +4,7 @@
 import * as React from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Activity, ArrowUpRight, DollarSign, ListChecks, Users, Eye, StickyNote, TrendingUp, TrendingDown, ThumbsUp } from "lucide-react";
+import { Activity, ArrowUpRight, DollarSign, Eye, StickyNote, TrendingUp, TrendingDown, ThumbsUp } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { format, parseISO, formatDistanceToNow } from "date-fns";
@@ -14,7 +14,7 @@ import type { Trade } from "@/app/(authenticated)/trades/page";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 
-// --- Data Duplication for Dashboard Display (Simulating Fetched Data) ---
+
 const initialDashboardTasks: Task[] = [
   { id: "1", title: "Submit quarterly report", description: "Finalize and submit the Q3 financial report.", dueDate: "2024-08-10", priority: "high", status: "pending" },
   { id: "4", title: "Client onboarding call", description: "Onboard new client Acme Corp.", dueDate: "2024-08-01", priority: "high", status: "pending" },
@@ -46,7 +46,6 @@ initialDashboardTrades.forEach(trade => {
     trade.pnl = calculatePnl(trade as Omit<Trade, 'id' | 'pnl' | 'status' | 'chartPlaceholderUrl' | 'screenshotFilename'> & { status: 'closed', exitPrice: number, exitTimestamp: string });
   }
 });
-// --- End Data Duplication ---
 
 
 export default function DashboardPage() {
@@ -56,7 +55,6 @@ export default function DashboardPage() {
   React.useEffect(() => {
     setIsClient(true);
     
-    // Calculate trade stats on client
     const closedTrades = initialDashboardTrades.filter(t => t.status === 'closed' && t.pnl !== undefined);
     const totalPnl = closedTrades.reduce((sum, trade) => sum + (trade.pnl || 0), 0);
     const winningTradesCount = closedTrades.filter(t => (t.pnl || 0) > 0).length;
@@ -66,16 +64,16 @@ export default function DashboardPage() {
     const grossProfit = closedTrades.filter(t => (t.pnl || 0) > 0).reduce((sum, t) => sum + (t.pnl || 0), 0);
     const grossLoss = closedTrades.filter(t => (t.pnl || 0) < 0).reduce((sum, t) => sum + (t.pnl || 0), 0);
     const averageWin = winningTradesCount > 0 ? grossProfit / winningTradesCount : 0;
-    const averageLoss = losingTradesCount > 0 ? grossLoss / losingTradesCount : 0; // Will be negative or zero
+    const averageLoss = losingTradesCount > 0 ? grossLoss / losingTradesCount : 0; 
 
     setTradeStats([
-      { title: "Total P&L", value: totalPnl.toLocaleString(undefined, { style: 'currency', currency: 'USD' }), icon: <DollarSign className="h-6 w-6 text-muted-foreground" />, colorClass: totalPnl >= 0 ? 'text-success' : 'text-destructive' },
-      { title: "Win Rate", value: `${winRate.toFixed(0)}%`, icon: <Activity className="h-6 w-6 text-muted-foreground" /> },
-      { title: "Avg. Win", value: averageWin.toLocaleString(undefined, { style: 'currency', currency: 'USD' }), icon: <TrendingUp className="h-6 w-6 text-success" /> },
-      { title: "Avg. Loss", value: Math.abs(averageLoss).toLocaleString(undefined, { style: 'currency', currency: 'USD' }), icon: <TrendingDown className="h-6 w-6 text-destructive" /> },
+      { title: "Total P&L", value: totalPnl.toLocaleString(undefined, { style: 'currency', currency: 'USD' }), icon: <DollarSign className="h-5 w-5 text-muted-foreground" />, colorClass: totalPnl >= 0 ? 'text-success' : 'text-destructive' },
+      { title: "Win Rate", value: `${winRate.toFixed(0)}%`, icon: <Activity className="h-5 w-5 text-muted-foreground" /> },
+      { title: "Avg. Win", value: averageWin.toLocaleString(undefined, { style: 'currency', currency: 'USD' }), icon: <TrendingUp className="h-5 w-5 text-success" /> },
+      { title: "Avg. Loss", value: Math.abs(averageLoss).toLocaleString(undefined, { style: 'currency', currency: 'USD' }), icon: <TrendingDown className="h-5 w-5 text-destructive" /> },
     ]);
 
-  }, []); // Empty dependency array: runs once on mount
+  }, []); 
 
   const displayedTasks = initialDashboardTasks
     .filter(t => t.status === 'pending')
@@ -89,12 +87,12 @@ export default function DashboardPage() {
 
   if (!isClient) {
     return (
-      <div className="space-y-6 p-4 md:p-6 animate-pulse">
+      <div className="space-y-8 p-4 md:p-8 animate-pulse">
         <div className="h-10 bg-muted rounded-xl w-3/4"></div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {[...Array(4)].map((_, i) => <Card key={i} className="h-32 bg-muted rounded-2xl shadow-none border-none"><CardContent className="h-full"></CardContent></Card>)}
         </div>
-        <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
+        <div className="grid gap-8 md:grid-cols-1 lg:grid-cols-2">
           <Card className="h-72 bg-muted rounded-2xl shadow-none border-none"><CardContent className="h-full"></CardContent></Card>
           <Card className="h-72 bg-muted rounded-2xl shadow-none border-none"><CardContent className="h-full"></CardContent></Card>
         </div>
@@ -103,7 +101,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6 p-4 md:p-6">
+    <div className="flex flex-col gap-8 p-4 md:p-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold font-headline tracking-tight">Welcome to ProHub!</h1>
@@ -112,7 +110,7 @@ export default function DashboardPage() {
       </div>
 
       <section>
-        <h2 className="text-xl font-semibold mb-3 font-headline">Trading Snapshot</h2>
+        <h2 className="text-xl font-semibold mb-4 font-headline">Trading Snapshot</h2>
         {tradeStats.length === 0 ? (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
              {[...Array(4)].map((_, i) => (
@@ -144,33 +142,32 @@ export default function DashboardPage() {
         )}
       </section>
 
-
-      <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
+      <div className="grid gap-8 md:grid-cols-1 lg:grid-cols-2">
         <Card className="shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out rounded-2xl">
           <CardHeader>
             <div className="flex justify-between items-center">
-                <CardTitle>Upcoming Tasks</CardTitle>
-                <Link href="/tasks">
-                    <Button variant="ghost" size="sm" className="rounded-lg">View All <ArrowUpRight className="h-4 w-4 ml-1"/></Button>
+                <CardTitle className="text-lg font-headline">Upcoming Tasks</CardTitle>
+                <Link href="/tasks" className="text-sm text-primary hover:underline flex items-center">
+                    View All <ArrowUpRight className="h-4 w-4 ml-1"/>
                 </Link>
             </div>
-            <CardDescription>Your most pressing to-dos.</CardDescription>
+            <CardDescription className="text-sm">Your most pressing to-dos.</CardDescription>
           </CardHeader>
           <CardContent>
             {displayedTasks.length > 0 ? (
               <ul className="space-y-3">
                 {displayedTasks.map(task => (
-                  <li key={task.id} className="flex items-center justify-between p-3 bg-muted/50 dark:bg-muted/20 rounded-xl transition-colors hover:bg-muted dark:hover:bg-muted/30">
+                  <li key={task.id} className="flex items-center justify-between p-3 bg-muted/30 dark:bg-muted/10 rounded-xl transition-colors hover:bg-muted/50 dark:hover:bg-muted/20">
                     <div className="flex-1 min-w-0">
-                      <p className={`font-medium truncate ${task.status === 'completed' ? 'line-through text-muted-foreground' : 'text-foreground'}`}>{task.title}</p>
-                      <div className="text-xs text-muted-foreground flex items-center flex-wrap gap-x-2">
-                        <Badge variant={task.priority === 'high' ? 'destructive' : task.priority === 'medium' ? 'warning' : 'info'} className={cn("capitalize text-xs px-1.5 py-0")}>{task.priority}</Badge>
-                        {task.dueDate && <span className="whitespace-nowrap">Due: {format(parseISO(task.dueDate), "MMM d, yyyy")}</span>}
+                      <p className="font-medium truncate text-sm text-foreground">{task.title}</p>
+                      <div className="text-xs text-muted-foreground flex items-center gap-x-2 mt-0.5">
+                        <Badge variant={task.priority === 'high' ? 'destructive' : task.priority === 'medium' ? 'warning' : 'info'} className={cn("capitalize text-[10px] px-1.5 py-0 h-5")}>{task.priority}</Badge>
+                        {task.dueDate && <span className="whitespace-nowrap">Due: {format(parseISO(task.dueDate), "MMM d")}</span>}
                       </div>
                     </div>
                     <Link href="/tasks" className="ml-2 flex-shrink-0">
-                      <Button variant="secondary" size="sm" className="transition-transform hover:scale-105 rounded-lg">
-                        <Eye className="h-4 w-4 mr-1 sm:mr-2"/> <span className="hidden sm:inline">View</span>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-muted-foreground hover:text-primary">
+                        <Eye className="h-4 w-4"/> 
                       </Button>
                     </Link>
                   </li>
@@ -178,8 +175,8 @@ export default function DashboardPage() {
               </ul>
             ) : (
               <div className="text-center py-8 text-muted-foreground">
-                <ThumbsUp className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                <p>No pending tasks. Great job!</p>
+                <ThumbsUp className="h-10 w-10 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">No pending tasks. Great job!</p>
               </div>
             )}
           </CardContent>
@@ -188,30 +185,30 @@ export default function DashboardPage() {
         <Card className="shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out rounded-2xl">
           <CardHeader>
              <div className="flex justify-between items-center">
-                <CardTitle>Recent Notes</CardTitle>
-                <Link href="/notes">
-                    <Button variant="ghost" size="sm" className="rounded-lg">View All <ArrowUpRight className="h-4 w-4 ml-1"/></Button>
+                <CardTitle className="text-lg font-headline">Recent Notes</CardTitle>
+                <Link href="/notes" className="text-sm text-primary hover:underline flex items-center">
+                    View All <ArrowUpRight className="h-4 w-4 ml-1"/>
                 </Link>
             </div>
-            <CardDescription>Your latest thoughts and ideas.</CardDescription>
+            <CardDescription className="text-sm">Your latest thoughts and ideas.</CardDescription>
           </CardHeader>
           <CardContent>
             {displayedNotes.length > 0 ? (
               <ul className="space-y-3">
                 {displayedNotes.map(note => (
-                  <li key={note.id} className={cn("p-3 rounded-xl transition-colors hover:opacity-80 bg-muted/50 dark:bg-muted/20 hover:bg-muted dark:hover:bg-muted/30")}>
+                  <li key={note.id} className={cn("p-3 rounded-xl transition-colors hover:opacity-80 bg-muted/30 dark:bg-muted/10 hover:bg-muted/50 dark:hover:bg-muted/20")}>
                     <Link href="/notes" className="block group">
-                      <h4 className={cn("font-medium truncate group-hover:underline text-card-foreground")}>{note.title}</h4>
-                      <p className={cn("text-xs line-clamp-2 group-hover:underline text-card-foreground/80")}>{note.content}</p>
-                      <p className={cn("text-xs mt-1 text-muted-foreground/80")}>{formatDistanceToNow(parseISO(note.createdAt), { addSuffix: true })}</p>
+                      <h4 className={cn("font-medium truncate group-hover:underline text-sm text-card-foreground")}>{note.title}</h4>
+                      <p className={cn("text-xs line-clamp-1 group-hover:underline text-card-foreground/80 mt-0.5")}>{note.content.split('\n')[0]}</p>
+                      <p className={cn("text-xs mt-1 text-muted-foreground/70")}>{formatDistanceToNow(parseISO(note.updatedAt), { addSuffix: true })}</p>
                     </Link>
                   </li>
                 ))}
               </ul>
             ) : (
                 <div className="text-center py-8 text-muted-foreground">
-                    <StickyNote className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                    <p>No notes yet. Start jotting down ideas!</p>
+                    <StickyNote className="h-10 w-10 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">No notes yet. Start jotting down ideas!</p>
                 </div>
             )}
           </CardContent>
@@ -220,5 +217,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    
