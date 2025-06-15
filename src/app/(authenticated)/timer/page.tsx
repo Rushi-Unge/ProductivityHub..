@@ -1,6 +1,7 @@
 
 "use client"
 
+import * as React from "react";
 import { useState, useEffect, useCallback } from 'react';
 import TimerCircle from '@/components/timer-circle';
 import { Button } from '@/components/ui/button';
@@ -174,3 +175,4 @@ export default function TimerPage() {
     </div>
   );
 }
+
