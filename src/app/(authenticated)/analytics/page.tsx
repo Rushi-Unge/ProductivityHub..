@@ -4,7 +4,7 @@
 import * as React from "react";
 import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PlusCircle, Download, LineChart as SummaryLineChartIcon, Percent, ArrowUp, ArrowDown, Edit3, Trash2, MoreHorizontal } from "lucide-react";
 import AddTradeDialog from "@/components/add-trade-dialog";
@@ -13,6 +13,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { format, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+
 
 // Represents an individual trade
 export interface Trade {
@@ -44,7 +46,7 @@ interface SummaryStat {
 // Component for individual trade cards in the grid
 function TradeDetailCard({ trade, onEdit, onDelete }: { trade: Trade; onEdit: (trade: Trade) => void; onDelete: (id: string) => void; }) {
   const getOutcome = (pnl: number | undefined) => {
-    if (pnl === undefined || pnl === null) return { text: "OPEN", color: "bg-blue-500/20 text-blue-700 dark:text-blue-400" };
+    if (pnl === undefined || pnl === null) return { text: "OPEN", color: "bg-info/20 text-info-foreground dark:text-blue-400" };
     if (pnl > 0) return { text: "PROFIT", color: "bg-success/20 text-success-foreground dark:text-green-400" };
     if (pnl < 0) return { text: "LOSS", color: "bg-destructive/20 text-destructive-foreground dark:text-red-400" };
     return { text: "BREAKEVEN", color: "bg-muted text-muted-foreground" };
@@ -117,7 +119,7 @@ function TradeDetailCard({ trade, onEdit, onDelete }: { trade: Trade; onEdit: (t
 // Component for summary stat cards
 function SummaryStatCard({ stat }: { stat: SummaryStat }) {
   return (
-    <Card className="shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out">
+    <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium text-muted-foreground">{stat.title}</CardTitle>
         {stat.icon}
@@ -140,11 +142,11 @@ const calculatePnl = (trade: Omit<Trade, 'pnl' | 'id' | 'status' | 'chartPlaceho
 };
 
 const initialTrades: Trade[] = [
-  { id: "t1", asset: "AAPL", entryTimestamp: new Date(2024, 6, 5, 9, 30).toISOString(), exitTimestamp: new Date(2024, 6, 7, 15, 0).toISOString(), position: "long", entryPrice: 175.20, exitPrice: 182.45, quantity: 10, strategy: "Breakout", reflection: "Perfect breakout trade. Entered after confirmation above resistance. Took profits at 4% gain as planned.", riskPercentage: 2, status: "closed", chartPlaceholderUrl: "https://placehold.co/300x150/22C55E/FFFFFF.png" },
-  { id: "t2", asset: "TSLA", entryTimestamp: new Date(2024, 6, 3, 10, 0).toISOString(), exitTimestamp: new Date(2024, 6, 4, 12, 0).toISOString(), position: "short", entryPrice: 245.80, exitPrice: 238.30, quantity: 5, strategy: "Earnings Play", reflection: "Stop loss triggered correctly. Market sentiment changed after earnings miss. Stuck to risk management rules.", riskPercentage: 1.5, status: "closed", chartPlaceholderUrl: "https://placehold.co/300x150/EF4444/FFFFFF.png"},
-  { id: "t3", asset: "MSFT", entryTimestamp: new Date(2024, 6, 1, 14, 0).toISOString(), exitTimestamp: new Date(2024, 6, 6, 10,0).toISOString(), position: "long", entryPrice: 338.50, exitPrice: 345.20, quantity: 8, strategy: "Momentum", reflection: "Strong momentum trade. Good volume confirmation on breakout. Held for 5 days as trend continued.", riskPercentage: 2, status: "closed", chartPlaceholderUrl: "https://placehold.co/300x150/22C55E/FFFFFF.png" },
-  { id: "t4", asset: "NVDA", entryTimestamp: new Date(2024, 5, 28, 11,0).toISOString(), exitTimestamp: new Date(2024, 5, 29, 15,0).toISOString(), position: "long", entryPrice: 485.30, exitPrice: 486.20, quantity: 3, strategy: "Scalp", reflection: "Choppy market conditions. Exited early due to lack of momentum. Small profit after commissions.", riskPercentage: 1, status: "closed", chartPlaceholderUrl: "https://placehold.co/300x150/E5E7EB/1F2937.png" },
-  { id: "t5", asset: "GOOGL", entryTimestamp: new Date(2024, 6, 8, 9,45).toISOString(), position: "long", entryPrice: 140.50, quantity: 10, strategy: "Value Dip Buy", reflection: "Monitoring for bounce from support.", riskPercentage: 2.5, status: "open", chartPlaceholderUrl: "https://placehold.co/300x150/38BDF8/FFFFFF.png" },
+  { id: "t1", asset: "AAPL", entryTimestamp: new Date(2024, 6, 5, 9, 30).toISOString(), exitTimestamp: new Date(2024, 6, 7, 15, 0).toISOString(), position: "long", entryPrice: 175.20, exitPrice: 182.45, quantity: 10, strategy: "Breakout", reflection: "Perfect breakout trade. Entered after confirmation above resistance. Took profits at 4% gain as planned.", riskPercentage: 2, status: "closed", chartPlaceholderUrl: "https://placehold.co/300x150.png" },
+  { id: "t2", asset: "TSLA", entryTimestamp: new Date(2024, 6, 3, 10, 0).toISOString(), exitTimestamp: new Date(2024, 6, 4, 12, 0).toISOString(), position: "short", entryPrice: 245.80, exitPrice: 238.30, quantity: 5, strategy: "Earnings Play", reflection: "Stop loss triggered correctly. Market sentiment changed after earnings miss. Stuck to risk management rules.", riskPercentage: 1.5, status: "closed", chartPlaceholderUrl: "https://placehold.co/300x150.png"},
+  { id: "t3", asset: "MSFT", entryTimestamp: new Date(2024, 6, 1, 14, 0).toISOString(), exitTimestamp: new Date(2024, 6, 6, 10,0).toISOString(), position: "long", entryPrice: 338.50, exitPrice: 345.20, quantity: 8, strategy: "Momentum", reflection: "Strong momentum trade. Good volume confirmation on breakout. Held for 5 days as trend continued.", riskPercentage: 2, status: "closed", chartPlaceholderUrl: "https://placehold.co/300x150.png" },
+  { id: "t4", asset: "NVDA", entryTimestamp: new Date(2024, 5, 28, 11,0).toISOString(), exitTimestamp: new Date(2024, 5, 29, 15,0).toISOString(), position: "long", entryPrice: 485.30, exitPrice: 486.20, quantity: 3, strategy: "Scalp", reflection: "Choppy market conditions. Exited early due to lack of momentum. Small profit after commissions.", riskPercentage: 1, status: "closed", chartPlaceholderUrl: "https://placehold.co/300x150.png" },
+  { id: "t5", asset: "GOOGL", entryTimestamp: new Date(2024, 6, 8, 9,45).toISOString(), position: "long", entryPrice: 140.50, quantity: 10, strategy: "Value Dip Buy", reflection: "Monitoring for bounce from support.", riskPercentage: 2.5, status: "open", chartPlaceholderUrl: "https://placehold.co/300x150.png" },
 ];
 
 initialTrades.forEach(trade => {
@@ -170,7 +172,7 @@ export default function TradingJournalPage() {
     let finalStatus: 'open' | 'closed' = tradeData.status || (tradeData.exitPrice && tradeData.exitTimestamp ? 'closed' : 'open');
     
     // Default chart placeholder, can be customized further if needed
-    let chartUrl = "https://placehold.co/300x150/E5E7EB/1F2937.png";
+    let chartUrl = "https://placehold.co/300x150.png";
 
 
     if (finalStatus === 'closed' && tradeData.exitPrice && tradeData.exitTimestamp) {
@@ -186,9 +188,9 @@ export default function TradingJournalPage() {
             reflection: tradeData.reflection,
             status: 'closed'
         });
-        chartUrl = newPnl >= 0 ? "https://placehold.co/300x150/22C55E/FFFFFF.png" : "https://placehold.co/300x150/EF4444/FFFFFF.png";
+        // chartUrl = newPnl >= 0 ? "https://placehold.co/300x150/22C55E/FFFFFF.png" : "https://placehold.co/300x150/EF4444/FFFFFF.png";
     } else if (finalStatus === 'open') {
-        chartUrl = "https://placehold.co/300x150/38BDF8/FFFFFF.png";
+        // chartUrl = "https://placehold.co/300x150/38BDF8/FFFFFF.png";
     }
 
 
@@ -252,7 +254,7 @@ export default function TradingJournalPage() {
 
   if (!isClient) {
     return (
-       <div className="space-y-6 p-1 md:p-2">
+       <div className="space-y-6 p-4 md:p-6">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
           <Skeleton className="h-12 w-64 rounded-lg" />
           <div className="flex gap-2">
@@ -272,7 +274,7 @@ export default function TradingJournalPage() {
   }
 
   return (
-    <div className="space-y-6 p-1 md:p-2">
+    <div className="space-y-6 p-4 md:p-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold font-headline tracking-tight">Trading Journal</h1>
@@ -289,10 +291,10 @@ export default function TradingJournalPage() {
       </div>
 
       <Tabs defaultValue="trade-journal" className="w-full">
-        <TabsList className="mb-6">
-          <TabsTrigger value="trade-journal">Trade Journal</TabsTrigger>
-          <TabsTrigger value="weekly-insights" disabled>Weekly Insights</TabsTrigger>
-          <TabsTrigger value="strategy-notes" disabled>Strategy Notes</TabsTrigger>
+        <TabsList className="mb-6 bg-muted/50 dark:bg-muted/20 rounded-lg p-1">
+          <TabsTrigger value="trade-journal" className="data-[state=active]:bg-card data-[state=active]:shadow-md">Trade Journal</TabsTrigger>
+          <TabsTrigger value="weekly-insights" disabled className="data-[state=active]:bg-card data-[state=active]:shadow-md">Weekly Insights</TabsTrigger>
+          <TabsTrigger value="strategy-notes" disabled className="data-[state=active]:bg-card data-[state=active]:shadow-md">Strategy Notes</TabsTrigger>
         </TabsList>
         
         <TabsContent value="trade-journal" className="space-y-6">
@@ -315,13 +317,13 @@ export default function TradingJournalPage() {
             )}
         </TabsContent>
         <TabsContent value="weekly-insights">
-            <Card>
+            <Card className="shadow-xl">
                 <CardHeader><CardTitle>Weekly Insights</CardTitle></CardHeader>
                 <CardContent><p className="text-muted-foreground">Weekly insights and performance analysis will be shown here. (Coming Soon)</p></CardContent>
             </Card>
         </TabsContent>
         <TabsContent value="strategy-notes">
-            <Card>
+            <Card className="shadow-xl">
                 <CardHeader><CardTitle>Strategy Notes</CardTitle></CardHeader>
                 <CardContent><p className="text-muted-foreground">Notes and observations about your trading strategies. (Coming Soon)</p></CardContent>
             </Card>
@@ -344,3 +346,4 @@ export default function TradingJournalPage() {
 
 
     
+
