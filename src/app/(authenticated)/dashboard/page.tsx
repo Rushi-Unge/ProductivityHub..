@@ -28,7 +28,7 @@ const initialDashboardTasks: Task[] = [
 // Duplicated and simplified Note interface and initial data for Dashboard
 const initialDashboardNotes: Note[] = [
   { id: "n3", title: "Book Insights: 'Atomic Habits'", content: "Key takeaways:\n- Focus on systems, not goals.\n- Make it obvious, attractive, easy, satisfying.", createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), color: "bg-blue-200 dark:bg-blue-700/30" },
-  { id: "n1", title: "Project Ideas for ProHub", content: "1. AI-driven task suggestions.\n2. Team collaboration module.", createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), color: "bg-yellow-200 dark:bg-yellow-700/30", imageUrl:"https://placehold.co/300x200.png?text=MindMap", imageFilename: "mindmap.png" },
+  { id: "n1", title: "Project Ideas for ProHub", content: "1. AI-driven task suggestions.\n2. Team collaboration module.", createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), color: "bg-yellow-200 dark:bg-yellow-700/30", imageUrl:"https://placehold.co/300x200.png", imageFilename: "mindmap.png" },
   { id: "n2", title: "Weekly Goals (Current)", content: "- Finalize Q4 budget presentation.\n- Conduct user interviews.", createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), color: "bg-green-200 dark:bg-green-700/30" },
 ];
 
@@ -167,10 +167,10 @@ export default function DashboardPage() {
                   <li key={task.id} className="flex items-center justify-between p-3 bg-muted/50 dark:bg-muted/20 rounded-md transition-colors hover:bg-muted dark:hover:bg-muted/30">
                     <div className="flex-1 min-w-0">
                       <p className={`font-medium truncate ${task.status === 'completed' ? 'line-through text-muted-foreground' : 'text-foreground'}`}>{task.title}</p>
-                      <p className="text-xs text-muted-foreground">
+                      <div className="text-xs text-muted-foreground">
                         Priority: <Badge variant={task.priority === 'high' ? 'destructive' : task.priority === 'medium' ? 'default' : 'outline'} className={cn("capitalize text-xs px-1.5 py-0", task.priority === 'medium' ? 'bg-warning/80 text-warning-foreground border-warning/80' : '', task.priority === 'low' ? 'bg-info/80 text-info-foreground border-info/80' : '')}>{task.priority}</Badge>
                         {task.dueDate && ` | Due: ${format(parseISO(task.dueDate), "MMM d, yyyy")}`}
-                      </p>
+                      </div>
                     </div>
                     <Link href="/tasks">
                       <Button variant="secondary" size="sm" className="transition-transform hover:scale-105 ml-2 flex-shrink-0">
@@ -257,5 +257,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-
