@@ -22,7 +22,6 @@ const navItems = [
   { href: "/tasks", icon: <ListChecks className="h-5 w-5" />, label: "Tasks" },
   { href: "/notes", icon: <StickyNote className="h-5 w-5" />, label: "Notes" },
   { href: "/trades", icon: <LineChart className="h-5 w-5" />, label: "Trades" }, 
-  { href: "/analytics", icon: <LineChart className="h-5 w-5" />, label: "Analytics" },
   { href: "/docs", icon: <BookOpen className="h-5 w-5" />, label: "Docs" },
   { href: "/settings", icon: <SettingsIcon className="h-5 w-5" />, label: "Settings" },
 ];
