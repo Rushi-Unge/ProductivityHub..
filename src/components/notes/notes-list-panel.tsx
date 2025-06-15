@@ -1,11 +1,15 @@
 
+// This component is no longer used in the Google Keep-style notes page.
+// The layout has been changed to a card grid.
+// Keeping the file for now, but it can be deleted if not repurposed.
+
 "use client"
 
 import type { Note } from "@/app/(authenticated)/notes/page";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Folder, Pin, Archive, Trash2, Tag, Search, RotateCcw, Star } from "lucide-react";
-import NoteListItem from "./note-list-item";
+import NoteListItem from "./note-list-item"; // This would also be unused if the panel is removed
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 import { useMemo, useState } from "react";

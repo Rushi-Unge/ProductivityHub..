@@ -1,4 +1,8 @@
 
+// This component is no longer used in the Google Keep-style notes page.
+// The layout has been changed to a card grid, and editing is handled by AddNoteDialog.
+// Keeping the file for now, but it can be deleted if not repurposed.
+
 "use client"
 
 import type { Note } from "@/app/(authenticated)/notes/page";
@@ -164,5 +168,3 @@ export default function NoteEditorDisplay({
     </div>
   );
 }
-
-    

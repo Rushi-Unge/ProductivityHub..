@@ -1,10 +1,6 @@
 
 "use client"
 
-// This component is no longer used for creating/editing notes.
-// It's replaced by the NoteEditorDisplay panel.
-// Keeping the file for now, but it can be deleted if not repurposed.
-
 import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -18,26 +14,27 @@ import { Star, Tag as TagIcon } from "lucide-react";
 import type { Note } from "@/app/(authenticated)/notes/page";
 import { Switch } from "@/components/ui/switch";
 
-const noteFormSchema = z.object({
-  title: z.string().min(1, { message: "Title is required." }).max(100, { message: "Title cannot exceed 100 characters." }),
+// Form schema for the dialog
+const noteDialogSchema = z.object({
+  title: z.string().max(100, { message: "Title cannot exceed 100 characters." }).optional(), // Title is optional
   content: z.string().max(10000, { message: "Content cannot exceed 10000 characters." }).optional(),
   tagsString: z.string().optional().describe("Comma-separated tags"),
   isStarred: z.boolean().default(false),
 });
 
-type NoteFormValues = Omit<Note, 'id' | 'createdAt' | 'updatedAt' | 'isArchived' | 'isTrashed' | 'tags'> & { tagsString?: string };
-
+// Type for form values, matching the schema
+type NoteDialogFormValues = z.infer<typeof noteDialogSchema>;
 
 interface AddNoteDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (noteData: NoteFormValues & { tags: string[] }, id?: string) => void;
+  onSave: (noteData: NoteDialogFormValues, id?: string) => void; // Adjusted to use NoteDialogFormValues
   noteToEdit?: Note | null;
 }
 
 export default function AddNoteDialog({ open, onOpenChange, onSave, noteToEdit }: AddNoteDialogProps) {
-  const form = useForm<NoteFormValues>({
-    resolver: zodResolver(noteFormSchema),
+  const form = useForm<NoteDialogFormValues>({
+    resolver: zodResolver(noteDialogSchema),
     defaultValues: {
       title: "",
       content: "",
@@ -48,47 +45,53 @@ export default function AddNoteDialog({ open, onOpenChange, onSave, noteToEdit }
 
   React.useEffect(() => {
     if (open) {
-      form.reset(
-        noteToEdit
-          ? {
-              title: noteToEdit.title,
-              content: noteToEdit.content,
-              tagsString: noteToEdit.tags?.join(', ') || "",
-              isStarred: noteToEdit.isStarred || false,
-            }
-          : {
-              title: "",
-              content: "",
-              tagsString: "",
-              isStarred: false,
-            }
-      );
+      if (noteToEdit) {
+        form.reset({
+          title: noteToEdit.title,
+          content: noteToEdit.content,
+          tagsString: noteToEdit.tags?.join(', ') || "",
+          isStarred: noteToEdit.isStarred || false,
+        });
+      } else {
+        // For new notes, title might be empty initially or set by "Take a note..."
+        form.reset({
+          title: "",
+          content: "",
+          tagsString: "",
+          isStarred: false,
+        });
+      }
     }
   }, [open, noteToEdit, form]);
 
-  const onSubmit = (data: NoteFormValues) => {
-    const tagsArray = data.tagsString ? data.tagsString.split(',').map(tag => tag.trim().toLowerCase()).filter(tag => tag) : [];
-    
-    const dataToSave: NoteFormValues & { tags: string[] } = {
-        title: data.title,
-        content: data.content || "",
-        tags: tagsArray,
-        isStarred: data.isStarred,
-    };
-    onSave(dataToSave, noteToEdit?.id);
-    onOpenChange(false);
+  const onSubmit = (data: NoteDialogFormValues) => {
+    if (!data.title && !data.content && !data.tagsString) {
+        onOpenChange(false); // Close dialog if everything is empty
+        return;
+    }
+    onSave(data, noteToEdit?.id);
+    // onOpenChange(false); // Let the parent decide to close
+  };
+  
+  const handleOpenChangeWithCheck = (newOpenState: boolean) => {
+    if (!newOpenState) { // If closing dialog
+        const currentValues = form.getValues();
+        if (currentValues.title || currentValues.content || currentValues.tagsString) {
+            // If there's content, trigger save before closing
+            form.handleSubmit(onSubmit)(); 
+        }
+    }
+    onOpenChange(newOpenState);
   };
 
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChangeWithCheck}>
       <DialogContent className="sm:max-w-lg md:max-w-xl lg:max-w-2xl rounded-2xl shadow-xl border bg-card">
         <DialogHeader>
           <DialogTitle className="flex items-center text-xl font-semibold text-foreground">
             {noteToEdit ? "Edit Note" : "Create New Note"}
           </DialogTitle>
-          <DialogDescription className="text-muted-foreground">
-            {noteToEdit ? "Update your note's details." : "Capture your thoughts and ideas."}
-          </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-2 max-h-[70vh] overflow-y-auto pr-2">
@@ -97,9 +100,12 @@ export default function AddNoteDialog({ open, onOpenChange, onSave, noteToEdit }
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-muted-foreground">Title</FormLabel>
                   <FormControl>
-                    <Input placeholder="Note title" {...field} className="rounded-xl bg-input text-foreground focus:bg-background"/>
+                    <Input 
+                        placeholder="Title" 
+                        {...field} 
+                        className="rounded-xl bg-transparent text-foreground text-lg font-medium border-0 shadow-none focus-visible:ring-0 px-1 h-auto"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -110,9 +116,13 @@ export default function AddNoteDialog({ open, onOpenChange, onSave, noteToEdit }
               name="content"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-muted-foreground">Content (Markdown supported)</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Write your note here..." {...field} rows={10} className="rounded-xl bg-input text-foreground focus:bg-background" />
+                    <Textarea 
+                        placeholder="Take a note..." 
+                        {...field} 
+                        rows={8} 
+                        className="rounded-xl bg-transparent text-foreground border-0 shadow-none focus-visible:ring-0 px-1 min-h-[100px]" 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -123,9 +133,9 @@ export default function AddNoteDialog({ open, onOpenChange, onSave, noteToEdit }
               name="tagsString"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="flex items-center text-muted-foreground"><TagIcon className="mr-1.5 h-4 w-4"/>Tags (comma-separated)</FormLabel>
+                  <FormLabel className="flex items-center text-muted-foreground text-xs px-1"><TagIcon className="mr-1.5 h-3.5 w-3.5"/>Tags (comma-separated)</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., work, ideas, journal" {...field} className="rounded-xl bg-input text-foreground focus:bg-background"/>
+                    <Input placeholder="e.g., work, ideas" {...field} className="rounded-xl bg-input text-foreground focus:bg-background h-9 px-2"/>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -138,7 +148,7 @@ export default function AddNoteDialog({ open, onOpenChange, onSave, noteToEdit }
                     <FormItem className="flex flex-row items-center justify-between rounded-xl border p-3 shadow-sm bg-muted/20 dark:bg-muted/10">
                         <div className="space-y-0.5">
                             <FormLabel className="text-base flex items-center text-foreground"><Star className="mr-2 h-4 w-4 text-yellow-400 fill-yellow-400"/>Star this note</FormLabel>
-                            <DialogDescription className="text-xs text-muted-foreground">Starred notes are easier to find.</DialogDescription>
+                            <DialogDescription className="text-xs text-muted-foreground">Starred notes appear in a special filter.</DialogDescription>
                         </div>
                         <FormControl>
                             <Switch
@@ -151,10 +161,15 @@ export default function AddNoteDialog({ open, onOpenChange, onSave, noteToEdit }
                 )}
               />
             <DialogFooter className="pt-4">
-              <DialogClose asChild>
-                <Button type="button" variant="outline" className="rounded-xl hover-scale">Cancel</Button>
-              </DialogClose>
-              <Button type="submit" className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground hover-scale">{noteToEdit ? "Save Changes" : "Create Note"}</Button>
+              <Button 
+                type="button" 
+                onClick={() => {
+                    form.handleSubmit(onSubmit)(); // Trigger save
+                    onOpenChange(false); // Then close
+                }} 
+                className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground hover-scale">
+                {noteToEdit ? "Done" : "Create"}
+              </Button>
             </DialogFooter>
           </form>
         </Form>
