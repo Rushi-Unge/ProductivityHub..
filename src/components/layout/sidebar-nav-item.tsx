@@ -17,7 +17,7 @@ export function SidebarNavItem({ href, icon, label, className, ...props }: Sideb
   const isActive = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
 
   return (
-    <Link href={href} passHref legacyBehavior>
+    <Link href={href}>
       <SidebarMenuButton
         asChild={false} // Ensure it's a button for proper tooltip behavior if not using Link directly
         isActive={isActive}
@@ -31,3 +31,4 @@ export function SidebarNavItem({ href, icon, label, className, ...props }: Sideb
     </Link>
   );
 }
+
