@@ -4,16 +4,15 @@
 import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PlusCircle, Brain, ListChecks, CheckSquare, ThumbsUp, CalendarDays, Search, GripVertical, Target } from "lucide-react";
+import { PlusCircle, Brain, ThumbsUp, Target } from "lucide-react";
 import AddTaskDialog from "@/components/add-task-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { aiTaskPrioritization, type AiTaskPrioritizationInput, type AiTaskPrioritizationOutput } from "@/ai/flows/ai-task-prioritization";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import TaskListItem from "@/components/task-list-item"; // New component
-import { format, isToday, isTomorrow, parseISO } from "date-fns";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import TaskListItem from "@/components/task-list-item";
+import { format, isToday, parseISO } from "date-fns";
 
 
 export interface Task {
@@ -29,7 +28,6 @@ export interface Task {
   completedAt?: string; // ISO string for completion time
 }
 
-// Extended initialTasks with tags and more varied due dates
 const initialTasks: Task[] = [
   { id: "1", title: "Review quarterly financial reports", description: "Finalize and submit the Q3 financial report. Ensure all data is cross-checked with the finance team and supporting documents are attached.", dueDate: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString(), priority: "high", status: "pending", tags: ["finance", "reporting"] , aiPriority: 1, aiReason: "Critical deadline approaching, high impact."},
   { id: "2", title: "Plan team retreat logistics", description: "Organize logistics for the upcoming team building event. This includes venue booking, catering, activities, and travel arrangements for all members.", dueDate: new Date(new Date().setDate(new Date().getDate() + 15)).toISOString(), priority: "medium", status: "pending", tags: ["event", "team"] },
@@ -42,8 +40,9 @@ const initialTasks: Task[] = [
 
 
 const mockFocusTasks = [
-    {id: "f1", title: "Review quarterly reports", detail: "2 hours remaining", priority: "High"},
-    {id: "f2", title: "Design system updates", detail: "High priority", priority: "High"},
+    {id: "f1", title: "Review quarterly reports", detail: "Due EOD"},
+    {id: "f2", title: "Finalize design system updates", detail: "High priority"},
+    {id: "f3", title: "Client follow-up call", detail: "Scheduled for 3 PM"},
 ];
 
 
@@ -54,7 +53,6 @@ export default function TasksPage() {
   const [isLoadingAi, setIsLoadingAi] = useState(false);
   const { toast } = useToast();
   const [isClient, setIsClient] = useState(false);
-  const [searchTerm, setSearchTerm] = useState(""); // Kept for potential future use, but UI removed
   const [activeTab, setActiveTab] = useState<"all" | "high" | "dueToday" | "completed">("all");
 
 
@@ -87,8 +85,8 @@ export default function TasksPage() {
           ...t,
           status: newStatus,
           completedAt: newStatus === 'completed' ? new Date().toISOString() : undefined,
-          aiReason: undefined, // Clear AI reason when status changes
-          aiPriority: undefined // Clear AI priority
+          aiReason: undefined, 
+          aiPriority: undefined 
         };
       }
       return t;
@@ -127,7 +125,7 @@ export default function TasksPage() {
       tasks: pendingTasks.map(task => ({
         title: task.title,
         description: task.description || "",
-        deadline: task.dueDate ? task.dueDate.split('T')[0] : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Default deadline 7 days from now if not set
+        deadline: task.dueDate ? task.dueDate.split('T')[0] : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], 
         importance: (task.priority && ['low', 'medium', 'high'].includes(task.priority) ? task.priority : 'medium') as 'low' | 'medium' | 'high',
       })),
     };
@@ -138,7 +136,7 @@ export default function TasksPage() {
 
       setTasks(currentTasks => {
         const updatedTasks = currentTasks.map(originalTask => {
-            const aiData = prioritizedTasks.find(pt => pt.title === originalTask.title); // Simplified matching
+            const aiData = prioritizedTasks.find(pt => pt.title === originalTask.title); 
             if (aiData && originalTask.status === 'pending') {
             return {
                 ...originalTask,
@@ -146,11 +144,9 @@ export default function TasksPage() {
                 aiReason: aiData.reason,
             };
             }
-            // Clear AI fields if not in AI result or not pending, or if it was completed then uncompleted
             return {...originalTask, aiReason: originalTask.status === 'pending' ? originalTask.aiReason : undefined, aiPriority: originalTask.status === 'pending' ? originalTask.aiPriority : undefined};
         });
 
-        // Sort all tasks: pending first (sorted by AI then due date), then completed (by completion date)
         return updatedTasks.sort((a, b) => {
             if (a.status === 'pending' && b.status === 'completed') return -1;
             if (a.status === 'completed' && b.status === 'pending') return 1;
@@ -167,7 +163,7 @@ export default function TasksPage() {
             if (a.status === 'completed' && b.status === 'completed') {
                 const dateA = a.completedAt ? new Date(a.completedAt).getTime() : 0;
                 const dateB = b.completedAt ? new Date(b.completedAt).getTime() : 0;
-                return dateB - dateA; // Newest completed first
+                return dateB - dateA; 
             }
             return 0;
         });
@@ -185,17 +181,7 @@ export default function TasksPage() {
 
   const filteredAndSortedTasks = useMemo(() => {
     let processedTasks = [...tasks];
-
-    // Apply search filter first (search term state is kept but UI removed for now)
-    if (searchTerm) {
-      processedTasks = processedTasks.filter(task =>
-        task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (task.description && task.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (task.tags && task.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())))
-      );
-    }
-
-    // Apply tab filter
+    
     switch (activeTab) {
       case 'high':
         processedTasks = processedTasks.filter(t => t.priority === 'high' && t.status === 'pending');
@@ -208,21 +194,14 @@ export default function TasksPage() {
         break;
       case 'all':
       default:
-        // 'All Tasks' shows pending tasks first, then completed tasks.
-        // So, for filtering, we initially don't filter out by status for 'all', 
-        // but the sort function later will handle pending vs completed.
-        // However, if user wants 'All Tasks' to mean 'All Pending Tasks', then filter here.
-        // For now, let's assume 'All' means all tasks, with pending sorted before completed.
-        // The current sort logic already handles this.
         break;
     }
     
-    // Sort logic based on status, AI priority (if applicable for pending), then due date
     return processedTasks.sort((a, b) => {
         if (a.status === 'pending' && b.status === 'completed') return -1;
         if (a.status === 'completed' && b.status === 'pending') return 1;
         
-        if (a.status === 'pending') { // Sort pending tasks
+        if (a.status === 'pending') { 
             if (a.aiPriority !== undefined && b.aiPriority !== undefined) return a.aiPriority - b.aiPriority;
             if (a.aiPriority !== undefined) return -1;
             if (b.aiPriority !== undefined) return 1;
@@ -237,25 +216,32 @@ export default function TasksPage() {
             return dateA - dateB;
         }
         
-        if (a.status === 'completed') { // Sort completed tasks by completion date
+        if (a.status === 'completed') { 
             const dateA = a.completedAt ? new Date(a.completedAt).getTime() : 0;
             const dateB = b.completedAt ? new Date(b.completedAt).getTime() : 0;
-            return dateB - dateA; // Newest completed first
+            return dateB - dateA; 
         }
         return 0;
     });
-  }, [tasks, searchTerm, activeTab]);
+  }, [tasks, activeTab]);
 
 
   if (!isClient) {
-    // Simplified Skeleton for initial load
     return (
-      <div className="space-y-6 p-4 md:p-6">
-        <Skeleton className="h-10 w-full rounded-xl" />
-        <Skeleton className="h-10 w-full rounded-xl" />
-        <div className="grid md:grid-cols-3 gap-6">
-            <Skeleton className="md:col-span-1 h-64 rounded-2xl" />
-            <Skeleton className="md:col-span-2 h-96 rounded-2xl" />
+      <div className="space-y-6 p-4 md:p-6 animate-pulse">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <Skeleton className="h-10 w-64 rounded-xl" />
+            <Skeleton className="h-10 w-32 rounded-xl" />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-1 space-y-4">
+                <Skeleton className="h-48 rounded-2xl" />
+                <Skeleton className="h-10 w-full rounded-xl" />
+            </div>
+            <div className="lg:col-span-2 space-y-4">
+                <Skeleton className="h-10 w-full sm:w-auto rounded-xl" />
+                <Skeleton className="h-80 rounded-2xl" />
+            </div>
         </div>
       </div>
     );
@@ -263,37 +249,32 @@ export default function TasksPage() {
 
   return (
     <div className="space-y-6 p-4 md:p-6">
-      {/* Page Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold font-headline tracking-tight">Task Manager</h1>
           <p className="text-muted-foreground">Organize and prioritize your tasks efficiently.</p>
         </div>
-        <div className="flex items-center gap-2">
-             <Button onClick={openNewTaskDialog} className="w-full sm:w-auto shadow-md hover:shadow-lg transition-shadow rounded-xl">
-                <PlusCircle className="mr-2 h-4 w-4" /> Add Task
-             </Button>
-        </div>
+        <Button onClick={openNewTaskDialog} className="w-full sm:w-auto shadow-md hover:shadow-lg transition-shadow rounded-xl">
+            <PlusCircle className="mr-2 h-4 w-4" /> Add Task
+        </Button>
       </div>
 
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column: Today's Focus & AI Prioritize */}
-        <div className="lg:col-span-1 space-y-4">
-            <Card className="rounded-2xl shadow-lg bg-primary/5 border-primary/20">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        <div className="lg:col-span-1 space-y-6">
+            <Card className="rounded-2xl shadow-lg bg-card border">
                 <CardHeader className="pb-3">
                 <CardTitle className="text-lg font-semibold flex items-center text-primary">
                     <Target className="mr-2 h-5 w-5" /> Today's Focus
                 </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3">
+                <CardContent className="space-y-2">
                 {mockFocusTasks.length > 0 ? mockFocusTasks.map(ft => (
-                    <div key={ft.id} className="p-3 bg-card/80 rounded-xl border border-border/70">
+                    <div key={ft.id} className="p-3 bg-muted/50 dark:bg-muted/20 rounded-xl border border-border/70">
                         <h4 className="font-medium text-sm text-card-foreground">{ft.title}</h4>
                         <p className="text-xs text-muted-foreground">{ft.detail}</p>
                     </div>
                 )) : <p className="text-sm text-muted-foreground text-center py-2">No focus tasks set.</p>}
-                <Button variant="outline" className="w-full rounded-xl border-dashed border-primary/50 text-primary hover:bg-primary/10 hover:text-primary">
+                <Button variant="outline" className="w-full rounded-xl border-dashed border-primary/50 text-primary hover:bg-primary/10 hover:text-primary mt-2">
                     <PlusCircle className="mr-2 h-4 w-4" /> Add Focus Task
                 </Button>
                 </CardContent>
@@ -303,46 +284,43 @@ export default function TasksPage() {
             </Button>
         </div>
 
-        {/* Right Column: Task List Area */}
-        <div className="lg:col-span-2 space-y-4">
-          <div className="flex flex-col sm:flex-row items-center gap-2 justify-between">
-            <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)} className="w-full sm:w-auto">
-              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 rounded-xl p-1 bg-muted/70 dark:bg-muted/40">
-                <TabsTrigger value="all" className="rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm">All Tasks</TabsTrigger>
-                <TabsTrigger value="high" className="rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm">High Priority</TabsTrigger>
-                <TabsTrigger value="dueToday" className="rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm">Due Today</TabsTrigger>
-                <TabsTrigger value="completed" className="rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm">Completed</TabsTrigger>
-              </TabsList>
-            </Tabs>
-            {/* Search bar removed as per request */}
-          </div>
-          
-          <Card className="rounded-2xl shadow-lg">
-             <CardHeader className="pt-4 pb-2">
-                <CardTitle className="text-base font-medium text-muted-foreground">
-                    {activeTab === "all" && "All Tasks (Pending first, then Completed)"}
-                    {activeTab === "high" && "High Priority Tasks (Pending)"}
-                    {activeTab === "dueToday" && "Tasks Due Today (Pending)"}
-                    {activeTab === "completed" && "Completed Tasks"}
-                </CardTitle>
+        <div className="lg:col-span-2">
+          <Card className="rounded-2xl shadow-lg border">
+             <CardHeader className="pt-4 pb-3 border-b"> {/* Added border-b */}
+                <div className="flex flex-col sm:flex-row justify-between items-center gap-2">
+                    <CardTitle className="text-lg font-semibold text-card-foreground whitespace-nowrap">
+                        {activeTab === "all" && "All Tasks"}
+                        {activeTab === "high" && "High Priority"}
+                        {activeTab === "dueToday" && "Due Today"}
+                        {activeTab === "completed" && "Completed Tasks"}
+                    </CardTitle>
+                    <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)} className="w-full sm:w-auto">
+                    <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 rounded-xl p-1 bg-muted/70 dark:bg-muted/40 h-auto sm:h-10">
+                        <TabsTrigger value="all" className="rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-1.5">All</TabsTrigger>
+                        <TabsTrigger value="high" className="rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-1.5">High</TabsTrigger>
+                        <TabsTrigger value="dueToday" className="rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-1.5">Due Today</TabsTrigger>
+                        <TabsTrigger value="completed" className="rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-1.5">Done</TabsTrigger>
+                    </TabsList>
+                    </Tabs>
+                </div>
              </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 min-h-[300px]">
               {isLoadingAi && activeTab !== "completed" ? (
-                <div className="space-y-3">
-                    {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-14 w-full rounded-lg"/>)}
+                <div className="space-y-3 pt-2">
+                    {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-16 w-full rounded-xl"/>)}
                 </div>
               ) : filteredAndSortedTasks.length === 0 ? (
-                <div className="text-center py-10 text-muted-foreground">
+                <div className="text-center py-10 text-muted-foreground flex flex-col items-center justify-center h-full">
                   <ThumbsUp className="mx-auto h-16 w-16 opacity-30" />
                   <p className="mt-4 text-lg font-medium">
-                    {searchTerm ? "No tasks match your search." : "No tasks here!"}
+                    No tasks here!
                   </p>
                   <p className="text-sm">
-                    {searchTerm ? "Try a different search term." : "Add a new task or check other filters."}
+                    {activeTab === "all" ? "Add a new task to get started." : "Try a different filter or add tasks."}
                   </p>
                 </div>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-3 pt-2">
                   {filteredAndSortedTasks.map(task => (
                     <TaskListItem
                       key={task.id}
@@ -369,4 +347,3 @@ export default function TasksPage() {
   );
 }
 
-    

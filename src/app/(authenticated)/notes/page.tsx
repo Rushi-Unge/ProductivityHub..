@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Search, PlusCircle, Folder, Star as StarIcon, Archive as ArchiveIcon, Trash2 as TrashIcon, Tag as TagIcon, ThumbsUp } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import NoteCard from "@/components/note-card"; // Revamped NoteCard
+import NoteCard from "@/components/note-card";
 import AddNoteDialog from "@/components/add-note-dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
@@ -49,10 +49,9 @@ export default function NotesPage() {
     setIsClient(true);
   }, []);
   
-  // Effect to handle global new note creation trigger
   useEffect(() => {
     const handleGlobalNewNote = () => {
-      setNoteToEdit(null); // Ensure it's a new note
+      setNoteToEdit(null);
       setIsDialogOpen(true);
     };
     if (isClient) {
@@ -69,7 +68,7 @@ export default function NotesPage() {
   const handleSaveNote = useCallback((noteData: Omit<Note, 'id' | 'createdAt' | 'updatedAt' | 'isArchived' | 'isTrashed' | 'tags'> & { tagsString?: string, isStarred: boolean }, id?: string) => {
     const tagsArray = noteData.tagsString ? noteData.tagsString.split(',').map(tag => tag.trim().toLowerCase()).filter(tag => tag) : [];
     
-    if (id) { // Editing existing note
+    if (id) { 
       setNotes(prevNotes => prevNotes.map(n => n.id === id ? { 
         ...n, 
         title: noteData.title, 
@@ -79,7 +78,7 @@ export default function NotesPage() {
         updatedAt: new Date().toISOString() 
       } : n));
       toast({ title: "Note Updated", description: `"${noteData.title}" has been saved.` });
-    } else { // Creating new note
+    } else { 
       const newNote: Note = {
         id: Date.now().toString(),
         title: noteData.title,
@@ -119,10 +118,10 @@ export default function NotesPage() {
     const note = notes.find(n => n.id === id);
     if (!note) return;
 
-    if (note.isTrashed) { // Is in trash, so permanently delete
+    if (note.isTrashed) { 
       setNotes(prevNotes => prevNotes.filter(n => n.id !== id));
       toast({ title: "Note Permanently Deleted", variant: "destructive" });
-    } else { // Not in trash, so move to trash
+    } else { 
       setNotes(prevNotes => prevNotes.map(n => n.id === id ? { ...n, isTrashed: true, isStarred: false, isArchived: false, updatedAt: new Date().toISOString() } : n));
       toast({ title: "Note Moved to Trash" });
     }
@@ -142,7 +141,6 @@ export default function NotesPage() {
   const filteredNotes = useMemo(() => {
     let displayNotes = [...notes];
 
-    // Apply main filter (all, starred, archived, trash, or specific tag)
     if (activeFilter === "all") {
       displayNotes = displayNotes.filter(n => !n.isArchived && !n.isTrashed);
     } else if (activeFilter === "starred") {
@@ -151,11 +149,10 @@ export default function NotesPage() {
       displayNotes = displayNotes.filter(n => n.isArchived && !n.isTrashed);
     } else if (activeFilter === "trash") {
       displayNotes = displayNotes.filter(n => n.isTrashed);
-    } else { // It's a tag filter
+    } else { 
       displayNotes = displayNotes.filter(n => n.tags.includes(activeFilter) && !n.isArchived && !n.isTrashed);
     }
 
-    // Then apply search term
     if (searchTerm) {
       displayNotes = displayNotes.filter(note =>
         note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -209,7 +206,6 @@ export default function NotesPage() {
 
   return (
     <div className="flex h-[calc(100vh-var(--header-height)-0px)] bg-section-background dark:bg-background">
-      {/* Sidebar */}
       <aside className="w-56 p-4 border-r hidden md:flex flex-col bg-card dark:bg-card/80">
         <ScrollArea className="flex-1 -mx-4">
             <div className="px-4 space-y-1">
@@ -238,7 +234,6 @@ export default function NotesPage() {
         </ScrollArea>
       </aside>
 
-      {/* Main Content Area */}
       <main className="flex-1 flex flex-col overflow-hidden">
          <div className="p-4 md:p-6 border-b bg-background dark:bg-muted/20">
              <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -261,7 +256,7 @@ export default function NotesPage() {
             {filteredNotes.length > 0 ? (
               <div 
                 className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-                style={{ gridTemplateRows: 'masonry', columnGap: '1rem' }} // Basic masonry attempt
+                style={{ columnGap: '1rem' }} // Using column-gap for better control with CSS Grid
               >
                 {filteredNotes.map(note => (
                   <NoteCard
@@ -273,12 +268,12 @@ export default function NotesPage() {
                     onToggleTrash={handleToggleTrash}
                     onRestore={handleRestoreFromTrash}
                     isTrashedView={activeFilter === 'trash'}
-                    className="break-inside-avoid-column mb-4" // For CSS masonry
+                    className="mb-4" // break-inside-avoid-column might not be fully supported by all browsers with CSS Grid
                   />
                 ))}
               </div>
             ) : (
-              <div className="text-center py-16 text-muted-foreground">
+              <div className="text-center py-16 text-muted-foreground flex flex-col items-center justify-center min-h-[calc(100vh-var(--header-height)-150px)]">
                 <ThumbsUp className="mx-auto h-16 w-16 opacity-30 mb-4" />
                 <p className="text-lg font-medium">
                   {searchTerm ? "No notes match your search" : 
@@ -311,3 +306,4 @@ export default function NotesPage() {
     </div>
   );
 }
+

@@ -17,7 +17,7 @@ interface NoteCardProps {
   onToggleStar: (id: string) => void;
   onToggleArchive: (id: string) => void;
   onToggleTrash: (id:string) => void;
-  onRestore: (id: string) => void; // For restoring from trash
+  onRestore: (id: string) => void; 
   isTrashedView?: boolean;
   className?: string;
 }
@@ -36,8 +36,8 @@ export default function NoteCard({
 
   return (
     <Card className={cn(
-        "shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out flex flex-col rounded-2xl border hover:border-primary/50 focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 break-inside-avoid-page", 
-        "bg-card text-card-foreground",
+        "shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out flex flex-col rounded-2xl border hover:border-primary/50 focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2", 
+        "bg-card text-card-foreground break-inside-avoid", // Added break-inside-avoid
         note.isTrashed ? "opacity-70 hover:opacity-80" : "",
         note.isArchived && !isTrashedView ? "bg-muted/50 dark:bg-muted/20" : "",
         className
@@ -45,7 +45,7 @@ export default function NoteCard({
       
       <CardHeader className="flex flex-row items-start justify-between pb-2 pt-4 px-4">
         {note.title && (
-            <CardTitle className="text-md font-semibold break-words text-foreground flex-1 line-clamp-2 cursor-pointer hover:underline" onClick={() => onEdit(note)}>
+            <CardTitle className="text-base font-semibold break-words text-foreground flex-1 line-clamp-2 cursor-pointer hover:underline" onClick={() => onEdit(note)}>
             {note.title}
             </CardTitle>
         )}
@@ -100,7 +100,7 @@ export default function NoteCard({
       </CardHeader>
       <CardContent className="pb-3 px-4 flex-grow min-h-[60px] cursor-pointer" onClick={() => onEdit(note)}>
         {note.content ? (
-            <div className="text-sm text-muted-foreground prose prose-sm dark:prose-invert max-w-none line-clamp-[8]"> {/* Increased line clamp */}
+            <div className="text-sm text-muted-foreground prose prose-sm dark:prose-invert max-w-none line-clamp-[7]"> 
               <MarkdownRenderer content={note.content} />
             </div>
         ) : (
@@ -113,8 +113,8 @@ export default function NoteCard({
         {note.tags.length > 0 && (
              <div className="flex gap-1.5 flex-wrap w-full">
                 {note.tags.map(tag => (
-                    <Badge key={tag} variant="secondary" className="text-xs px-1.5 py-0.5 capitalize rounded-md bg-secondary/70 hover:bg-secondary">
-                        <Tag className="h-3 w-3 mr-1 opacity-70"/>{tag}
+                    <Badge key={tag} variant="secondary" className="text-[10px] px-1.5 py-0.5 capitalize rounded-md bg-secondary/70 hover:bg-secondary font-normal">
+                        <Tag className="h-2.5 w-2.5 mr-1 opacity-70"/>{tag}
                     </Badge>
                 ))}
             </div>
@@ -127,3 +127,4 @@ export default function NoteCard({
     </Card>
   );
 }
+
