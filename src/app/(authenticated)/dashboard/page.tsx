@@ -168,12 +168,10 @@ export default function DashboardPage() {
                         {task.dueDate && <span className="whitespace-nowrap">Due: {format(parseISO(task.dueDate), "MMM d, yyyy")}</span>}
                       </div>
                     </div>
-                    <Link href="/tasks" legacyBehavior>
-                      <a className="ml-2 flex-shrink-0">
-                        <Button variant="secondary" size="sm" className="transition-transform hover:scale-105 rounded-lg">
-                          <Eye className="h-4 w-4 mr-1 sm:mr-2"/> <span className="hidden sm:inline">View</span>
-                        </Button>
-                      </a>
+                    <Link href="/tasks" className="ml-2 flex-shrink-0">
+                      <Button variant="secondary" size="sm" className="transition-transform hover:scale-105 rounded-lg">
+                        <Eye className="h-4 w-4 mr-1 sm:mr-2"/> <span className="hidden sm:inline">View</span>
+                      </Button>
                     </Link>
                   </li>
                 ))}
