@@ -4,7 +4,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PlusCircle, Brain } from "lucide-react";
+import { PlusCircle, Brain, ListChecks, CheckSquare, ThumbsUp } from "lucide-react";
 import TaskCard from "@/components/task-card";
 import AddTaskDialog from "@/components/add-task-dialog";
 import { useToast } from "@/hooks/use-toast";
@@ -18,11 +18,10 @@ export interface Task {
   dueDate?: string; // ISO string date
   priority?: 'low' | 'medium' | 'high' | string;
   status: 'pending' | 'completed';
-  aiReason?: string; // For AI prioritization
-  aiPriority?: number; // For AI prioritization
+  aiReason?: string; 
+  aiPriority?: number; 
 }
 
-// Dummy tasks
 const initialTasks: Task[] = [
   { id: "1", title: "Submit quarterly report", description: "Finalize and submit the Q3 financial report.", dueDate: "2024-08-10", priority: "high", status: "pending" },
   { id: "2", title: "Plan team retreat", description: "Organize logistics for the upcoming team building event.", dueDate: "2024-09-15", priority: "medium", status: "pending" },
@@ -41,17 +40,16 @@ export default function TasksPage() {
 
   useEffect(() => {
     setIsClient(true);
-    // Potentially load tasks from localStorage or API here
   }, []);
   
-  const handleAddTask = (taskData: Omit<Task, 'id' | 'status'>, id?: string) => {
-    if (id) { // Editing task
+  const handleAddTask = (taskData: Omit<Task, 'id' | 'status' | 'aiReason' | 'aiPriority'>, id?: string) => {
+    if (id) { 
       setTasks(tasks.map(t => t.id === id ? { ...t, ...taskData, dueDate: taskData.dueDate ? new Date(taskData.dueDate).toISOString() : undefined } : t));
       toast({ title: "Task Updated", description: `"${taskData.title}" has been updated.` });
-    } else { // Adding new task
+    } else { 
       const newTask: Task = {
         ...taskData,
-        id: Date.now().toString(), // Simple ID generation
+        id: Date.now().toString(), 
         status: 'pending',
         dueDate: taskData.dueDate ? new Date(taskData.dueDate).toISOString() : undefined,
       };
@@ -61,7 +59,7 @@ export default function TasksPage() {
   };
 
   const handleToggleComplete = (id: string) => {
-    setTasks(tasks.map(t => t.id === id ? { ...t, status: t.status === 'pending' ? 'completed' : 'pending' } : t));
+    setTasks(tasks.map(t => t.id === id ? { ...t, status: t.status === 'pending' ? 'completed' : 'pending', aiReason: undefined, aiPriority: undefined } : t));
   };
 
   const handleEditTask = (task: Task) => {
@@ -70,8 +68,11 @@ export default function TasksPage() {
   };
 
   const handleDeleteTask = (id: string) => {
+    const deletedTask = tasks.find(t => t.id === id);
     setTasks(tasks.filter(t => t.id !== id));
-    toast({ title: "Task Deleted", variant: "destructive" });
+    if (deletedTask) {
+      toast({ title: "Task Deleted", description: `"${deletedTask.title}" was removed.`, variant: "destructive" });
+    }
   };
   
   const openNewTaskDialog = () => {
@@ -81,6 +82,7 @@ export default function TasksPage() {
 
   const handleAiPrioritize = async () => {
     setIsLoadingAi(true);
+    toast({ title: "AI Prioritization Started", description: "The AI is analyzing your pending tasks..." });
     const pendingTasks = tasks.filter(t => t.status === 'pending');
     if (pendingTasks.length === 0) {
       toast({ title: "No Pending Tasks", description: "There are no pending tasks to prioritize." });
@@ -92,8 +94,8 @@ export default function TasksPage() {
       tasks: pendingTasks.map(task => ({
         title: task.title,
         description: task.description || "",
-        deadline: task.dueDate ? task.dueDate.split('T')[0] : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Default to 1 week if no due date
-        importance: (task.priority || 'medium') as 'low' | 'medium' | 'high',
+        deadline: task.dueDate ? task.dueDate.split('T')[0] : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], 
+        importance: (task.priority && ['low', 'medium', 'high'].includes(task.priority) ? task.priority : 'medium') as 'low' | 'medium' | 'high',
       })),
     };
 
@@ -101,7 +103,6 @@ export default function TasksPage() {
       const result: AiTaskPrioritizationOutput = await aiTaskPrioritization(aiInput);
       const prioritizedTasks = result.prioritizedTasks;
 
-      // Update existing tasks with AI priority and reason, keeping original IDs
       const updatedTasks = tasks.map(originalTask => {
         const aiData = prioritizedTasks.find(pt => pt.title === originalTask.title && pt.description === (originalTask.description || ""));
         if (aiData && originalTask.status === 'pending') {
@@ -109,34 +110,33 @@ export default function TasksPage() {
             ...originalTask,
             aiPriority: aiData.priority,
             aiReason: aiData.reason,
-            // Optionally update priority based on AI suggestion
-            // priority: aiData.importance, 
           };
         }
-        return originalTask;
+        return {...originalTask, aiReason: undefined, aiPriority: undefined}; // Clear AI fields for non-matched or completed tasks
       });
 
-      // Sort tasks: AI prioritized pending tasks first, then other pending, then completed
       updatedTasks.sort((a, b) => {
         if (a.status === 'completed' && b.status !== 'completed') return 1;
         if (a.status !== 'completed' && b.status === 'completed') return -1;
-        if (a.status === 'completed' && b.status === 'completed') return 0; // or sort by completion date
-
-        // Both pending
+        if (a.status === 'completed' && b.status === 'completed') {
+            return new Date(b.dueDate || 0).getTime() - new Date(a.dueDate || 0).getTime(); // Sort completed by due date
+        }
         if (a.aiPriority !== undefined && b.aiPriority !== undefined) {
           return a.aiPriority - b.aiPriority;
         }
-        if (a.aiPriority !== undefined) return -1; // a is prioritized, b is not
-        if (b.aiPriority !== undefined) return 1;  // b is prioritized, a is not
+        if (a.aiPriority !== undefined) return -1; 
+        if (b.aiPriority !== undefined) return 1;  
         
-        // Fallback sort for non-AI prioritized pending tasks (e.g., by due date)
         const dateA = a.dueDate ? new Date(a.dueDate).getTime() : Infinity;
         const dateB = b.dueDate ? new Date(b.dueDate).getTime() : Infinity;
-        return dateA - dateB;
+        if (dateA !== dateB) return dateA - dateB;
+
+        const priorityOrder = { high: 1, medium: 2, low: 3 };
+        return (priorityOrder[a.priority as keyof typeof priorityOrder] || 4) - (priorityOrder[b.priority as keyof typeof priorityOrder] || 4);
       });
       
       setTasks(updatedTasks);
-      toast({ title: "Tasks Prioritized by AI", description: "Your tasks have been reordered based on AI suggestions." });
+      toast({ title: "Tasks Prioritized by AI", description: "Your tasks have been reordered and annotated." });
     } catch (error) {
       console.error("AI Prioritization Error:", error);
       toast({ title: "AI Error", description: "Could not prioritize tasks. Please try again.", variant: "destructive" });
@@ -145,69 +145,92 @@ export default function TasksPage() {
     }
   };
 
-  const pendingTasks = tasks.filter(t => t.status === 'pending');
-  const completedTasks = tasks.filter(t => t.status === 'completed');
+  const pendingTasksOriginal = tasks.filter(t => t.status === 'pending');
+  const completedTasks = tasks.filter(t => t.status === 'completed').sort((a,b) => new Date(b.dueDate || 0).getTime() - new Date(a.dueDate || 0).getTime());
   
   const today = new Date().toISOString().split('T')[0];
-  const upcomingTasks = pendingTasks.filter(t => t.dueDate && t.dueDate > today);
-  const todayTasks = pendingTasks.filter(t => t.dueDate && t.dueDate.startsWith(today));
-  // Tasks without due date or due date in the past (not today) can be considered under 'Today' or a general bucket
-  const otherPendingTasks = pendingTasks.filter(t => !t.dueDate || (t.dueDate <= today && !t.dueDate.startsWith(today)) );
+  // For "Today" tab, show tasks due today, overdue, or without a due date (if AI hasn't pushed them to upcoming)
+  // AI prioritized tasks might shift due dates implicitly, so rely on aiPriority for initial sort if present.
+  const todayTasks = pendingTasksOriginal.filter(t => {
+    if (t.aiPriority !== undefined) return true; // If AI prioritized, it belongs to a general pool sorted by AI
+    return !t.dueDate || t.dueDate <= today;
+  }).sort((a,b) => { // Secondary sort for today tab if AI not active
+    if (a.aiPriority !== undefined && b.aiPriority !== undefined) return a.aiPriority - b.aiPriority;
+    if (a.aiPriority !== undefined) return -1;
+    if (b.aiPriority !== undefined) return 1;
+    const dateA = a.dueDate ? new Date(a.dueDate).getTime() : Infinity;
+    const dateB = b.dueDate ? new Date(b.dueDate).getTime() : Infinity;
+    return dateA - dateB;
+  });
+
+  const upcomingTasks = pendingTasksOriginal.filter(t => {
+    if (t.aiPriority !== undefined) return false; // Already handled by AI sort if active
+    return t.dueDate && t.dueDate > today;
+  }).sort((a,b) => new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime());
+  
+  // If AI is active, all pending tasks are shown in one list, sorted by AI.
+  const allPendingTasksSorted = [...pendingTasksOriginal].sort((a, b) => {
+      if (a.aiPriority !== undefined && b.aiPriority !== undefined) return a.aiPriority - b.aiPriority;
+      if (a.aiPriority !== undefined) return -1;
+      if (b.aiPriority !== undefined) return 1;
+      const dateA = a.dueDate ? new Date(a.dueDate).getTime() : Infinity;
+      const dateB = b.dueDate ? new Date(b.dueDate).getTime() : Infinity;
+      if (dateA !== dateB) return dateA - dateB;
+      const priorityOrder = { high: 1, medium: 2, low: 3 };
+      return (priorityOrder[a.priority as keyof typeof priorityOrder] || 4) - (priorityOrder[b.priority as keyof typeof priorityOrder] || 4);
+  });
 
 
   if (!isClient) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 p-1 md:p-2">
         <div className="flex justify-between items-center">
-          <Skeleton className="h-10 w-48" />
-          <Skeleton className="h-10 w-32" />
+          <Skeleton className="h-10 w-48 rounded-lg" />
+          <Skeleton className="h-10 w-32 rounded-lg" />
         </div>
-        <Skeleton className="h-8 w-full max-w-sm" />
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {[1,2,3].map(i => <Skeleton key={i} className="h-60 w-full" />)}
+        <Skeleton className="h-10 w-full max-w-md rounded-lg" />
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {[1,2,3,4].map(i => <Skeleton key={i} className="h-64 w-full rounded-lg" />)}
         </div>
       </div>
     );
   }
 
+  const tasksToShowInPending = isLoadingAi ? [] : allPendingTasksSorted;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-1 md:p-2">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold font-headline tracking-tight">Task Manager</h1>
           <p className="text-muted-foreground">Organize, prioritize, and conquer your to-do list.</p>
         </div>
-        <div className="flex gap-2">
-          <Button onClick={handleAiPrioritize} disabled={isLoadingAi}>
-            <Brain className="mr-2 h-4 w-4" /> {isLoadingAi ? "Prioritizing..." : "Prioritize with AI"}
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <Button onClick={handleAiPrioritize} disabled={isLoadingAi || pendingTasksOriginal.length === 0} className="w-full sm:w-auto shadow-md hover:shadow-lg transition-shadow">
+            <Brain className="mr-2 h-4 w-4" /> {isLoadingAi ? "AI Thinking..." : "Prioritize with AI"}
           </Button>
-          <Button onClick={openNewTaskDialog}>
+          <Button onClick={openNewTaskDialog} className="w-full sm:w-auto shadow-md hover:shadow-lg transition-shadow">
             <PlusCircle className="mr-2 h-4 w-4" /> Add Task
           </Button>
         </div>
       </div>
 
-      <Tabs defaultValue="today" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 mb-4">
-          <TabsTrigger value="today">Today ({todayTasks.length + otherPendingTasks.length})</TabsTrigger>
-          <TabsTrigger value="upcoming">Upcoming ({upcomingTasks.length})</TabsTrigger>
-          <TabsTrigger value="completed">Completed ({completedTasks.length})</TabsTrigger>
+      <Tabs defaultValue="pending" className="w-full">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-2 mb-4 bg-muted/50 dark:bg-muted/20 rounded-lg p-1">
+          <TabsTrigger value="pending" className="flex items-center gap-2 data-[state=active]:bg-card data-[state=active]:shadow-md"><ListChecks className="h-4 w-4"/>Pending ({pendingTasksOriginal.length})</TabsTrigger>
+          <TabsTrigger value="completed" className="flex items-center gap-2 data-[state=active]:bg-card data-[state=active]:shadow-md"><CheckSquare className="h-4 w-4"/>Completed ({completedTasks.length})</TabsTrigger>
         </TabsList>
         
         {isLoadingAi && (
-           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mt-4">
-             {[1,2,3].map(i => <Skeleton key={i} className="h-60 w-full" />)}
+           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mt-4">
+             {Array.from({length: Math.min(pendingTasksOriginal.length, 4)}).map((_, i) => <Skeleton key={i} className="h-64 w-full rounded-lg" />)}
            </div>
         )}
 
         {!isLoadingAi && (
         <>
-          <TabsContent value="today">
-            <TaskGrid tasks={[...todayTasks, ...otherPendingTasks]} onToggleComplete={handleToggleComplete} onEdit={handleEditTask} onDelete={handleDeleteTask} title="Tasks for Today & Overdue/Unscheduled" />
-          </TabsContent>
-          <TabsContent value="upcoming">
-            <TaskGrid tasks={upcomingTasks} onToggleComplete={handleToggleComplete} onEdit={handleEditTask} onDelete={handleDeleteTask} title="Upcoming Tasks" />
+          <TabsContent value="pending">
+            <TaskGrid tasks={tasksToShowInPending} onToggleComplete={handleToggleComplete} onEdit={handleEditTask} onDelete={handleDeleteTask} title="Pending Tasks" />
           </TabsContent>
           <TabsContent value="completed">
             <TaskGrid tasks={completedTasks} onToggleComplete={handleToggleComplete} onEdit={handleEditTask} onDelete={handleDeleteTask} title="Completed Tasks" />
@@ -231,11 +254,16 @@ interface TaskGridProps {
 
 function TaskGrid({ tasks, title, ...props }: TaskGridProps) {
   if (tasks.length === 0) {
-    return <p className="text-muted-foreground text-center py-8">No tasks in this category.</p>;
+    return (
+      <div className="text-center py-16">
+        <ThumbsUp className="mx-auto h-20 w-20 text-muted-foreground opacity-30" />
+        <p className="mt-6 text-xl font-medium text-muted-foreground">All caught up!</p>
+        <p className="text-sm text-muted-foreground">No tasks in this category right now.</p>
+      </div>
+    );
   }
   return (
     <div className="space-y-4">
-      {/* <h2 className="text-xl font-semibold mb-4">{title}</h2> */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {tasks.map(task => (
           <TaskCard key={task.id} task={task} {...props} />
@@ -244,4 +272,3 @@ function TaskGrid({ tasks, title, ...props }: TaskGridProps) {
     </div>
   );
 }
-

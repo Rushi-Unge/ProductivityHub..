@@ -8,9 +8,18 @@ interface TimerCircleProps {
   duration: number; // in seconds
   isPaused: boolean;
   className?: string;
+  circleColor?: string; // Tailwind class for the background circle
+  progressColor?: string; // Tailwind class for the progress circle
 }
 
-export default function TimerCircle({ timeRemaining, duration, isPaused, className }: TimerCircleProps) {
+export default function TimerCircle({ 
+  timeRemaining, 
+  duration, 
+  isPaused, 
+  className,
+  circleColor = "text-primary/30", // Default to primary with some opacity
+  progressColor = "text-primary" // Default to solid primary
+}: TimerCircleProps) {
   const radius = 80;
   const circumference = 2 * Math.PI * radius;
   const progress = duration > 0 ? ((duration - timeRemaining) / duration) * circumference : 0;
@@ -22,14 +31,17 @@ export default function TimerCircle({ timeRemaining, duration, isPaused, classNa
   };
 
   return (
-    <div className={cn("relative w-64 h-64 rounded-full shadow-2xl flex items-center justify-center bg-primary/10 dark:bg-primary/20", className)}>
+    <div className={cn(
+      "relative w-56 h-56 sm:w-64 sm:h-64 rounded-full shadow-2xl flex items-center justify-center",
+      className // This allows overriding background from parent
+    )}>
       <svg className="absolute inset-0 w-full h-full transform -rotate-90" viewBox="0 0 200 200">
         <circle
           cx="100"
           cy="100"
           r={radius}
           strokeWidth="12"
-          className="text-primary/20 dark:text-primary/30"
+          className={cn("transition-colors duration-300", circleColor)}
           fill="transparent"
           stroke="currentColor"
         />
@@ -38,7 +50,7 @@ export default function TimerCircle({ timeRemaining, duration, isPaused, classNa
           cy="100"
           r={radius}
           strokeWidth="12"
-          className="text-primary transition-all duration-500 ease-linear"
+          className={cn("transition-all duration-500 ease-linear", progressColor)}
           fill="transparent"
           stroke="currentColor"
           strokeDasharray={circumference}
@@ -47,14 +59,14 @@ export default function TimerCircle({ timeRemaining, duration, isPaused, classNa
         />
       </svg>
       <div className="z-10 text-center">
-        <div className="text-5xl font-bold font-mono text-primary-foreground tabular-nums">
+        {/* Text color for time will be inherited from parent or defaults to foreground */}
+        <div className="text-5xl sm:text-6xl font-bold font-mono tabular-nums">
           {formatTime(timeRemaining)}
         </div>
         {isPaused && timeRemaining > 0 && timeRemaining < duration && (
-          <div className="text-sm text-primary-foreground/80 mt-1">Paused</div>
+          <div className="text-sm opacity-80 mt-1">Paused</div>
         )}
       </div>
     </div>
   );
 }
-

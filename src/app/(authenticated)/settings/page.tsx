@@ -13,7 +13,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { UploadCloud } from "lucide-react";
+import { UploadCloud, User, Lock, Bell } from "lucide-react";
 
 const profileSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -21,9 +21,9 @@ const profileSchema = z.object({
 });
 
 const passwordSchema = z.object({
-  currentPassword: z.string().min(6, "Current password is required."),
-  newPassword: z.string().min(6, "New password must be at least 6 characters."),
-  confirmNewPassword: z.string(),
+  currentPassword: z.string().min(1, "Current password is required.").min(6, "Password must be at least 6 characters."),
+  newPassword: z.string().min(1, "New password is required.").min(6, "New password must be at least 6 characters."),
+  confirmNewPassword: z.string().min(1, "Confirm password is required."),
 }).refine((data) => data.newPassword === data.confirmNewPassword, {
   message: "New passwords don't match.",
   path: ["confirmNewPassword"],
@@ -37,7 +37,7 @@ export default function SettingsPage() {
 
   const profileForm = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
-    defaultValues: { name: "Current User", email: "user@example.com" }, // Mock data
+    defaultValues: { name: "Current User", email: "user@example.com" }, 
   });
 
   const passwordForm = useForm<PasswordFormValues>({
@@ -57,21 +57,21 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-1 md:p-2">
       <div>
         <h1 className="text-3xl font-bold font-headline tracking-tight">Settings</h1>
         <p className="text-muted-foreground">Manage your account settings and preferences.</p>
       </div>
 
       <Tabs defaultValue="profile" className="w-full">
-        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 mb-6">
-          <TabsTrigger value="profile">Profile</TabsTrigger>
-          <TabsTrigger value="security">Security</TabsTrigger>
-          <TabsTrigger value="notifications">Notifications</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 mb-6 bg-muted/50 dark:bg-muted/20 rounded-lg p-1">
+          <TabsTrigger value="profile" className="flex items-center gap-2 data-[state=active]:bg-card data-[state=active]:shadow-md"><User className="h-4 w-4"/>Profile</TabsTrigger>
+          <TabsTrigger value="security" className="flex items-center gap-2 data-[state=active]:bg-card data-[state=active]:shadow-md"><Lock className="h-4 w-4"/>Security</TabsTrigger>
+          <TabsTrigger value="notifications" className="flex items-center gap-2 data-[state=active]:bg-card data-[state=active]:shadow-md"><Bell className="h-4 w-4"/>Notifications</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile">
-          <Card className="shadow-md">
+          <Card className="shadow-xl">
             <CardHeader>
               <CardTitle>Profile Information</CardTitle>
               <CardDescription>Update your personal details and avatar.</CardDescription>
@@ -79,12 +79,12 @@ export default function SettingsPage() {
             <Form {...profileForm}>
               <form onSubmit={profileForm.handleSubmit(onProfileSubmit)}>
                 <CardContent className="space-y-6">
-                  <div className="flex items-center space-x-4">
-                    <Avatar className="h-20 w-20">
-                      <AvatarImage src="https://placehold.co/200x200.png" alt="User Avatar" data-ai-hint="user avatar"/>
+                  <div className="flex items-center space-x-6">
+                    <Avatar className="h-24 w-24 border-2 border-primary/50 shadow-md">
+                      <AvatarImage src="https://placehold.co/200x200.png" alt="User Avatar" data-ai-hint="user avatar professional" />
                       <AvatarFallback>CU</AvatarFallback>
                     </Avatar>
-                    <Button variant="outline" type="button">
+                    <Button variant="outline" type="button" className="transition-transform hover:scale-105">
                       <UploadCloud className="mr-2 h-4 w-4" /> Change Avatar
                     </Button>
                   </div>
@@ -116,7 +116,7 @@ export default function SettingsPage() {
                   />
                 </CardContent>
                 <CardFooter>
-                  <Button type="submit">Save Changes</Button>
+                  <Button type="submit" className="shadow-md hover:shadow-lg transition-shadow">Save Changes</Button>
                 </CardFooter>
               </form>
             </Form>
@@ -124,7 +124,7 @@ export default function SettingsPage() {
         </TabsContent>
 
         <TabsContent value="security">
-          <Card className="shadow-md">
+          <Card className="shadow-xl">
             <CardHeader>
               <CardTitle>Security Settings</CardTitle>
               <CardDescription>Manage your password and account security.</CardDescription>
@@ -171,18 +171,18 @@ export default function SettingsPage() {
                       </FormItem>
                     )}
                   />
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0 sm:space-x-2 rounded-lg border p-4">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0 sm:space-x-2 rounded-lg border p-4 bg-muted/20">
                     <div className="space-y-0.5">
                       <Label className="text-base font-semibold">Two-Factor Authentication (2FA)</Label>
                       <CardDescription>
-                        Add an extra layer of security to your account.
+                        Add an extra layer of security to your account. (UI Only)
                       </CardDescription>
                     </div>
                     <Switch id="2fa-switch" aria-label="Toggle Two-Factor Authentication"/>
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button type="submit">Update Password</Button>
+                  <Button type="submit" className="shadow-md hover:shadow-lg transition-shadow">Update Password</Button>
                 </CardFooter>
               </form>
             </Form>
@@ -190,27 +190,27 @@ export default function SettingsPage() {
         </TabsContent>
 
         <TabsContent value="notifications">
-          <Card className="shadow-md">
+          <Card className="shadow-xl">
             <CardHeader>
               <CardTitle>Notification Preferences</CardTitle>
               <CardDescription>Choose how you want to be notified.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0 sm:space-x-2 rounded-lg border p-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0 sm:space-x-2 rounded-lg border p-4 bg-muted/20">
                 <div className="space-y-0.5">
                     <Label className="text-base font-semibold">Email Notifications</Label>
                     <CardDescription>Receive updates and alerts via email.</CardDescription>
                 </div>
                 <Switch id="email-notifications" defaultChecked aria-label="Toggle email notifications" />
               </div>
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0 sm:space-x-2 rounded-lg border p-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0 sm:space-x-2 rounded-lg border p-4 bg-muted/20">
                  <div className="space-y-0.5">
                     <Label className="text-base font-semibold">Desktop Push Notifications</Label>
                     <CardDescription>Get notified directly on your desktop.</CardDescription>
                  </div>
                 <Switch id="desktop-notifications" aria-label="Toggle desktop push notifications" />
               </div>
-               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0 sm:space-x-2 rounded-lg border p-4">
+               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0 sm:space-x-2 rounded-lg border p-4 bg-muted/20">
                  <div className="space-y-0.5">
                     <Label className="text-base font-semibold">Task Reminders</Label>
                     <CardDescription>Get reminders for upcoming task deadlines.</CardDescription>
@@ -219,7 +219,7 @@ export default function SettingsPage() {
               </div>
             </CardContent>
             <CardFooter>
-              <Button type="button" onClick={() => toast({title: "Preferences Saved"})}>Save Preferences</Button>
+              <Button type="button" onClick={() => toast({title: "Preferences Saved"})} className="shadow-md hover:shadow-lg transition-shadow">Save Preferences</Button>
             </CardFooter>
           </Card>
         </TabsContent>
@@ -227,4 +227,3 @@ export default function SettingsPage() {
     </div>
   );
 }
-
