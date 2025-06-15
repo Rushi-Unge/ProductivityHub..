@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { Github, Chrome } from "lucide-react"; // Assuming Chrome for Google icon
+import { Github, Chrome, LogIn, UserPlus } from "lucide-react"; 
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
@@ -77,23 +77,51 @@ export default function AuthForm() {
   };
 
   if (!isClient) {
-    return null; // Or a loading spinner
+    return (
+        <Card className="w-full max-w-md shadow-2xl bg-card/80 backdrop-blur-md border-none animate-pulse">
+            <CardHeader className="pb-2">
+                 <div className="h-10 bg-muted rounded-md w-full"></div>
+            </CardHeader>
+            <CardContent className="space-y-4 pt-4">
+                <div className="h-6 bg-muted rounded w-1/3 mx-auto"></div>
+                <div className="h-4 bg-muted rounded w-2/3 mx-auto"></div>
+                <div className="space-y-2 pt-2">
+                    <div className="h-4 bg-muted rounded w-1/4"></div>
+                    <div className="h-10 bg-muted rounded w-full"></div>
+                </div>
+                <div className="space-y-2">
+                    <div className="h-4 bg-muted rounded w-1/4"></div>
+                    <div className="h-10 bg-muted rounded w-full"></div>
+                </div>
+            </CardContent>
+            <CardFooter className="flex flex-col gap-4">
+                <div className="h-10 bg-muted rounded w-full"></div>
+                 <div className="h-4 bg-muted rounded w-1/3 mx-auto"></div>
+                <div className="grid grid-cols-2 gap-4 w-full">
+                    <div className="h-10 bg-muted rounded w-full"></div>
+                    <div className="h-10 bg-muted rounded w-full"></div>
+                </div>
+            </CardFooter>
+        </Card>
+    );
   }
 
   return (
-    <Card className="w-full max-w-md shadow-2xl bg-card/90 backdrop-blur-sm">
+    <Card className="w-full max-w-md shadow-2xl bg-card/80 backdrop-blur-md border-none">
       <Tabs defaultValue="login" className="w-full">
         <CardHeader className="pb-2">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="login">Login</TabsTrigger>
-            <TabsTrigger value="signup">Sign Up</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 bg-muted/50 dark:bg-muted/20">
+            <TabsTrigger value="login" className="data-[state=active]:bg-card data-[state=active]:shadow-md">Login</TabsTrigger>
+            <TabsTrigger value="signup" className="data-[state=active]:bg-card data-[state=active]:shadow-md">Sign Up</TabsTrigger>
           </TabsList>
         </CardHeader>
         <TabsContent value="login">
           <Form {...loginForm}>
             <form onSubmit={loginForm.handleSubmit(onLoginSubmit)}>
-              <CardContent className="space-y-4">
-                <CardTitle className="text-2xl font-headline text-center">Welcome Back!</CardTitle>
+              <CardContent className="space-y-4 pt-4">
+                <CardTitle className="text-2xl font-headline text-center flex items-center justify-center gap-2">
+                  <LogIn className="h-7 w-7 text-primary" /> Welcome Back!
+                </CardTitle>
                 <CardDescription className="text-center">
                   Enter your credentials to access your ProHub dashboard.
                 </CardDescription>
@@ -125,7 +153,7 @@ export default function AuthForm() {
                 />
               </CardContent>
               <CardFooter className="flex flex-col gap-4">
-                <Button type="submit" className="w-full">
+                <Button type="submit" className="w-full shadow-md hover:shadow-lg transition-shadow">
                   Login
                 </Button>
                 <p className="text-center text-sm text-muted-foreground">Or continue with</p>
@@ -144,8 +172,10 @@ export default function AuthForm() {
         <TabsContent value="signup">
           <Form {...signupForm}>
             <form onSubmit={signupForm.handleSubmit(onSignupSubmit)}>
-              <CardContent className="space-y-4">
-                <CardTitle className="text-2xl font-headline text-center">Create an Account</CardTitle>
+              <CardContent className="space-y-4 pt-4">
+                <CardTitle className="text-2xl font-headline text-center flex items-center justify-center gap-2">
+                  <UserPlus className="h-7 w-7 text-primary" /> Create an Account
+                </CardTitle>
                 <CardDescription className="text-center">
                   Join ProHub and boost your productivity today!
                 </CardDescription>
@@ -190,7 +220,7 @@ export default function AuthForm() {
                 />
               </CardContent>
               <CardFooter className="flex flex-col gap-4">
-                <Button type="submit" className="w-full">
+                <Button type="submit" className="w-full shadow-md hover:shadow-lg transition-shadow">
                   Sign Up
                 </Button>
                 <p className="text-center text-sm text-muted-foreground">Or sign up with</p>
