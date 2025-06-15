@@ -119,19 +119,24 @@ export default function TasksPage() {
         if (a.status === 'completed' && b.status !== 'completed') return 1;
         if (a.status !== 'completed' && b.status === 'completed') return -1;
         if (a.status === 'completed' && b.status === 'completed') {
-            return new Date(b.dueDate || 0).getTime() - new Date(a.dueDate || 0).getTime(); // Sort completed by due date
+            // For completed tasks, sort by most recently completed (or due date as fallback)
+            const dateA = a.dueDate ? new Date(a.dueDate).getTime() : 0;
+            const dateB = b.dueDate ? new Date(b.dueDate).getTime() : 0;
+            return dateB - dateA; // Newest completed first
         }
+        // For pending tasks, sort by AI priority first
         if (a.aiPriority !== undefined && b.aiPriority !== undefined) {
           return a.aiPriority - b.aiPriority;
         }
         if (a.aiPriority !== undefined) return -1; 
         if (b.aiPriority !== undefined) return 1;  
         
-        const dateA = a.dueDate ? new Date(a.dueDate).getTime() : Infinity;
+        // Fallback sort for pending tasks if no AI priority
+        const dateA = a.dueDate ? new Date(a.dueDate).getTime() : Infinity; // Tasks without due date last
         const dateB = b.dueDate ? new Date(b.dueDate).getTime() : Infinity;
-        if (dateA !== dateB) return dateA - dateB;
+        if (dateA !== dateB) return dateA - dateB; // Earliest due date first
 
-        const priorityOrder = { high: 1, medium: 2, low: 3 };
+        const priorityOrder = { high: 1, medium: 2, low: 3 }; // Higher priority (lower number) first
         return (priorityOrder[a.priority as keyof typeof priorityOrder] || 4) - (priorityOrder[b.priority as keyof typeof priorityOrder] || 4);
       });
       
@@ -146,36 +151,25 @@ export default function TasksPage() {
   };
 
   const pendingTasksOriginal = tasks.filter(t => t.status === 'pending');
-  const completedTasks = tasks.filter(t => t.status === 'completed').sort((a,b) => new Date(b.dueDate || 0).getTime() - new Date(a.dueDate || 0).getTime());
-  
-  const today = new Date().toISOString().split('T')[0];
-  // For "Today" tab, show tasks due today, overdue, or without a due date (if AI hasn't pushed them to upcoming)
-  // AI prioritized tasks might shift due dates implicitly, so rely on aiPriority for initial sort if present.
-  const todayTasks = pendingTasksOriginal.filter(t => {
-    if (t.aiPriority !== undefined) return true; // If AI prioritized, it belongs to a general pool sorted by AI
-    return !t.dueDate || t.dueDate <= today;
-  }).sort((a,b) => { // Secondary sort for today tab if AI not active
-    if (a.aiPriority !== undefined && b.aiPriority !== undefined) return a.aiPriority - b.aiPriority;
-    if (a.aiPriority !== undefined) return -1;
-    if (b.aiPriority !== undefined) return 1;
-    const dateA = a.dueDate ? new Date(a.dueDate).getTime() : Infinity;
-    const dateB = b.dueDate ? new Date(b.dueDate).getTime() : Infinity;
-    return dateA - dateB;
+  const completedTasks = tasks.filter(t => t.status === 'completed').sort((a,b) => {
+    const dateA = a.dueDate ? new Date(a.dueDate).getTime() : 0;
+    const dateB = b.dueDate ? new Date(b.dueDate).getTime() : 0;
+    return dateB - dateA; // Sort completed by most recent due date first
   });
-
-  const upcomingTasks = pendingTasksOriginal.filter(t => {
-    if (t.aiPriority !== undefined) return false; // Already handled by AI sort if active
-    return t.dueDate && t.dueDate > today;
-  }).sort((a,b) => new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime());
+  
   
   // If AI is active, all pending tasks are shown in one list, sorted by AI.
+  // Otherwise, default sort by due date then priority.
   const allPendingTasksSorted = [...pendingTasksOriginal].sort((a, b) => {
       if (a.aiPriority !== undefined && b.aiPriority !== undefined) return a.aiPriority - b.aiPriority;
-      if (a.aiPriority !== undefined) return -1;
-      if (b.aiPriority !== undefined) return 1;
+      if (a.aiPriority !== undefined) return -1; // a has AI priority, b does not, so a comes first
+      if (b.aiPriority !== undefined) return 1;  // b has AI priority, a does not, so b comes first
+      
+      // Fallback: sort by due date (earliest first), then by priority (high > medium > low)
       const dateA = a.dueDate ? new Date(a.dueDate).getTime() : Infinity;
       const dateB = b.dueDate ? new Date(b.dueDate).getTime() : Infinity;
       if (dateA !== dateB) return dateA - dateB;
+
       const priorityOrder = { high: 1, medium: 2, low: 3 };
       return (priorityOrder[a.priority as keyof typeof priorityOrder] || 4) - (priorityOrder[b.priority as keyof typeof priorityOrder] || 4);
   });
@@ -183,12 +177,15 @@ export default function TasksPage() {
 
   if (!isClient) {
     return (
-      <div className="space-y-6 p-1 md:p-2">
-        <div className="flex justify-between items-center">
+      <div className="space-y-6 p-4 md:p-6">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-2">
           <Skeleton className="h-10 w-48 rounded-lg" />
-          <Skeleton className="h-10 w-32 rounded-lg" />
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <Skeleton className="h-10 w-full sm:w-40 rounded-lg" />
+            <Skeleton className="h-10 w-full sm:w-32 rounded-lg" />
+          </div>
         </div>
-        <Skeleton className="h-10 w-full max-w-md rounded-lg" />
+        <Skeleton className="h-10 w-full max-w-xs sm:max-w-sm rounded-lg" />
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {[1,2,3,4].map(i => <Skeleton key={i} className="h-64 w-full rounded-lg" />)}
         </div>
@@ -199,7 +196,7 @@ export default function TasksPage() {
   const tasksToShowInPending = isLoadingAi ? [] : allPendingTasksSorted;
 
   return (
-    <div className="space-y-6 p-1 md:p-2">
+    <div className="space-y-6 p-4 md:p-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold font-headline tracking-tight">Task Manager</h1>
@@ -216,7 +213,7 @@ export default function TasksPage() {
       </div>
 
       <Tabs defaultValue="pending" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-2 mb-4 bg-muted/50 dark:bg-muted/20 rounded-lg p-1">
+        <TabsList className="grid w-full grid-cols-2 mb-4 bg-muted/50 dark:bg-muted/20 rounded-lg p-1 max-w-xs sm:max-w-sm">
           <TabsTrigger value="pending" className="flex items-center gap-2 data-[state=active]:bg-card data-[state=active]:shadow-md"><ListChecks className="h-4 w-4"/>Pending ({pendingTasksOriginal.length})</TabsTrigger>
           <TabsTrigger value="completed" className="flex items-center gap-2 data-[state=active]:bg-card data-[state=active]:shadow-md"><CheckSquare className="h-4 w-4"/>Completed ({completedTasks.length})</TabsTrigger>
         </TabsList>
@@ -255,10 +252,10 @@ interface TaskGridProps {
 function TaskGrid({ tasks, title, ...props }: TaskGridProps) {
   if (tasks.length === 0) {
     return (
-      <div className="text-center py-16">
-        <ThumbsUp className="mx-auto h-20 w-20 text-muted-foreground opacity-30" />
-        <p className="mt-6 text-xl font-medium text-muted-foreground">All caught up!</p>
-        <p className="text-sm text-muted-foreground">No tasks in this category right now.</p>
+      <div className="text-center py-16 text-muted-foreground">
+        <ThumbsUp className="mx-auto h-20 w-20 opacity-30" />
+        <p className="mt-6 text-xl font-medium">All caught up!</p>
+        <p className="text-sm">No tasks in this category right now.</p>
       </div>
     );
   }

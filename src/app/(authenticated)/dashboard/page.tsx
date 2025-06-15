@@ -1,22 +1,59 @@
 
+"use client"
+
+import * as React from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Activity, ArrowUpRight, Briefcase, CheckCircle, DollarSign, ListChecks, Users, Zap, Eye } from "lucide-react";
+import { Activity, ArrowUpRight, Briefcase, CheckCircle, DollarSign, ListChecks, Users, Zap, Eye, StickyNote, LineChart, Edit3, ThumbsUp } from "lucide-react";
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
+import { format, parseISO, formatDistanceToNow } from "date-fns";
+import Image from "next/image";
+import type { Task } from "@/app/(authenticated)/tasks/page";
+import type { Note } from "@/app/(authenticated)/notes/page";
+import type { Trade } from "@/app/(authenticated)/analytics/page"; // Using Trades page type
+import { cn } from "@/lib/utils";
 
-const stats = [
-  { title: "Tasks Completed", value: "120", change: "+15%", icon: <CheckCircle className="h-6 w-6 text-success" />, dataAiHint: "checkmark task" },
-  { title: "Active Projects", value: "12", change: "+5", icon: <Briefcase className="h-6 w-6 text-primary" />, dataAiHint: "briefcase project" },
-  { title: "Revenue (Demo)", value: "$15,670", change: "+8%", icon: <DollarSign className="h-6 w-6 text-accent" />, dataAiHint: "money revenue" },
-  { title: "Focus Sessions", value: "27", change: "+3 today", icon: <Zap className="h-6 w-6 text-secondary" />, dataAiHint: "lightning focus" },
+// --- Data Duplication for Dashboard Display (Simulating Fetched Data) ---
+
+// Duplicated and simplified Task interface and initial data for Dashboard
+const initialDashboardTasks: Task[] = [
+  { id: "1", title: "Submit quarterly report", description: "Finalize and submit the Q3 financial report.", dueDate: "2024-08-10", priority: "high", status: "pending" },
+  { id: "4", title: "Client onboarding call", description: "Onboard new client Acme Corp.", dueDate: "2024-08-01", priority: "high", status: "pending" },
+  { id: "5", title: "Research new marketing tools", description: "Explore new tools for social media management.", dueDate: "2024-08-25", priority: "medium", status: "pending" },
+  { id: "2", title: "Plan team retreat", description: "Organize logistics for upcoming event.", dueDate: "2024-09-15", priority: "medium", status: "pending" },
 ];
 
-const recentTasks = [
-  { id: 1, title: "Design landing page mockups", priority: "High", dueDate: "2024-08-15", completed: false, href: "/tasks" },
-  { id: 2, title: "Develop API authentication", priority: "Medium", dueDate: "2024-08-20", completed: true, href: "/tasks" },
-  { id: 3, title: "Write user documentation", priority: "Low", dueDate: "2024-09-01", completed: false, href: "/tasks" },
+// Duplicated and simplified Note interface and initial data for Dashboard
+const initialDashboardNotes: Note[] = [
+  { id: "n3", title: "Book Insights: 'Atomic Habits'", content: "Key takeaways:\n- Focus on systems, not goals.\n- Make it obvious, attractive, easy, satisfying.", createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), color: "bg-blue-200 dark:bg-blue-700/30" },
+  { id: "n1", title: "Project Ideas for ProHub", content: "1. AI-driven task suggestions.\n2. Team collaboration module.", createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), color: "bg-yellow-200 dark:bg-yellow-700/30", imageUrl:"https://placehold.co/300x200.png?text=MindMap" },
+  { id: "n2", title: "Weekly Goals (Current)", content: "- Finalize Q4 budget presentation.\n- Conduct user interviews.", createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), color: "bg-green-200 dark:bg-green-700/30" },
 ];
+
+// Duplicated Trade interface and initial data for Dashboard
+const calculatePnl = (trade: Omit<Trade, 'id' | 'pnl' | 'status' | 'chartPlaceholderUrl' | 'screenshotFilename'> & { status: 'closed', exitPrice: number, exitTimestamp: string }): number => {
+  if (trade.position === "long") {
+    return (trade.exitPrice - trade.entryPrice) * trade.quantity;
+  } else {
+    return (trade.entryPrice - trade.exitPrice) * trade.quantity;
+  }
+};
+
+const initialDashboardTrades: Trade[] = [
+  { id: "t1", asset: "AAPL", entryTimestamp: new Date(2024, 6, 5, 9, 30).toISOString(), exitTimestamp: new Date(2024, 6, 7, 15, 0).toISOString(), position: "long", entryPrice: 175.20, exitPrice: 182.45, quantity: 10, strategy: "Breakout", reflection: "Perfect breakout.", riskPercentage: 2, status: "closed", chartPlaceholderUrl: "https://placehold.co/300x150.png", screenshotFilename: "aapl_trade_setup.png" },
+  { id: "t2", asset: "TSLA", entryTimestamp: new Date(2024, 6, 3, 10, 0).toISOString(), exitTimestamp: new Date(2024, 6, 4, 12, 0).toISOString(), position: "short", entryPrice: 245.80, exitPrice: 238.30, quantity: 5, strategy: "Earnings Play", reflection: "Stop loss triggered.", riskPercentage: 1.5, status: "closed", chartPlaceholderUrl: "https://placehold.co/300x150.png"},
+  { id: "t3", asset: "MSFT", entryTimestamp: new Date(2024, 6, 1, 14, 0).toISOString(), exitTimestamp: new Date(2024, 6, 6, 10,0).toISOString(), position: "long", entryPrice: 338.50, exitPrice: 345.20, quantity: 8, strategy: "Momentum", reflection: "Good volume.", riskPercentage: 2, status: "closed", chartPlaceholderUrl: "https://placehold.co/300x150.png", screenshotFilename: "msft_breakout.jpg" },
+  { id: "t5", asset: "GOOGL", entryTimestamp: new Date(2024, 6, 8, 9,45).toISOString(), position: "long", entryPrice: 140.50, quantity: 10, strategy: "Value Dip Buy", riskPercentage: 2.5, status: "open", chartPlaceholderUrl: "https://placehold.co/300x150.png" },
+];
+initialDashboardTrades.forEach(trade => {
+  if (trade.status === 'closed' && trade.exitPrice && trade.exitTimestamp) {
+    trade.pnl = calculatePnl(trade as Omit<Trade, 'id' | 'pnl' | 'status' | 'chartPlaceholderUrl' | 'screenshotFilename'> & { status: 'closed', exitPrice: number, exitTimestamp: string });
+  }
+});
+
+// --- End Data Duplication ---
 
 const projectDeadlines = [
   { name: "Alpha Release", progress: 75, date: "2024-09-15" },
@@ -24,70 +61,170 @@ const projectDeadlines = [
   { name: "Product Launch", progress: 10, date: "2024-12-01" },
 ];
 
+interface TradeStat {
+  title: string;
+  value: string;
+  change?: string;
+  icon: React.ReactNode;
+  colorClass?: string;
+}
 
 export default function DashboardPage() {
+  const [isClient, setIsClient] = React.useState(false);
+  React.useEffect(() => setIsClient(true), []);
+
+  const displayedTasks = initialDashboardTasks.filter(t => t.status === 'pending').slice(0, 3);
+  const displayedNotes = initialDashboardNotes.slice(0, 3);
+
+  const tradeStats = React.useMemo(() => {
+    if (!isClient) return []; // Prevent calculations on server
+    const closedTrades = initialDashboardTrades.filter(t => t.status === 'closed' && t.pnl !== undefined);
+    const totalPnl = closedTrades.reduce((sum, trade) => sum + (trade.pnl || 0), 0);
+    const winningTradesCount = closedTrades.filter(t => (t.pnl || 0) > 0).length;
+    const losingTradesCount = closedTrades.filter(t => (t.pnl || 0) < 0).length;
+    const winRate = closedTrades.length > 0 ? (winningTradesCount / closedTrades.length) * 100 : 0;
+    
+    const grossProfit = closedTrades.filter(t => (t.pnl || 0) > 0).reduce((sum, t) => sum + (t.pnl || 0), 0);
+    const grossLoss = closedTrades.filter(t => (t.pnl || 0) < 0).reduce((sum, t) => sum + (t.pnl || 0), 0); 
+    const averageWin = winningTradesCount > 0 ? grossProfit / winningTradesCount : 0;
+    const averageLoss = losingTradesCount > 0 ? grossLoss / losingTradesCount : 0;
+
+    return [
+      { title: "Total P&L", value: totalPnl.toLocaleString(undefined, { style: 'currency', currency: 'USD' }), icon: <DollarSign className="h-6 w-6 text-muted-foreground" />, colorClass: totalPnl >= 0 ? 'text-success' : 'text-destructive' },
+      { title: "Win Rate", value: `${winRate.toFixed(0)}%`, icon: <Activity className="h-6 w-6 text-muted-foreground" /> },
+      { title: "Avg. Win", value: averageWin.toLocaleString(undefined, { style: 'currency', currency: 'USD' }), icon: <TrendingUp className="h-6 w-6 text-success" /> },
+      { title: "Avg. Loss", value: Math.abs(averageLoss).toLocaleString(undefined, { style: 'currency', currency: 'USD' }), icon: <TrendingDown className="h-6 w-6 text-destructive" /> },
+    ];
+  }, [isClient]);
+
+
+  if (!isClient) {
+    // Basic skeleton loader for the dashboard
+    return (
+      <div className="space-y-6 p-4 md:p-6 animate-pulse">
+        <div className="h-10 bg-muted rounded w-3/4"></div>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {[...Array(4)].map((_, i) => <div key={i} className="h-28 bg-muted rounded-lg"></div>)}
+        </div>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="h-64 bg-muted rounded-lg"></div>
+          <div className="h-64 bg-muted rounded-lg"></div>
+          <div className="h-64 bg-muted rounded-lg lg:col-span-1"></div>
+        </div>
+         <div className="h-40 bg-muted rounded-lg"></div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col gap-6 p-1 md:p-2">
+    <div className="flex flex-col gap-6 p-4 md:p-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold font-headline tracking-tight">Welcome to ProHub!</h1>
           <p className="text-muted-foreground">Here's your productivity pulse for today.</p>
         </div>
-        <Link href="/tasks">
-          <Button className="shadow-md hover:shadow-lg transition-shadow">
-            <ListChecks className="mr-2 h-4 w-4" /> View All Tasks
-          </Button>
-        </Link>
+        <div className="flex gap-2">
+            <Link href="/tasks">
+            <Button className="shadow-md hover:shadow-lg transition-shadow">
+                <ListChecks className="mr-2 h-4 w-4" /> View All Tasks
+            </Button>
+            </Link>
+        </div>
       </div>
 
+      {/* Trade Performance Summary */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => (
-          <Card key={stat.title} className="shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out hover:scale-[1.02] focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2">
+        {tradeStats.map((stat) => (
+          <Card key={stat.title} className="shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out hover:scale-[1.02]">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">{stat.title}</CardTitle>
               {stat.icon}
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-              {stat.change && <p className="text-xs text-muted-foreground flex items-center">
-                <ArrowUpRight className="h-4 w-4 text-success mr-1"/> {stat.change} 
-              </p>}
+              <div className={cn("text-2xl font-bold", stat.colorClass)}>{stat.value}</div>
+              {stat.change && <p className="text-xs text-muted-foreground flex items-center"> {stat.change} </p>}
             </CardContent>
           </Card>
         ))}
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card className="shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out">
+      <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-3">
+        {/* Recent Tasks */}
+        <Card className="shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out lg:col-span-2">
           <CardHeader>
-            <CardTitle>Recent Tasks</CardTitle>
-            <CardDescription>Quick look at your ongoing and recently completed tasks.</CardDescription>
+            <div className="flex justify-between items-center">
+                <CardTitle>Recent Tasks</CardTitle>
+                <Link href="/tasks">
+                    <Button variant="ghost" size="sm">View All <ArrowUpRight className="h-4 w-4 ml-1"/></Button>
+                </Link>
+            </div>
+            <CardDescription>Your most pressing to-dos.</CardDescription>
           </CardHeader>
           <CardContent>
-            {recentTasks.length > 0 ? (
+            {displayedTasks.length > 0 ? (
               <ul className="space-y-3">
-                {recentTasks.map(task => (
-                  <li key={task.id} className="flex items-center justify-between p-3 bg-muted/50 dark:bg-muted/20 rounded-md transition-colors hover:bg-muted">
-                    <div>
-                      <p className={`font-medium ${task.completed ? 'line-through text-muted-foreground' : 'text-foreground'}`}>{task.title}</p>
+                {displayedTasks.map(task => (
+                  <li key={task.id} className="flex items-center justify-between p-3 bg-muted/50 dark:bg-muted/20 rounded-md transition-colors hover:bg-muted dark:hover:bg-muted/30">
+                    <div className="flex-1 min-w-0">
+                      <p className={`font-medium truncate ${task.status === 'completed' ? 'line-through text-muted-foreground' : 'text-foreground'}`}>{task.title}</p>
                       <p className="text-xs text-muted-foreground">
-                        Priority: {task.priority} | Due: {task.dueDate}
+                        Priority: <Badge variant={task.priority === 'high' ? 'destructive' : task.priority === 'medium' ? 'default' : 'outline'} className={cn("capitalize text-xs px-1.5 py-0", task.priority === 'medium' ? 'bg-warning/80 text-warning-foreground border-warning/80' : '')}>{task.priority}</Badge>
+                        {task.dueDate && ` | Due: ${format(parseISO(task.dueDate), "MMM d, yyyy")}`}
                       </p>
                     </div>
-                    <Link href={task.href}>
-                      <Button variant={task.completed ? "outline" : "secondary"} size="sm" className="transition-transform hover:scale-105">
-                        {task.completed ? <Eye className="h-4 w-4"/> : "Go to Task"}
+                    <Link href="/tasks">
+                      <Button variant="secondary" size="sm" className="transition-transform hover:scale-105 ml-2 flex-shrink-0">
+                        <Eye className="h-4 w-4 mr-1 sm:mr-2"/> <span className="hidden sm:inline">View</span>
                       </Button>
                     </Link>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="text-muted-foreground text-center py-4">No recent tasks to display.</p>
+              <div className="text-center py-8 text-muted-foreground">
+                <ThumbsUp className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                <p>No pending tasks. Great job!</p>
+              </div>
             )}
           </CardContent>
         </Card>
 
+        {/* Recent Notes */}
+        <Card className="shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out">
+          <CardHeader>
+             <div className="flex justify-between items-center">
+                <CardTitle>Recent Notes</CardTitle>
+                <Link href="/notes">
+                    <Button variant="ghost" size="sm">View All <ArrowUpRight className="h-4 w-4 ml-1"/></Button>
+                </Link>
+            </div>
+            <CardDescription>Your latest thoughts and ideas.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {displayedNotes.length > 0 ? (
+              <ul className="space-y-3">
+                {displayedNotes.map(note => (
+                  <li key={note.id} className={cn("p-3 rounded-md transition-colors hover:opacity-80", note.color || "bg-muted/50 dark:bg-muted/20")}>
+                    <Link href="/notes" className="block group">
+                      <h4 className={cn("font-medium truncate group-hover:underline", note.color?.includes("dark:") || note.color?.includes("700") || note.color?.includes("800") ? "text-primary-foreground" : "text-card-foreground")}>{note.title}</h4>
+                      <p className={cn("text-xs line-clamp-2 group-hover:underline", note.color?.includes("dark:") || note.color?.includes("700") || note.color?.includes("800")  ? "text-primary-foreground/80" : "text-card-foreground/80")}>{note.content}</p>
+                      <p className={cn("text-xs mt-1", note.color?.includes("dark:") || note.color?.includes("700") || note.color?.includes("800")  ? "text-primary-foreground/60" : "text-muted-foreground/80")}>{formatDistanceToNow(parseISO(note.createdAt), { addSuffix: true })}</p>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                    <StickyNote className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                    <p>No notes yet. Start jotting down ideas!</p>
+                </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+      
+      <div className="grid gap-6 md:grid-cols-2">
+        {/* Project Deadlines (Placeholder) */}
         <Card className="shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out">
           <CardHeader>
             <CardTitle>Project Deadlines</CardTitle>
@@ -105,18 +242,18 @@ export default function DashboardPage() {
             )) : <p className="text-muted-foreground text-center py-4">No project deadlines set.</p>}
           </CardContent>
         </Card>
+
+        {/* Task Overview Placeholder */}
+        <Card className="shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out">
+            <CardHeader>
+            <CardTitle>Focus Activity</CardTitle>
+            <CardDescription>Your productivity patterns visualized (Placeholder)</CardDescription>
+            </CardHeader>
+            <CardContent className="h-60 flex items-center justify-center bg-muted/30 dark:bg-muted/20 rounded-md">
+                <Image src="https://placehold.co/400x200.png" alt="Focus activity chart placeholder" data-ai-hint="focus chart graph" width={400} height={200} className="opacity-60 rounded-md object-contain"/>
+            </CardContent>
+        </Card>
       </div>
-      
-      <Card className="shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out">
-        <CardHeader>
-          <CardTitle>Task Overview</CardTitle>
-          <CardDescription>A visual representation of your task distribution (Placeholder)</CardDescription>
-        </CardHeader>
-        <CardContent className="h-64 flex items-center justify-center bg-muted/30 dark:bg-muted/20 rounded-md">
-           <img src="https://placehold.co/400x200.png" alt="Task chart placeholder" data-ai-hint="task chart graph" className="opacity-50 rounded-md"/>
-          {/* <p className="text-muted-foreground">Task board or chart coming soon...</p> */}
-        </CardContent>
-      </Card>
     </div>
   );
 }

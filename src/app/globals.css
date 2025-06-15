@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -14,7 +15,7 @@
     --primary: 243 96% 70%; /* #6C63FF Primary Indigo */
     --primary-foreground: 0 0% 100%; /* #FFFFFF Button Text Light */
     
-    --secondary: 30 95% 53%; /* #F97316 Accent Orange (Used for Timer, can be repurposed) */
+    --secondary: 30 95% 53%; /* #F97316 Accent Orange */
     --secondary-foreground: 0 0% 100%; /* #FFFFFF Button Text Light */
     
     --muted: 220 14% 90%; /* #E5E7EB Input/Text Field BG, Border Color (Muted Gray) */
@@ -63,54 +64,54 @@
   }
 
   .dark {
-    --background: 222 47% 11%; /* Slightly desaturated dark blue, e.g., #111827 */
-    --foreground: 210 40% 98%; /* Off-white, e.g., #F8FAFC */
+    --background: 224 71% 4%; /* #080C12 Very Dark Blue/Almost Black */
+    --foreground: 210 40% 98%; /* #F8FAFC Off-white */
     
-    --card: 222 47% 15%; /* Darker shade of background for cards, e.g., #1A202C */
+    --card: 222 47% 11%; /* #111827 Dark Blue-Gray */
     --card-foreground: 210 40% 98%; /* #F8FAFC */
     
-    --popover: 222 47% 13%; /* Slightly darker than card for popovers, e.g., #161A25 */
+    --popover: 225 50% 13%; /* #101526 Slightly Lighter Dark Blue */
     --popover-foreground: 210 40% 98%; /* #F8FAFC */
     
-    --primary: 243 96% 70%; /* #6C63FF (Keep primary vibrant) */
-    --primary-foreground: 0 0% 100%; /* #FFFFFF */
+    --primary: 243 88% 76%; /* #8075FF Lighter Indigo for Dark Mode */
+    --primary-foreground: 220 20% 98%; /* #080C12 Very Dark Blue for text on Lighter Indigo */
     
-    --secondary: 30 90% 60%; /* #FC832A (Slightly brighter orange for dark mode accents) */
-    --secondary-foreground: 215 28% 17%; /* Darker text on orange for contrast */
+    --secondary: 30 85% 60%; /* #FB8C3A Brighter Orange for Dark Mode */
+    --secondary-foreground: 220 20% 98%; /* Almost black text for contrast on orange */
     
-    --muted: 222 40% 25%; /* Muted blue-gray, e.g., #2D3748 */
-    --muted-foreground: 210 30% 75%; /* Lighter gray for muted text, e.g., #A0AEC0 */
+    --muted: 222 40% 20%; /* #20293E Muted Dark Blue */
+    --muted-foreground: 215 25% 65%; /* #8A9CB0 Lighter Gray for muted text */
     
-    --accent: 249 90% 75%; /* #9880FF (Slightly lighter accent for dark mode) */
-    --accent-foreground: 0 0% 100%; /* #FFFFFF */
+    --accent: 249 80% 80%; /* #A391FF Lighter Purple-Blue for Dark Mode */
+    --accent-foreground: 220 20% 98%; /* Almost black for text on accent */
     
-    --destructive: 0 70% 60%; /* #FF5252 (Slightly less intense red) */
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 70% 65%; /* #FF6666 Brighter Red */
+    --destructive-foreground: 0 0% 98%; /* White text on red */
     
-    --success: 145 60% 50%; /* #38A169 (Good contrast green) */
-    --success-foreground: 0 0% 100%;
+    --success: 140 60% 55%; /* #52C676 Brighter Green */
+    --success-foreground: 220 20% 98%; /* Almost black text for contrast */
 
-    --warning: 37 85% 55%; /* #F0A518 (Vibrant warning yellow/orange) */
-    --warning-foreground: 215 28% 17%; /* Dark text for contrast */
+    --warning: 37 80% 60%; /* #FCA62B Brighter Amber */
+    --warning-foreground: 220 20% 98%; /* Almost black text for contrast */
 
-    --info: 207 80% 55%; /* #4299E1 (Clear info blue) */
-    --info-foreground: 0 0% 100%; 
+    --info: 200 85% 65%; /* #63C6F7 Brighter Sky Blue */
+    --info-foreground: 220 20% 98%; /* Almost black text for contrast */
         
-    --border: 222 40% 20%; /* Dark border, e.g., #242C3A */
-    --input: 222 40% 18%; /* Dark input background, e.g., #1F2532 */
-    --ring: 243 80% 75%; /* Lighter ring color for focus in dark mode */
+    --border: 222 40% 15%; /* #171E2E Darker Border */
+    --input: 222 40% 16%; /* #1A2233 Darker Input Background */
+    --ring: 243 80% 80%; /* Lighter ring color for focus */
 
     /* Sidebar specific colors for dark mode */
-    --sidebar-background: 222 47% 13%; /* Similar to popover or slightly darker, e.g., #161A25 */
-    --sidebar-foreground: 210 40% 90%; /* Slightly softer than main foreground, e.g., #E2E8F0 */
-    --sidebar-primary: 243 96% 70%; /* #6C63FF */
-    --sidebar-primary-foreground: 0 0% 100%; /* #FFFFFF */
-    --sidebar-accent: 222 40% 22%; /* Hover state, e.g., #283040 */
-    --sidebar-accent-foreground: 243 90% 78%; /* #A192FF (Text color on hover) */
-    --sidebar-border: 222 40% 18%; /* #1F2532 */
-    --sidebar-ring: 243 80% 75%;
+    --sidebar-background: 223 50% 9%; /* #0B0F1A Darker than card */
+    --sidebar-foreground: 210 40% 90%; /* #E2E8F0 Slightly softer than main foreground */
+    --sidebar-primary: 243 88% 76%; /* #8075FF (Matches primary) */
+    --sidebar-primary-foreground: 220 20% 98%; /* (Matches primary-foreground) */
+    --sidebar-accent: 222 40% 20%; /* #20293E Hover state */
+    --sidebar-accent-foreground: 243 85% 82%; /* #B0A8FF Text color on hover */
+    --sidebar-border: 222 40% 13%; /* #131826 */
+    --sidebar-ring: 243 80% 80%; /* Matches ring */
 
-    --section-background: 222 47% 18%; /* For sections like settings, e.g., #202736 */
+    --section-background: 224 71% 6%; /* #0A0F16 Slightly darker than main background */
   }
 }
 
@@ -125,4 +126,20 @@
 
 .auth-gradient {
   background-image: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+}
+
+/* Ensure text in note cards is visible on colored backgrounds in light mode */
+.light .note-card-custom-text {
+  color: hsl(var(--card-foreground)); /* Default dark text for light mode */
+}
+.light .note-card-custom-muted-text {
+  color: hsla(var(--card-foreground), 0.8); /* Dark text with opacity */
+}
+
+/* Ensure text in note cards is visible on colored backgrounds in dark mode */
+.dark .note-card-custom-text {
+  color: hsl(var(--card-foreground)); /* Default light text for dark mode */
+}
+.dark .note-card-custom-muted-text {
+  color: hsla(var(--card-foreground), 0.8); /* Light text with opacity */
 }
