@@ -6,26 +6,23 @@ import { useRouter, usePathname } from "next/navigation";
 import { SidebarProvider, Sidebar, SidebarInset, SidebarTrigger as UiSidebarTrigger, SidebarRail } from "@/components/ui/sidebar";
 import { MainSidebarContent } from "./sidebar-content";
 import { Button } from "@/components/ui/button";
-import { Bell, Search } from "lucide-react"; // Search icon imported
-import { Input } from "@/components/ui/input";
+import { Bell, Settings, LogOut as LogOutIcon, Sun, Moon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Settings, LogOut as LogOutIcon } from "lucide-react"; // Import LogOutIcon
-import { useTheme } from "next-themes"; // Import useTheme
-import { Sun, Moon } from "lucide-react"; // Import Sun and Moon icons
+import { useTheme } from "next-themes";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [isClient, setIsClient] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const { theme, setTheme } = useTheme(); // Get theme and setTheme
-  const [currentTheme, setCurrentTheme] = useState("system");
+  const { theme, setTheme } = useTheme();
+  const [currentThemeStored, setCurrentThemeStored] = useState("system");
 
 
   useEffect(() => {
     setIsClient(true);
-    setCurrentTheme(theme || "system");
+    setCurrentThemeStored(theme || "system"); // Initialize with current theme from provider
   }, [theme]);
 
   useEffect(() => {
@@ -40,6 +37,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }, [isClient, router, pathname]);
 
   useEffect(() => {
+    // Update --header-height CSS variable for dynamic calculations if needed
     document.documentElement.style.setProperty('--header-height', '3.5rem'); // h-14
   }, []);
 
@@ -51,9 +49,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   };
 
   const toggleTheme = () => {
-    const newTheme = currentTheme === "dark" ? "light" : "dark";
+    const newTheme = currentThemeStored === "dark" ? "light" : "dark";
     setTheme(newTheme);
-    setCurrentTheme(newTheme);
+    // setCurrentThemeStored will be updated by the useEffect listening to `theme`
   };
 
   if (isLoading && isClient) {
@@ -80,13 +78,16 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       <SidebarInset>
         <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-4 sm:px-6">
           <UiSidebarTrigger className="md:hidden" />
-          {/* Search bar placeholder */}
-          <div className="relative flex-1 md:grow-0">
-            {/* Search Bar Removed as requested. This div is for spacing if needed. */}
-          </div>
+          {/* Header content pushed to the right */}
           <div className="flex items-center gap-3 ml-auto">
-            <Button variant="ghost" size="icon" className="rounded-full hover:bg-muted/50" onClick={toggleTheme} aria-label="Toggle theme">
-                 {currentTheme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            <Button 
+                variant="ghost" 
+                size="icon" 
+                className="rounded-full hover:bg-muted/50 focus-visible:ring-offset-0 focus-visible:ring-primary/70" 
+                onClick={toggleTheme} 
+                aria-label="Toggle theme"
+            >
+                 {currentThemeStored === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </Button>
             <Button variant="ghost" size="icon" className="rounded-full hover:bg-muted/50">
               <Bell className="h-5 w-5" />
@@ -94,9 +95,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             </Button>
              <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+                  <Button variant="ghost" className="relative h-9 w-9 rounded-full focus-visible:ring-offset-0 focus-visible:ring-primary/70">
                     <Avatar className="h-9 w-9">
-                      <AvatarImage src="https://placehold.co/100x100.png" alt="User Avatar" data-ai-hint="user avatar professional" />
+                      <AvatarImage src="https://placehold.co/100x100.png" alt="User Avatar" data-ai-hint="user avatar professional"/>
                       <AvatarFallback>PH</AvatarFallback>
                     </Avatar>
                   </Button>
@@ -131,3 +132,5 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     </SidebarProvider>
   );
 }
+
+    

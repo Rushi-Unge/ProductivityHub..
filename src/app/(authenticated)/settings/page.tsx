@@ -14,10 +14,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { UploadCloud, User, Lock, Bell } from "lucide-react";
+import * as React from "react"; // Ensure React is imported for useState
 
 const profileSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   email: z.string().email({ message: "Invalid email address." }),
+  avatarUrl: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal("")),
 });
 
 const passwordSchema = z.object({
@@ -32,29 +34,71 @@ const passwordSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileSchema>;
 type PasswordFormValues = z.infer<typeof passwordSchema>;
 
+// Mock user data - in a real app, this would come from context or props
+const initialUserData = {
+  name: "Current User",
+  email: "user@example.com",
+  avatarUrl: "https://placehold.co/200x200.png",
+};
+
 export default function SettingsPage() {
   const { toast } = useToast();
+  const [userData, setUserData] = React.useState(initialUserData);
+  const [avatarPreview, setAvatarPreview] = React.useState(userData.avatarUrl);
 
   const profileForm = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
-    defaultValues: { name: "Current User", email: "user@example.com" }, 
+    defaultValues: {
+      name: userData.name,
+      email: userData.email,
+      avatarUrl: userData.avatarUrl,
+    },
   });
 
   const passwordForm = useForm<PasswordFormValues>({
     resolver: zodResolver(passwordSchema),
     defaultValues: { currentPassword: "", newPassword: "", confirmNewPassword: "" },
   });
+  
+  React.useEffect(() => {
+    profileForm.reset({
+        name: userData.name,
+        email: userData.email,
+        avatarUrl: userData.avatarUrl
+    });
+    setAvatarPreview(userData.avatarUrl);
+  }, [userData, profileForm]);
 
   const onProfileSubmit = (data: ProfileFormValues) => {
+    // Simulate updating user data
+    setUserData(prev => ({...prev, name: data.name, email: data.email, avatarUrl: data.avatarUrl || prev.avatarUrl }));
+    // In a real app, you'd also update the avatar in the header if it's shown there.
+    // For now, we just update the preview on this page.
+    if (data.avatarUrl) {
+      setAvatarPreview(data.avatarUrl);
+    }
     toast({ title: "Profile Updated", description: "Your profile information has been saved." });
     console.log("Profile data:", data);
+    // Here you would typically make an API call to save the data
   };
 
   const onPasswordSubmit = (data: PasswordFormValues) => {
-    toast({ title: "Password Changed", description: "Your password has been successfully updated." });
+    toast({ title: "Password Changed", description: "Your password has been successfully updated. (Simulated)" });
     console.log("Password data:", data);
     passwordForm.reset();
+    // API call to change password
   };
+  
+  const handleAvatarUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const url = e.target.value;
+    profileForm.setValue("avatarUrl", url); // Update form value
+    if (profileSchema.shape.avatarUrl.safeParse(url).success) {
+        setAvatarPreview(url); // Update preview if URL is valid
+    } else if (!url) {
+        setAvatarPreview(userData.avatarUrl); // Reset to original if input is cleared
+    }
+  };
+
 
   return (
     <div className="space-y-6 p-4 md:p-6">
@@ -79,14 +123,29 @@ export default function SettingsPage() {
             <Form {...profileForm}>
               <form onSubmit={profileForm.handleSubmit(onProfileSubmit)}>
                 <CardContent className="space-y-6">
-                  <div className="flex items-center space-x-6">
+                  <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
                     <Avatar className="h-24 w-24 border-2 border-primary/50 shadow-md">
-                      <AvatarImage src="https://placehold.co/200x200.png" alt="User Avatar" data-ai-hint="user avatar professional" />
-                      <AvatarFallback>CU</AvatarFallback>
+                      <AvatarImage src={avatarPreview} alt="User Avatar" data-ai-hint="user avatar professional" />
+                      <AvatarFallback>{userData.name.substring(0,2).toUpperCase()}</AvatarFallback>
                     </Avatar>
-                    <Button variant="outline" type="button" className="transition-transform hover:scale-105 rounded-xl">
-                      <UploadCloud className="mr-2 h-4 w-4" /> Change Avatar
-                    </Button>
+                    <FormField
+                        control={profileForm.control}
+                        name="avatarUrl"
+                        render={({ field }) => (
+                        <FormItem className="flex-grow">
+                            <FormLabel>Avatar URL</FormLabel>
+                            <FormControl>
+                            <Input 
+                                placeholder="https://example.com/avatar.png" 
+                                {...field} 
+                                onChange={handleAvatarUrlChange}
+                                className="rounded-xl" 
+                            />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
                   </div>
                   <FormField
                     control={profileForm.control}
@@ -219,7 +278,7 @@ export default function SettingsPage() {
               </div>
             </CardContent>
             <CardFooter>
-              <Button type="button" onClick={() => toast({title: "Preferences Saved"})} className="shadow-md hover:shadow-lg transition-shadow rounded-xl">Save Preferences</Button>
+              <Button type="button" onClick={() => toast({title: "Preferences Saved", description: "Your notification preferences have been updated. (Simulated)"})} className="shadow-md hover:shadow-lg transition-shadow rounded-xl">Save Preferences</Button>
             </CardFooter>
           </Card>
         </TabsContent>
@@ -227,3 +286,5 @@ export default function SettingsPage() {
     </div>
   );
 }
+
+    

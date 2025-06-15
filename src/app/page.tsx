@@ -1,21 +1,21 @@
 
 import AuthForm from "@/components/auth-form";
 import { ThemeToggleButton } from "@/components/theme-toggle-button";
-import { ListChecks, LineChart, StickyNote, Zap } from "lucide-react"; // Updated icons
+import { ListChecks, LineChart, StickyNote, Zap } from "lucide-react";
 
 const features = [
   {
-    icon: <ListChecks className="h-7 w-7 text-primary" />, // Updated color
+    icon: <ListChecks className="h-7 w-7 text-primary" />,
     title: "Task Management",
     description: "Organize and prioritize your daily tasks effectively.",
   },
   {
-    icon: <StickyNote className="h-7 w-7 text-primary" />, // Updated icon and color
+    icon: <StickyNote className="h-7 w-7 text-primary" />,
     title: "Advanced Notes",
     description: "Capture ideas, journals, and rich markdown content.",
   },
   {
-    icon: <LineChart className="h-7 w-7 text-primary" />, // Updated color
+    icon: <LineChart className="h-7 w-7 text-primary" />,
     title: "Trade Journal",
     description: "Log, track, and analyze your trading performance.",
   },
@@ -28,9 +28,7 @@ export default function AuthenticationPage() {
         <ThemeToggleButton />
       </div>
       <div className="container mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center w-full max-w-6xl">
-        {/* Left Column: Title and Form */}
         <div className="flex flex-col items-center lg:items-start text-center lg:text-left z-10">
-           {/* App Logo and Name moved to AuthForm component */}
           <h1 className="text-4xl md:text-5xl font-bold text-white font-headline mb-2">
             Welcome to ProHub
           </h1>
@@ -40,7 +38,6 @@ export default function AuthenticationPage() {
           <AuthForm />
         </div>
 
-        {/* Right Column: Why ProHub? */}
         <div className="hidden lg:flex flex-col items-center justify-center z-10">
           <div className="bg-card/10 dark:bg-card/20 backdrop-blur-md p-8 rounded-2xl shadow-xl w-full max-w-md border border-white/10">
             <h2 className="text-3xl font-bold text-white mb-8 text-center font-headline">
@@ -66,9 +63,10 @@ export default function AuthenticationPage() {
           </div>
         </div>
       </div>
-       {/* Decorative shapes - optional */}
       <div className="absolute top-0 left-0 w-72 h-72 bg-primary/20 rounded-full opacity-30 -translate-x-1/2 -translate-y-1/2 filter blur-2xl"></div>
       <div className="absolute bottom-0 right-0 w-72 h-72 bg-accent/20 rounded-full opacity-30 translate-x-1/2 translate-y-1/2 filter blur-2xl"></div>
     </main>
   );
 }
+
+    

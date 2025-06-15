@@ -19,7 +19,7 @@ export default {
     extend: {
       fontFamily: {
         body: ['Inter', 'sans-serif'],
-        headline: ['Inter', 'sans-serif'],
+        headline: ['Inter', 'sans-serif'], // Ensure Inter is used for headlines too
         code: ['monospace', 'monospace'],
       },
       colors: {
@@ -68,7 +68,7 @@ export default {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
-        'section-background': 'hsl(var(--section-background))',
+        'section-background': 'hsl(var(--section-background))', // Added for page content area
         chart: {
           '1': 'hsl(var(--chart-1))',
           '2': 'hsl(var(--chart-2))',
@@ -88,13 +88,16 @@ export default {
         },
       },
       borderRadius: {
-        lg: 'var(--radius)', // maps to rounded-xl (1rem with 0.75rem radius var)
-        md: 'calc(var(--radius) - 0.25rem)', // maps to rounded-lg (0.5rem)
-        sm: 'calc(var(--radius) - 0.375rem)', // maps to rounded-md (0.375rem)
-        "2xl": "calc(var(--radius) + 0.25rem)", // For the specifically requested rounded-2xl
+        // Using ShadCN style --radius variable approach
+        '2xl': "calc(var(--radius) + 0.5rem)", // Typically 1rem if --radius is 0.5rem, or 1.25rem if --radius is 0.75rem
+        xl: 'var(--radius)', // ShadCN "lg" often maps to rounded-xl
+        lg: 'calc(var(--radius) - 0.25rem)', // ShadCN "md" often maps to rounded-lg
+        md: 'calc(var(--radius) - 0.375rem)', // ShadCN "sm" often maps to rounded-md
+        sm: 'calc(var(--radius) - 0.5rem)', 
       },
-      boxShadow: {
-        'md': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)', // Subtle shadow
+      boxShadow: { // Added consistent shadow definitions
+        'sm': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+        'md': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)',
         'lg': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)',
         'xl': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
       },
@@ -115,7 +118,7 @@ export default {
             height: '0',
           },
         },
-        'pulse-subtle': {
+        'pulse-subtle': { // Keep existing pulse
           '0%, 100%': { opacity: '1' },
           '50%': { opacity: '.7' },
         }
@@ -129,3 +132,5 @@ export default {
   },
   plugins: [require('tailwindcss-animate'), require('@tailwindcss/typography')],
 } satisfies Config;
+
+    

@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import MarkdownRenderer from '@/components/markdown-renderer';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChevronRight, BookOpen } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -26,8 +26,8 @@ const mockDocs = [
   {
     category: "Notes Feature",
     articles: [
-        { title: "Taking and Organizing Notes", content: "## Creating a New Note\n1. Navigate to the 'Notes' page.\n2. Click the **'+ New Note'** button in the left sidebar.\n3. Enter a title and content for your note using Markdown for rich formatting.\n4. **Choose a Color**: Select a color from the palette to visually categorize your note.\n5. **Add an Image (Optional)**: Click 'Upload Image' to attach an image to your note.\n6. **Tags**: Add relevant tags (comma-separated) to help organize and find your notes later.\n7. Click 'Add Note' to save.\n\n## Editing and Deleting Notes\n- **Edit**: Click the edit icon on a note card or open the note and use the editor.\n- **Delete**: Moves the note to 'Trash'. From 'Trash', notes can be permanently deleted or restored (feature to be fully implemented).\n\n## Pinning, Archiving\n- **Pin**: Keep important notes at the top of your 'All Notes' and in the 'Pinned' section.\n- **Archive**: Move notes you don't need active access to but want to keep." },
-        { title: "Markdown Support", content: "## Markdown in Notes\n\nProHub notes support Markdown for rich text formatting. This includes:\n- **Headings**: `# H1`, `## H2`, `### H3`\n- **Emphasis**: `*italic*`, `_italic_`, `**bold**`, `__bold__`\n- **Lists**: Unordered (`- item` or `* item`) and ordered (`1. item`)\n- **Checklists**: `- [ ] To do`, `- [x] Done` (basic support)\n- **Links**: `[link text](url)`\n- **Images**: `![alt text](image_url)` (currently uses placeholder for uploaded images)\n- **Code Blocks**: Indent with four spaces or use triple backticks \\\`\\\`\\\`code\\\`\\\`\\\` \n- **Inline Code**: \\\`code\\\`\n- **Blockquotes**: `> quote`\n- **Horizontal Rules**: `---` or `***`" }
+        { title: "Taking and Organizing Notes", content: "## Creating a New Note\n1. Navigate to the 'Notes' page.\n2. Click the **'+ New Note'** button in the left sidebar.\n3. Enter a title and content for your note using Markdown for rich formatting.\n4. **Choose a Color**: Select a color from the palette to visually categorize your note.\n5. **Add an Image (Optional)**: Click 'Upload Image' to attach an image to your note (filename stored).\n6. **Tags**: Add relevant tags (comma-separated) to help organize and find your notes later.\n7. Click 'Add Note' to save.\n\n## Editing and Deleting Notes\n- **Edit**: Click the edit icon on a note card or open the note and use the editor.\n- **Delete**: Moves the note to 'Trash'. From 'Trash', notes can be permanently deleted or restored.\n\n## Pinning, Archiving\n- **Pin**: Keep important notes at the top of your 'All Notes' and in the 'Pinned' section.\n- **Archive**: Move notes you don't need active access to but want to keep." },
+        { title: "Markdown Support", content: "## Markdown in Notes\n\nProHub notes support Markdown for rich text formatting. This includes:\n- **Headings**: `# H1`, `## H2`, `### H3`\n- **Emphasis**: `*italic*`, `_italic_`, `**bold**`, `__bold__`\n- **Lists**: Unordered (`- item` or `* item`) and ordered (`1. item`)\n- **Checklists**: `- [ ] To do`, `- [x] Done` (basic support)\n- **Links**: `[link text](url)`\n- **Images**: `![alt text](image_url)` (currently stores filename/placeholder for uploaded images)\n- **Code Blocks**: Indent with four spaces or use triple backticks \\\`\\\`\\\`code\\\`\\\`\\\` \n- **Inline Code**: \\\`code\\\`\n- **Blockquotes**: `> quote`\n- **Horizontal Rules**: `---` or `***`" }
     ],
   },
   {
@@ -97,3 +97,5 @@ export default function DocsPage() {
     </div>
   );
 }
+
+    

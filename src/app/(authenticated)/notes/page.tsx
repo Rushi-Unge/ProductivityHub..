@@ -6,27 +6,24 @@ import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
-import { Plus, Search, Filter, ArrowUpDown, Pin as PinIcon, Archive, Trash2, StickyNote, BookOpen, Tag, CalendarDays, GripVertical, List, Check } from "lucide-react";
+import { Plus, Search, ArrowUpDown, Pin as PinIcon, Archive, Trash2, StickyNote, BookOpen, Tag, GripVertical, List, Check } from "lucide-react";
 import NoteCard from "@/components/note-card";
-import AddNoteDialog from "@/components/add-note-dialog"; // This will be used for editing and creating
+import AddNoteDialog from "@/components/add-note-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-// Keep Note interface, AddNoteDialog for now.
-// Rich editor and calendar view are significant and will be placeholders or simplified.
-
 export interface Note {
   id: string;
   title: string;
-  content: string; // Markdown content
+  content: string; 
   tags: string[];
   isPinned: boolean;
   isArchived: boolean;
   isTrashed: boolean;
-  createdAt: string; // ISO string
-  updatedAt: string; // ISO string
+  createdAt: string; 
+  updatedAt: string; 
   color?: string; 
   imageUrl?: string;
   imageFilename?: string;
@@ -53,15 +50,8 @@ export default function NotesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeCategory, setActiveCategory] = useState<NoteCategory>("all");
   const [sortOption, setSortOption] = useState<SortOption>("updatedAt_desc");
-  const [activeTags, setActiveTags] = useState<string[]>([]); // For filtering by tags
-
+  
   useEffect(() => setIsClient(true), []);
-
-  const allTags = useMemo(() => {
-    const tagSet = new Set<string>();
-    notes.forEach(note => note.tags.forEach(tag => tagSet.add(tag)));
-    return Array.from(tagSet).sort();
-  }, [notes]);
 
   const handleAddOrUpdateNote = (noteData: Omit<Note, 'id' | 'createdAt' | 'updatedAt' | 'isArchived' | 'isTrashed'> & { tagsString?: string }, id?: string) => {
     const noteTags = noteData.tagsString ? noteData.tagsString.split(',').map(tag => tag.trim()).filter(tag => tag) : noteData.tags || [];
@@ -102,11 +92,10 @@ export default function NotesPage() {
   const handleToggleTrash = (id: string) => {
     const note = notes.find(n => n.id === id);
     if (note) {
-      if (note.isTrashed) { // If already in trash, permanently delete
-        // Add confirmation dialog here in a real app
+      if (note.isTrashed) { 
         setNotes(notes.filter(n => n.id !== id));
         toast({ title: "Note Permanently Deleted", variant: "destructive" });
-      } else { // Move to trash
+      } else { 
         setNotes(notes.map(n => n.id === id ? { ...n, isTrashed: true, isArchived: false, updatedAt: new Date().toISOString() } : n));
         toast({ title: "Note Moved to Trash" });
       }
@@ -126,7 +115,6 @@ export default function NotesPage() {
   const filteredAndSortedNotes = useMemo(() => {
     let processedNotes = [...notes];
 
-    // Filter by category
     switch (activeCategory) {
       case "pinned":
         processedNotes = processedNotes.filter(note => note.isPinned && !note.isTrashed && !note.isArchived);
@@ -143,25 +131,15 @@ export default function NotesPage() {
         break;
     }
 
-    // Filter by search term (basic title and content search)
     if (searchTerm) {
       processedNotes = processedNotes.filter(note =>
         note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        note.content.toLowerCase().includes(searchTerm.toLowerCase())
+        note.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        note.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
     
-    // Filter by active tags (if any selected)
-    if (activeTags.length > 0) {
-        processedNotes = processedNotes.filter(note => 
-            activeTags.every(activeTag => note.tags.includes(activeTag))
-        );
-    }
-
-
-    // Sort
     processedNotes.sort((a, b) => {
-      // Pinned notes always on top for "all" and "pinned" categories unless sorting by title
       if (activeCategory !== "trash" && activeCategory !== "archived" && !sortOption.startsWith("title")) {
         if (a.isPinned && !b.isPinned) return -1;
         if (!a.isPinned && b.isPinned) return 1;
@@ -179,38 +157,22 @@ export default function NotesPage() {
     });
 
     return processedNotes;
-  }, [notes, activeCategory, searchTerm, sortOption, activeTags]);
+  }, [notes, activeCategory, searchTerm, sortOption]);
   
-  const toggleTagFilter = (tag: string) => {
-    setActiveTags(prev => 
-        prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
-    );
-  };
-
-
   if (!isClient) {
     return (
-      <div className="flex h-[calc(100vh-var(--header-height)-1rem)]">
-        {/* Sidebar Skeleton */}
-        <aside className="w-64 p-4 border-r space-y-4 hidden md:block">
-          <Skeleton className="h-10 w-full rounded-2xl" />
-          <Skeleton className="h-8 w-full" />
-          <Skeleton className="h-8 w-full" />
-          <Skeleton className="h-8 w-full" />
-          <Skeleton className="h-8 w-full" />
-          <div className="pt-4"><Skeleton className="h-6 w-20 mb-2" /><Skeleton className="h-5 w-16" /></div>
+      <div className="flex h-[calc(100vh-var(--header-height)-1px)]">
+        <aside className="w-60 md:w-72 p-4 border-r space-y-4 hidden md:block bg-card dark:bg-card/50">
+          <Skeleton className="h-10 w-full rounded-xl" />
+          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-8 w-full rounded-lg" />)}
         </aside>
-        {/* Main Area Skeleton */}
-        <main className="flex-1 p-4 md:p-6 space-y-4">
+        <main className="flex-1 p-4 md:p-6 space-y-4 bg-section-background dark:bg-background">
           <div className="flex justify-between items-center">
-            <Skeleton className="h-10 w-1/2 max-w-sm" />
-            <div className="flex gap-2">
-              <Skeleton className="h-10 w-24" />
-              <Skeleton className="h-10 w-24" />
-            </div>
+            <Skeleton className="h-10 w-1/2 max-w-sm rounded-xl" />
+            <Skeleton className="h-10 w-24 rounded-xl" />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3].map(i => <Skeleton key={i} className="h-64 w-full rounded-2xl" />)}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {[...Array(4)].map(i => <Skeleton key={i} className="h-64 w-full rounded-2xl" />)}
           </div>
         </main>
       </div>
@@ -218,12 +180,11 @@ export default function NotesPage() {
   }
 
   const sidebarLinkClasses = "flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-colors";
-  const activeSidebarLinkClasses = "bg-primary/10 text-primary";
-  const inactiveSidebarLinkClasses = "hover:bg-muted dark:hover:bg-muted/50";
+  const activeSidebarLinkClasses = "bg-sidebar-accent text-sidebar-accent-foreground";
+  const inactiveSidebarLinkClasses = "hover:bg-sidebar-accent/50 dark:hover:bg-sidebar-accent/30";
 
   return (
     <div className="flex h-[calc(100vh-var(--header-height)-1px)]"> {/* -1px for border */}
-      {/* Left Sidebar */}
       <aside className="w-60 md:w-72 border-r bg-card dark:bg-card/50 p-4 flex-col hidden md:flex">
         <Button onClick={openNewNoteDialog} className="w-full mb-6 shadow-md rounded-xl py-3 text-base">
           <Plus className="mr-2 h-5 w-5" /> New Note
@@ -254,45 +215,17 @@ export default function NotesPage() {
               </button>
             );
           })}
-          {/* Tags Section Placeholder */}
-          <div className="pt-6">
-            <h3 className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-              <Tag className="h-4 w-4"/> Tags
-            </h3>
-            <div className="space-y-1 mt-1">
-              {allTags.slice(0,5).map(tag => ( // Show first 5 tags as example
-                <button 
-                  key={tag} 
-                  onClick={() => toggleTagFilter(tag)}
-                  className={cn(sidebarLinkClasses, activeTags.includes(tag) ? activeSidebarLinkClasses : inactiveSidebarLinkClasses, "w-full justify-start")}
-                >
-                  <span className="h-2 w-2 rounded-full bg-primary/50 mr-1.5"></span> {/* Color dot placeholder */}
-                  {tag}
-                </button>
-              ))}
-              {allTags.length > 5 && <button className={cn(sidebarLinkClasses, inactiveSidebarLinkClasses, "text-xs")}>View all tags...</button>}
-            </div>
-          </div>
-          {/* Journal Section Placeholder */}
-          <div className="pt-6">
-             <h3 className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-                <CalendarDays className="h-4 w-4"/> Journal
-            </h3>
-            <button className={cn(sidebarLinkClasses, inactiveSidebarLinkClasses, "w-full justify-start mt-1")}>Open Calendar View</button>
-          </div>
         </nav>
         </ScrollArea>
       </aside>
 
-      {/* Main Notes Area */}
-      <main className="flex-1 flex flex-col bg-background dark:bg-section-background overflow-hidden">
-        {/* Top Toolbar */}
+      <main className="flex-1 flex flex-col bg-section-background dark:bg-background overflow-hidden">
         <header className="sticky top-0 z-10 flex items-center justify-between p-4 border-b bg-card dark:bg-card/80 backdrop-blur-sm">
           <div className="relative w-full max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
               type="search"
-              placeholder="Search notes..."
+              placeholder="Search notes by title, content, or tag..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10 rounded-xl shadow-sm"
@@ -318,35 +251,12 @@ export default function NotesPage() {
                 </DropdownMenuRadioGroup>
               </DropdownMenuContent>
             </DropdownMenu>
-            
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="rounded-xl shadow-sm">
-                  <Filter className="mr-2 h-4 w-4" /> Filter Tags ({activeTags.length > 0 ? activeTags.length : 'All'})
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 rounded-xl shadow-lg">
-                 <DropdownMenuLabel>Filter by Tags</DropdownMenuLabel>
-                 <DropdownMenuSeparator />
-                 {allTags.length === 0 && <DropdownMenuItem disabled>No tags found</DropdownMenuItem>}
-                 {allTags.map(tag => (
-                    <DropdownMenuItem key={tag} onSelect={() => toggleTagFilter(tag)} className={cn("flex justify-between",activeTags.includes(tag) && "bg-primary/10")}>
-                        <span>{tag}</span>
-                        {activeTags.includes(tag) && <Check className="h-4 w-4 text-primary"/>}
-                    </DropdownMenuItem>
-                 ))}
-                 {activeTags.length > 0 && <DropdownMenuSeparator/>}
-                 {activeTags.length > 0 && <DropdownMenuItem onSelect={() => setActiveTags([])} className="text-destructive">Clear Filters</DropdownMenuItem>}
-              </DropdownMenuContent>
-            </DropdownMenu>
-             {/* Mobile: New Note Button */}
             <Button onClick={openNewNoteDialog} className="md:hidden rounded-xl shadow-md" size="icon" aria-label="New Note">
               <Plus className="h-5 w-5" />
             </Button>
           </div>
         </header>
         
-        {/* Notes Grid */}
         <ScrollArea className="flex-1">
           <div className="p-4 md:p-6">
             {filteredAndSortedNotes.length === 0 ? (
@@ -356,7 +266,8 @@ export default function NotesPage() {
                 <p className="text-sm">Try adjusting your filters or creating a new note.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              // Using CSS columns for masonry effect
+              <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6">
                 {filteredAndSortedNotes.map(note => (
                   <NoteCard 
                     key={note.id} 
@@ -375,7 +286,6 @@ export default function NotesPage() {
         </ScrollArea>
       </main>
 
-      {/* Add/Edit Note Dialog */}
       <AddNoteDialog 
         open={isDialogOpen} 
         onOpenChange={setIsDialogOpen} 
@@ -386,16 +296,4 @@ export default function NotesPage() {
   );
 }
 
-// Minimal NoteCard component (Full implementation will be in its own file)
-// interface NoteCardProps { note: Note; onEdit: (note: Note) => void; onDelete: (id: string) => void; }
-// const NoteCardMinimal: React.FC<NoteCardProps> = ({ note, onEdit, onDelete }) => (
-//   <div className="border p-4 rounded-2xl shadow-md bg-card">
-//     <h3 className="font-semibold">{note.title}</h3>
-//     <p className="text-sm line-clamp-3">{note.content}</p>
-//     <div className="mt-2">
-//       <Button variant="ghost" size="sm" onClick={() => onEdit(note)}>Edit</Button>
-//       <Button variant="ghost" size="sm" onClick={() => onDelete(note.id)}>Delete</Button>
-//     </div>
-//   </div>
-// );
-
+    

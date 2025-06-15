@@ -1,7 +1,7 @@
 
 "use client"
 
-import * as React from "react"; // Ensure React is imported
+import * as React from "react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,7 +14,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { User, Mail, Lock, Eye, EyeOff, Zap } from "lucide-react"; 
+import { User, Mail, Lock, Eye, EyeOff } from "lucide-react"; 
 import { cn } from "@/lib/utils";
 
 const loginSchema = z.object({
@@ -35,6 +35,16 @@ const signupSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 type SignupFormValues = z.infer<typeof signupSchema>;
+
+const AppLogo = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8 text-primary transition-transform duration-300 group-hover:scale-110">
+    <path d="M12 2C10.3431 2 9 3.34315 9 5V7H15V5C15 3.34315 13.6569 2 12 2Z" />
+    <path d="M9 9V15C9 16.6569 10.3431 18 12 18C13.6569 18 15 16.6569 15 15V9H9Z" />
+    <path d="M7 18C7 19.6569 8.34315 21 10 21H14C15.6569 21 17 19.6569 17 18V16H7V18Z" />
+    <path d="M5 7C3.34315 7 2 8.34315 2 10V14C2 15.6569 3.34315 17 5 17H7V7H5Z" />
+    <path d="M19 7H17V17H19C20.6569 17 22 15.6569 22 14V10C22 8.34315 20.6569 7 19 7Z" />
+  </svg>
+);
 
 export default function AuthForm() {
   const router = useRouter();
@@ -73,17 +83,6 @@ export default function AuthForm() {
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
   const toggleConfirmPasswordVisibility = () => setShowConfirmPassword(!showConfirmPassword);
 
-  const AppLogo = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8 text-primary transition-transform duration-300 group-hover:scale-110">
-      <path d="M12 2C10.3431 2 9 3.34315 9 5V7H15V5C15 3.34315 13.6569 2 12 2Z" />
-      <path d="M9 9V15C9 16.6569 10.3431 18 12 18C13.6569 18 15 16.6569 15 15V9H9Z" />
-      <path d="M7 18C7 19.6569 8.34315 21 10 21H14C15.6569 21 17 19.6569 17 18V16H7V18Z" />
-      <path d="M5 7C3.34315 7 2 8.34315 2 10V14C2 15.6569 3.34315 17 5 17H7V7H5Z" />
-      <path d="M19 7H17V17H19C20.6569 17 22 15.6569 22 14V10C22 8.34315 20.6569 7 19 7Z" />
-    </svg>
-  );
-
-
   if (!isClient) {
     return (
         <Card className="w-full max-w-md bg-card/10 dark:bg-card/20 backdrop-blur-md shadow-xl border-white/10 animate-pulse rounded-2xl">
@@ -120,7 +119,7 @@ export default function AuthForm() {
             onClick={() => setActiveTab("login")}
             variant="ghost"
             className={cn(
-              "flex-1 text-white hover:bg-primary/80",
+              "flex-1 text-white hover:bg-primary/80 rounded-md",
               activeTab === "login" ? "bg-primary hover:bg-primary/90" : "bg-transparent"
             )}
           >
@@ -130,7 +129,7 @@ export default function AuthForm() {
             onClick={() => setActiveTab("signup")}
             variant="ghost"
             className={cn(
-              "flex-1 text-white hover:bg-primary/80",
+              "flex-1 text-white hover:bg-primary/80 rounded-md",
               activeTab === "signup" ? "bg-primary hover:bg-primary/90" : "bg-transparent"
             )}
           >
@@ -150,9 +149,9 @@ export default function AuthForm() {
                     <Label className="text-slate-300">Email</Label>
                     <div className="relative">
                        <Mail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-                       <Input placeholder="your.email@example.com" {...field} className="pl-10 bg-white/10 dark:bg-slate-800/50 border-slate-600/70 dark:border-slate-700/80 text-white placeholder:text-slate-400 focus:bg-white/20 dark:focus:bg-slate-800/70 focus:border-primary/70" />
+                       <Input placeholder="your.email@example.com" {...field} className="pl-10 bg-white/10 dark:bg-slate-800/50 border-slate-600/70 dark:border-slate-700/80 text-white placeholder:text-slate-400 focus:bg-white/20 dark:focus:bg-slate-800/70 focus:border-primary/70 rounded-md" />
                     </div>
-                    <FormMessage className="text-red-400" />
+                    <FormMessage className="text-red-300" />
                   </FormItem>
                 )}
               />
@@ -164,16 +163,16 @@ export default function AuthForm() {
                     <Label className="text-slate-300">Password</Label>
                      <div className="relative">
                         <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-                        <Input type={showPassword ? "text" : "password"} placeholder="Enter your password" {...field} className="pl-10 pr-10 bg-white/10 dark:bg-slate-800/50 border-slate-600/70 dark:border-slate-700/80 text-white placeholder:text-slate-400 focus:bg-white/20 dark:focus:bg-slate-800/70 focus:border-primary/70" />
+                        <Input type={showPassword ? "text" : "password"} placeholder="Enter your password" {...field} className="pl-10 pr-10 bg-white/10 dark:bg-slate-800/50 border-slate-600/70 dark:border-slate-700/80 text-white placeholder:text-slate-400 focus:bg-white/20 dark:focus:bg-slate-800/70 focus:border-primary/70 rounded-md" />
                         <button type="button" onClick={togglePasswordVisibility} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200">
                             {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                         </button>
                     </div>
-                    <FormMessage className="text-red-400" />
+                    <FormMessage className="text-red-300" />
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full btn-gradient text-white font-semibold py-3 mt-2 text-base">
+              <Button type="submit" className="w-full btn-gradient text-white font-semibold py-3 mt-2 text-base rounded-md">
                 Login
               </Button>
             </form>
@@ -191,9 +190,9 @@ export default function AuthForm() {
                     <Label className="text-slate-300">Full Name</Label>
                     <div className="relative">
                         <User className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-                        <Input placeholder="Your Full Name" {...field} className="pl-10 bg-white/10 dark:bg-slate-800/50 border-slate-600/70 dark:border-slate-700/80 text-white placeholder:text-slate-400 focus:bg-white/20 dark:focus:bg-slate-800/70 focus:border-primary/70" />
+                        <Input placeholder="Your Full Name" {...field} className="pl-10 bg-white/10 dark:bg-slate-800/50 border-slate-600/70 dark:border-slate-700/80 text-white placeholder:text-slate-400 focus:bg-white/20 dark:focus:bg-slate-800/70 focus:border-primary/70 rounded-md" />
                     </div>
-                    <FormMessage className="text-red-400" />
+                    <FormMessage className="text-red-300" />
                   </FormItem>
                 )}
               />
@@ -205,9 +204,9 @@ export default function AuthForm() {
                     <Label className="text-slate-300">Email</Label>
                      <div className="relative">
                         <Mail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-                        <Input placeholder="your.email@example.com" {...field} className="pl-10 bg-white/10 dark:bg-slate-800/50 border-slate-600/70 dark:border-slate-700/80 text-white placeholder:text-slate-400 focus:bg-white/20 dark:focus:bg-slate-800/70 focus:border-primary/70" />
+                        <Input placeholder="your.email@example.com" {...field} className="pl-10 bg-white/10 dark:bg-slate-800/50 border-slate-600/70 dark:border-slate-700/80 text-white placeholder:text-slate-400 focus:bg-white/20 dark:focus:bg-slate-800/70 focus:border-primary/70 rounded-md" />
                     </div>
-                    <FormMessage className="text-red-400" />
+                    <FormMessage className="text-red-300" />
                   </FormItem>
                 )}
               />
@@ -219,12 +218,12 @@ export default function AuthForm() {
                     <Label className="text-slate-300">Password</Label>
                     <div className="relative">
                         <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-                        <Input type={showPassword ? "text" : "password"} placeholder="Create a password" {...field} className="pl-10 pr-10 bg-white/10 dark:bg-slate-800/50 border-slate-600/70 dark:border-slate-700/80 text-white placeholder:text-slate-400 focus:bg-white/20 dark:focus:bg-slate-800/70 focus:border-primary/70" />
+                        <Input type={showPassword ? "text" : "password"} placeholder="Create a password" {...field} className="pl-10 pr-10 bg-white/10 dark:bg-slate-800/50 border-slate-600/70 dark:border-slate-700/80 text-white placeholder:text-slate-400 focus:bg-white/20 dark:focus:bg-slate-800/70 focus:border-primary/70 rounded-md" />
                         <button type="button" onClick={togglePasswordVisibility} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200">
                             {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                         </button>
                     </div>
-                    <FormMessage className="text-red-400" />
+                    <FormMessage className="text-red-300" />
                   </FormItem>
                 )}
               />
@@ -236,12 +235,12 @@ export default function AuthForm() {
                     <Label className="text-slate-300">Confirm Password</Label>
                     <div className="relative">
                         <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-                        <Input type={showConfirmPassword ? "text" : "password"} placeholder="Confirm your password" {...field} className="pl-10 pr-10 bg-white/10 dark:bg-slate-800/50 border-slate-600/70 dark:border-slate-700/80 text-white placeholder:text-slate-400 focus:bg-white/20 dark:focus:bg-slate-800/70 focus:border-primary/70" />
+                        <Input type={showConfirmPassword ? "text" : "password"} placeholder="Confirm your password" {...field} className="pl-10 pr-10 bg-white/10 dark:bg-slate-800/50 border-slate-600/70 dark:border-slate-700/80 text-white placeholder:text-slate-400 focus:bg-white/20 dark:focus:bg-slate-800/70 focus:border-primary/70 rounded-md" />
                         <button type="button" onClick={toggleConfirmPasswordVisibility} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200">
                             {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                         </button>
                     </div>
-                    <FormMessage className="text-red-400" />
+                    <FormMessage className="text-red-300" />
                   </FormItem>
                 )}
               />
@@ -262,12 +261,12 @@ export default function AuthForm() {
                       <Label htmlFor="terms" className="text-slate-300 text-sm font-normal">
                         I agree to the <a href="#" className="text-primary hover:underline">Terms</a> and <a href="#" className="text-primary hover:underline">Privacy Policy</a>
                       </Label>
-                      <FormMessage className="text-red-400" />
+                      <FormMessage className="text-red-300" />
                     </div>
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full btn-gradient text-white font-semibold py-3 mt-2 text-base">
+              <Button type="submit" className="w-full btn-gradient text-white font-semibold py-3 mt-2 text-base rounded-md">
                 Create Account
               </Button>
             </form>
@@ -277,3 +276,5 @@ export default function AuthForm() {
     </Card>
   );
 }
+
+    

@@ -10,20 +10,16 @@ import {
   SidebarSeparator,
 } from "@/components/ui/sidebar";
 import { SidebarNavItem } from "./sidebar-nav-item";
-import { LayoutDashboard, ListChecks, FileText, Settings as SettingsIcon, Sun, Moon, LogOut, StickyNote, LineChart, Zap } from "lucide-react"; // Added Zap
-import { Button } from "@/components/ui/button";
-import { useTheme } from "next-themes";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { LayoutDashboard, ListChecks, FileText, Settings as SettingsIcon, StickyNote, LineChart, BookOpen } from "lucide-react";
+import { useRouter } from "next/navigation"; // Added import for useRouter
+import { useEffect, useState } from "react"; // Added imports for useEffect, useState
 
 const navItems = [
   { href: "/dashboard", icon: <LayoutDashboard className="h-5 w-5" />, label: "Dashboard" },
   { href: "/tasks", icon: <ListChecks className="h-5 w-5" />, label: "Tasks" },
   { href: "/notes", icon: <StickyNote className="h-5 w-5" />, label: "Notes" },
   { href: "/trades", icon: <LineChart className="h-5 w-5" />, label: "Trades" }, 
-  { href: "/docs", icon: <FileText className="h-5 w-5" />, label: "Docs" },
+  { href: "/docs", icon: <BookOpen className="h-5 w-5" />, label: "Docs" }, // Changed icon for docs
   { href: "/settings", icon: <SettingsIcon className="h-5 w-5" />, label: "Settings" },
 ];
 
@@ -40,29 +36,13 @@ const AppLogo = () => (
 
 
 export function MainSidebarContent() {
-  const { theme, setTheme } = useTheme();
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
-  const [currentTheme, setCurrentTheme] = useState("system");
 
   useEffect(() => {
     setIsClient(true);
-    setCurrentTheme(theme || "system");
-  }, [theme]);
+  }, []);
   
-  const handleLogout = () => {
-    if (isClient) {
-      localStorage.removeItem("prohub-auth-status");
-    }
-    router.push("/");
-  };
-
-  const toggleTheme = () => {
-    const newTheme = currentTheme === "dark" ? "light" : "dark";
-    setTheme(newTheme);
-    setCurrentTheme(newTheme);
-  };
-
   return (
     <>
       <SidebarHeader className="p-4">
@@ -84,81 +64,15 @@ export function MainSidebarContent() {
         </SidebarMenu>
       </UiSidebarContent>
 
-      <SidebarSeparator />
-      
-      <SidebarFooter className="p-4 space-y-2">
-        {/* Expanded Footer */}
-        <div className="group-data-[collapsible=icon]:hidden flex flex-col space-y-2">
-           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="w-full justify-start px-2 py-2 h-auto hover:bg-sidebar-accent transition-colors duration-200 rounded-xl">
-                <Avatar className="h-8 w-8 mr-2">
-                  <AvatarImage src="https://placehold.co/100x100.png" alt="User" data-ai-hint="user avatar professional" />
-                  <AvatarFallback>PH</AvatarFallback>
-                </Avatar>
-                <span className="truncate font-medium">User Name</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent side="right" align="start" className="w-56 rounded-xl shadow-lg">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => router.push('/settings')} className="cursor-pointer">
-                <SettingsIcon className="mr-2 h-4 w-4" />
-                <span>Settings</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive cursor-pointer">
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Log out</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <Button
-            variant="ghost"
-            className="w-full justify-start px-2 h-auto hover:bg-sidebar-accent transition-colors duration-200 flex items-center gap-2 rounded-xl"
-            onClick={toggleTheme}
-            aria-label="Toggle theme"
-          >
-            {currentTheme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-            <span className="font-medium">Toggle Theme</span>
-          </Button>
-        </div>
-
-        {/* Collapsed Footer (Icon Only) */}
-        <div className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:space-y-2 hidden">
-           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-               <Button variant="ghost" size="icon" className="h-9 w-9 hover:bg-sidebar-accent transition-colors duration-200 rounded-full">
-                <Avatar className="h-full w-full">
-                  <AvatarImage src="https://placehold.co/100x100.png" alt="User" data-ai-hint="user avatar person" />
-                  <AvatarFallback>PH</AvatarFallback>
-                </Avatar>
-               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent side="right" align="center" className="w-56 rounded-xl shadow-lg">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => router.push('/settings')} className="cursor-pointer">
-                <SettingsIcon className="mr-2 h-4 w-4" />
-                <span>Settings</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive cursor-pointer">
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Log out</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-9 w-9 hover:bg-sidebar-accent transition-colors duration-200 rounded-full"
-            onClick={toggleTheme}
-            aria-label="Toggle theme"
-          >
-            {currentTheme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-          </Button>
-        </div>
+      {/* Footer is now minimal or can be removed entirely if no other elements are needed */}
+       <SidebarFooter className="p-2">
+        {/* Optionally, add a small branding or version number if desired */}
+        <p className="text-xs text-sidebar-foreground/50 text-center group-data-[collapsible=icon]:hidden">
+          ProHub v1.0
+        </p>
       </SidebarFooter>
     </>
   );
 }
+
+    

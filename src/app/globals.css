@@ -5,12 +5,12 @@
 
 @layer base {
   :root {
-    /* Light Mode - As per new spec */
+    /* Light Mode */
     --background: 0 0% 98%; /* #FAFAFA */
     --foreground: 215 28% 17%; /* #1F2937 */
     
     --card: 0 0% 100%; /* #FFFFFF */
-    --card-foreground: 215 28% 17%; /* #1F2937 */
+    --card-foreground: 215 28% 17%;
     
     --popover: 0 0% 100%;
     --popover-foreground: 215 28% 17%;
@@ -18,100 +18,100 @@
     --primary: 242 100% 70%; /* #6C63FF - Indigo */
     --primary-foreground: 0 0% 100%; /* White */
     
-    --secondary: 25 95% 53%; /* #F97316 - Timer Orange / general secondary */
-    --secondary-foreground: 0 0% 100%; 
+    --secondary: 210 17% 90%; /* #E5E7EB - Light Gray for secondary elements */
+    --secondary-foreground: 215 28% 17%; /* Dark text for contrast on light secondary */
     
-    --muted: 210 17% 95%; /* #F3F4F6 - Section Background / Hover BG */
-    --muted-foreground: 215 14% 47%; /* #6B7280 - Light Text */
+    --muted: 210 17% 95%; /* #F3F4F6 - Slightly off-white for muted backgrounds/hovers */
+    --muted-foreground: 215 14% 47%; /* #6B7280 - Medium gray text */
     
-    --accent: 250 100% 73%; /* #8F75FF - Gradient Accent */
+    --accent: 250 100% 73%; /* #8F75FF - Lighter Indigo for accents */
     --accent-foreground: 0 0% 100%;
     
     --destructive: 0 84% 60%; /* #EF4444 - Error/Danger Red */
-    --destructive-foreground: 0 0% 98%;
+    --destructive-foreground: 0 0% 98%; /* White text on red */
     
     --success: 145 63% 42%; /* #22C55E - Green */
-    --success-foreground: 0 0% 98%;
+    --success-foreground: 0 0% 98%; /* White text on green */
 
     --warning: 38 92% 50%; /* #F59E0B - Amber */
     --warning-foreground: 215 28% 17%; /* Dark text for contrast */
 
     --info: 200 88% 57%; /* #38BDF8 - Sky Blue */
-    --info-foreground: 0 0% 100%;
+    --info-foreground: 0 0% 100%; /* White text on blue */
         
-    --border: 210 14% 90%; /* #E5E7EB - Border Color / Input BG */
-    --input: 210 14% 90%; /* #E5E7EB */
-    --ring: 242 100% 72%; /* Slightly lighter primary for focus */
+    --border: 210 14% 87%; /* #DDDDE3 - Slightly darker border */
+    --input: 210 14% 93%; /* #ECECF1 - Light input background */
+    --ring: 242 100% 72%; /* Primary color for focus rings */
     
-    --radius: 0.75rem; /* rounded-2xl equivalent is often 1rem, but 0.75rem for rounded-xl as per ShadCN */
+    --radius: 0.75rem; /* Base radius for rounded-xl */
 
     --chart-1: 242 100% 70%; /* Primary */
     --chart-2: 250 100% 73%; /* Accent */
-    --chart-3: 25 95% 53%;   /* Secondary (Orange) */
+    --chart-3: 25 95% 53%;   /* Example Orange */
     --chart-4: 145 63% 42%;  /* Success (Green) */
     --chart-5: 0 84% 60%;    /* Destructive (Red) */
 
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 215 28% 17%;
+    --sidebar-background: 0 0% 100%; /* White sidebar */
+    --sidebar-foreground: 215 28% 17%; /* Dark text */
     --sidebar-primary: 242 100% 70%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 17% 95%; 
-    --sidebar-accent-foreground: 242 100% 70%; 
+    --sidebar-accent: 210 17% 95%; /* Light hover for sidebar items */
+    --sidebar-accent-foreground: 242 100% 70%; /* Primary color for active/hover text */
     --sidebar-border: 210 14% 90%;
     --sidebar-ring: 242 100% 72%;
 
-    --section-background: 210 17% 95%; /* #F3F4F6 */
+    --section-background: 0 0% 96%; /* #F5F5F5 - Slightly darker than main BG for depth */
   }
 
   .dark {
-    /* Dark Mode - As per new spec */
+    /* Dark Mode */
     --background: 234 22% 15%; /* #1E1E2F */
     --foreground: 210 29% 87%; /* #E5E7EB */
     
-    --card: 216 28% 27%; /* #334155 */
+    --card: 232 22% 20%; /* #262638 - Slightly lighter than BG */
     --card-foreground: 210 29% 87%;
     
-    --popover: 216 28% 22%; 
+    --popover: 230 22% 18%; /* #222233 - Darker popover */
     --popover-foreground: 210 29% 87%;
     
-    --primary: 242 100% 75%; /* Lighter Indigo for dark mode */
-    --primary-foreground: 234 22% 15%; 
+    --primary: 242 100% 75%; /* #8580FF - Lighter Indigo for dark mode */
+    --primary-foreground: 234 22% 15%; /* Dark text on light primary */
     
-    --secondary: 25 90% 60%; /* Brighter Orange */
-    --secondary-foreground: 234 22% 15%;
+    --secondary: 230 20% 25%; /* #333344 - Dark Gray for secondary elements */
+    --secondary-foreground: 210 29% 87%; /* Light text on dark secondary */
     
-    --muted: 216 28% 22%; /* Darker muted */
-    --muted-foreground: 210 17% 67%; /* Lighter muted foreground */
+    --muted: 230 20% 22%; /* #2D2D3F - Darker muted */
+    --muted-foreground: 210 17% 67%; /* #9CA3AF - Medium-light gray text */
     
-    --accent: 250 100% 78%; /* Lighter Gradient Accent */
+    --accent: 250 100% 78%; /* #A499FF - Lighter Accent */
     --accent-foreground: 234 22% 15%;
     
-    --destructive: 0 75% 65%; /* Brighter Red */
+    --destructive: 0 75% 65%; /* #F76666 - Brighter Red */
     --destructive-foreground: 0 0% 98%;
     
-    --success: 145 60% 50%; /* Brighter Green */
+    --success: 145 60% 50%; /* #4ADE80 - Brighter Green */
     --success-foreground: 234 22% 15%;
 
-    --warning: 38 90% 55%; /* Brighter Amber */
+    --warning: 38 90% 55%; /* #FBBF24 - Brighter Amber */
     --warning-foreground: 234 22% 15%;
 
-    --info: 200 85% 60%; /* Brighter Sky Blue */
+    --info: 200 85% 60%; /* #5EC9F8 - Brighter Sky Blue */
     --info-foreground: 234 22% 15%;
         
-    --border: 216 28% 32%; /* Darker border */
-    --input: 216 28% 22%; 
-    --ring: 242 100% 78%; 
+    --border: 230 18% 28%; /* #3C3C4F - Softer border */
+    --input: 230 20% 22%; /* #2D2D3F - Dark input background */
+    --ring: 242 100% 78%; /* Primary color for focus rings */
 
-    --sidebar-background: 243 15% 29%; /* #3F3D56 - Specific request for dark sidebar */
+    --sidebar-background: 236 22% 18%; /* #222233 - Slightly darker than main dark BG */
     --sidebar-foreground: 210 29% 87%;
     --sidebar-primary: 242 100% 75%;
-    --sidebar-primary-foreground: 243 15% 29%;
-    --sidebar-accent: 216 28% 22%; 
-    --sidebar-accent-foreground: 242 100% 78%; 
-    --sidebar-border: 216 28% 20%;
+    --sidebar-primary-foreground: 236 22% 18%;
+    --sidebar-accent: 230 20% 25%; /* Dark hover for sidebar items */
+    --sidebar-accent-foreground: 242 100% 78%; /* Lighter primary for active/hover text */
+    --sidebar-border: 230 18% 25%; /* #333340 */
     --sidebar-ring: 242 100% 78%;
 
-    --section-background: 234 22% 12%; /* Slightly darker than main dark BG for depth */
+    --section-background: 234 22% 12%; /* #1A1A2A - Even darker for section depth */
   }
 }
 
@@ -121,10 +121,10 @@
   }
   body {
     @apply bg-background text-foreground font-body;
-    font-size: 16px; /* Base font size */
-    line-height: 1.6; /* Balanced line-height */
+    font-size: 16px; 
+    line-height: 1.6; 
   }
-  /* Custom scrollbar for webkit browsers */
+  
   ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -141,7 +141,6 @@
     @apply bg-primary/70;
   }
 
-  /* Markdown specific typography */
   .prose {
     @apply text-foreground;
   }
@@ -183,13 +182,11 @@
   }
 
   .dark .prose {
-     @apply text-foreground; /* foreground is already light in dark mode */
+     @apply text-foreground; 
   }
-  /* Add other specific dark mode prose styles if needed */
 }
 
 .auth-gradient {
-  /* Uses primary and accent which are now updated */
   background-image: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
 }
 
@@ -202,7 +199,6 @@
   background-position: right center; 
 }
 
-/* Ensure text in note cards is visible on colored backgrounds */
 .light .note-card-custom-text.on-dark-bg {
   color: hsl(var(--primary-foreground)); 
 }
@@ -214,7 +210,7 @@
   color: hsla(var(--primary-foreground), 0.8);
 }
 .light .note-card-custom-muted-text.on-light-bg {
-   color: hsla(var(--card-foreground), 0.8);
+   color: hsl(var(--card-foreground), 0.8); /* Adjusted from text-muted-foreground */
 }
 
 .dark .note-card-custom-text {
@@ -223,3 +219,5 @@
 .dark .note-card-custom-muted-text {
   color: hsla(var(--card-foreground), 0.8);
 }
+
+    
