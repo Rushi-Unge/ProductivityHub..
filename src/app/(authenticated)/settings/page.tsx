@@ -14,7 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { UploadCloud, User, Lock, Bell } from "lucide-react";
-import * as React from "react"; // Ensure React is imported for useState
+import * as React from "react"; 
 
 const profileSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -34,7 +34,6 @@ const passwordSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileSchema>;
 type PasswordFormValues = z.infer<typeof passwordSchema>;
 
-// Mock user data - in a real app, this would come from context or props
 const initialUserData = {
   name: "Current User",
   email: "user@example.com",
@@ -70,32 +69,25 @@ export default function SettingsPage() {
   }, [userData, profileForm]);
 
   const onProfileSubmit = (data: ProfileFormValues) => {
-    // Simulate updating user data
     setUserData(prev => ({...prev, name: data.name, email: data.email, avatarUrl: data.avatarUrl || prev.avatarUrl }));
-    // In a real app, you'd also update the avatar in the header if it's shown there.
-    // For now, we just update the preview on this page.
     if (data.avatarUrl) {
       setAvatarPreview(data.avatarUrl);
     }
     toast({ title: "Profile Updated", description: "Your profile information has been saved." });
-    console.log("Profile data:", data);
-    // Here you would typically make an API call to save the data
   };
 
   const onPasswordSubmit = (data: PasswordFormValues) => {
     toast({ title: "Password Changed", description: "Your password has been successfully updated. (Simulated)" });
-    console.log("Password data:", data);
     passwordForm.reset();
-    // API call to change password
   };
   
   const handleAvatarUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const url = e.target.value;
-    profileForm.setValue("avatarUrl", url); // Update form value
+    profileForm.setValue("avatarUrl", url); 
     if (profileSchema.shape.avatarUrl.safeParse(url).success) {
-        setAvatarPreview(url); // Update preview if URL is valid
+        setAvatarPreview(url); 
     } else if (!url) {
-        setAvatarPreview(userData.avatarUrl); // Reset to original if input is cleared
+        setAvatarPreview(userData.avatarUrl); 
     }
   };
 
@@ -108,10 +100,10 @@ export default function SettingsPage() {
       </div>
 
       <Tabs defaultValue="profile" className="w-full">
-        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 mb-6 bg-muted/50 dark:bg-muted/20 rounded-xl p-1">
-          <TabsTrigger value="profile" className="flex items-center gap-2 data-[state=active]:bg-card data-[state=active]:shadow-md rounded-lg"><User className="h-4 w-4"/>Profile</TabsTrigger>
-          <TabsTrigger value="security" className="flex items-center gap-2 data-[state=active]:bg-card data-[state=active]:shadow-md rounded-lg"><Lock className="h-4 w-4"/>Security</TabsTrigger>
-          <TabsTrigger value="notifications" className="flex items-center gap-2 data-[state=active]:bg-card data-[state=active]:shadow-md rounded-lg"><Bell className="h-4 w-4"/>Notifications</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 mb-6 bg-muted/50 dark:bg-muted/20 rounded-xl p-1 overflow-x-auto sm:overflow-x-hidden">
+          <TabsTrigger value="profile" className="flex items-center gap-2 data-[state=active]:bg-card data-[state=active]:shadow-md rounded-lg whitespace-nowrap"><User className="h-4 w-4"/>Profile</TabsTrigger>
+          <TabsTrigger value="security" className="flex items-center gap-2 data-[state=active]:bg-card data-[state=active]:shadow-md rounded-lg whitespace-nowrap"><Lock className="h-4 w-4"/>Security</TabsTrigger>
+          <TabsTrigger value="notifications" className="flex items-center gap-2 data-[state=active]:bg-card data-[state=active]:shadow-md rounded-lg whitespace-nowrap"><Bell className="h-4 w-4"/>Notifications</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile">
@@ -132,7 +124,7 @@ export default function SettingsPage() {
                         control={profileForm.control}
                         name="avatarUrl"
                         render={({ field }) => (
-                        <FormItem className="flex-grow">
+                        <FormItem className="flex-grow w-full sm:w-auto">
                             <FormLabel>Avatar URL</FormLabel>
                             <FormControl>
                             <Input 

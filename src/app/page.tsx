@@ -1,7 +1,7 @@
 
 import AuthForm from "@/components/auth-form";
 import { ThemeToggleButton } from "@/components/theme-toggle-button";
-import { ListChecks, LineChart, StickyNote } from "lucide-react";
+import { ListChecks, LineChart, StickyNote, ShieldCheck } from "lucide-react"; // Replaced Timer icon
 
 const features = [
   {
@@ -28,10 +28,8 @@ export default function AuthenticationPage() {
         <ThemeToggleButton />
       </div>
       
-      {/* Grid container for two-column layout */}
       <div className="mx-auto grid w-full max-w-6xl grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
         
-        {/* Left Column: Welcome Text & Auth Form */}
         <div className="flex flex-col items-center lg:items-start text-center lg:text-left z-10 py-8 lg:py-0">
           <h1 className="text-4xl md:text-5xl font-bold text-foreground font-headline mb-4">
             Welcome to ProHub
@@ -42,7 +40,6 @@ export default function AuthenticationPage() {
           <AuthForm />
         </div>
 
-        {/* Right Column: "Why ProHub?" Features - Hidden on small screens */}
         <div className="hidden lg:flex flex-col items-center justify-center z-10">
           <div className="bg-card/70 dark:bg-card/80 backdrop-blur-md p-8 rounded-2xl shadow-xl w-full max-w-md border border-border/30 dark:border-border/50">
             <h2 className="text-3xl font-bold text-foreground mb-8 text-center font-headline">
@@ -72,9 +69,10 @@ export default function AuthenticationPage() {
         </div>
       </div>
 
-      {/* Decorative Blobs - Kept subtle */}
       <div className="absolute top-0 left-0 w-72 h-72 bg-primary/5 rounded-full opacity-30 -translate-x-1/2 -translate-y-1/2 filter blur-3xl pointer-events-none" aria-hidden="true"></div>
       <div className="absolute bottom-0 right-0 w-72 h-72 bg-accent/5 rounded-full opacity-30 translate-x-1/2 translate-y-1/2 filter blur-3xl pointer-events-none" aria-hidden="true"></div>
     </main>
   );
 }
+
+    

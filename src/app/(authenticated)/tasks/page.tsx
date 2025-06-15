@@ -54,7 +54,7 @@ export default function TasksPage() {
   const [isLoadingAi, setIsLoadingAi] = useState(false);
   const { toast } = useToast();
   const [isClient, setIsClient] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(""); // Kept for potential future use, but UI removed
   const [activeTab, setActiveTab] = useState<"all" | "high" | "dueToday" | "completed">("all");
 
 
@@ -127,7 +127,7 @@ export default function TasksPage() {
       tasks: pendingTasks.map(task => ({
         title: task.title,
         description: task.description || "",
-        deadline: task.dueDate ? task.dueDate.split('T')[0] : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        deadline: task.dueDate ? task.dueDate.split('T')[0] : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Default deadline 7 days from now if not set
         importance: (task.priority && ['low', 'medium', 'high'].includes(task.priority) ? task.priority : 'medium') as 'low' | 'medium' | 'high',
       })),
     };
@@ -146,8 +146,8 @@ export default function TasksPage() {
                 aiReason: aiData.reason,
             };
             }
-            // Clear AI fields if not in AI result or not pending
-            return {...originalTask, aiReason: undefined, aiPriority: undefined};
+            // Clear AI fields if not in AI result or not pending, or if it was completed then uncompleted
+            return {...originalTask, aiReason: originalTask.status === 'pending' ? originalTask.aiReason : undefined, aiPriority: originalTask.status === 'pending' ? originalTask.aiPriority : undefined};
         });
 
         // Sort all tasks: pending first (sorted by AI then due date), then completed (by completion date)
@@ -186,7 +186,7 @@ export default function TasksPage() {
   const filteredAndSortedTasks = useMemo(() => {
     let processedTasks = [...tasks];
 
-    // Apply search filter first
+    // Apply search filter first (search term state is kept but UI removed for now)
     if (searchTerm) {
       processedTasks = processedTasks.filter(task =>
         task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -208,7 +208,12 @@ export default function TasksPage() {
         break;
       case 'all':
       default:
-        processedTasks = processedTasks.filter(t => t.status === 'pending'); // 'All Tasks' now means all pending
+        // 'All Tasks' shows pending tasks first, then completed tasks.
+        // So, for filtering, we initially don't filter out by status for 'all', 
+        // but the sort function later will handle pending vs completed.
+        // However, if user wants 'All Tasks' to mean 'All Pending Tasks', then filter here.
+        // For now, let's assume 'All' means all tasks, with pending sorted before completed.
+        // The current sort logic already handles this.
         break;
     }
     
@@ -265,9 +270,6 @@ export default function TasksPage() {
           <p className="text-muted-foreground">Organize and prioritize your tasks efficiently.</p>
         </div>
         <div className="flex items-center gap-2">
-             <Button variant="outline" className="rounded-xl hidden sm:flex">
-                <CalendarDays className="mr-2 h-4 w-4" /> Calendar View
-             </Button>
              <Button onClick={openNewTaskDialog} className="w-full sm:w-auto shadow-md hover:shadow-lg transition-shadow rounded-xl">
                 <PlusCircle className="mr-2 h-4 w-4" /> Add Task
              </Button>
@@ -276,7 +278,7 @@ export default function TasksPage() {
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column: Today's Focus */}
+        {/* Left Column: Today's Focus & AI Prioritize */}
         <div className="lg:col-span-1 space-y-4">
             <Card className="rounded-2xl shadow-lg bg-primary/5 border-primary/20">
                 <CardHeader className="pb-3">
@@ -285,12 +287,12 @@ export default function TasksPage() {
                 </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                {mockFocusTasks.map(ft => (
+                {mockFocusTasks.length > 0 ? mockFocusTasks.map(ft => (
                     <div key={ft.id} className="p-3 bg-card/80 rounded-xl border border-border/70">
                         <h4 className="font-medium text-sm text-card-foreground">{ft.title}</h4>
                         <p className="text-xs text-muted-foreground">{ft.detail}</p>
                     </div>
-                ))}
+                )) : <p className="text-sm text-muted-foreground text-center py-2">No focus tasks set.</p>}
                 <Button variant="outline" className="w-full rounded-xl border-dashed border-primary/50 text-primary hover:bg-primary/10 hover:text-primary">
                     <PlusCircle className="mr-2 h-4 w-4" /> Add Focus Task
                 </Button>
@@ -312,24 +314,15 @@ export default function TasksPage() {
                 <TabsTrigger value="completed" className="rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm">Completed</TabsTrigger>
               </TabsList>
             </Tabs>
-            <div className="relative w-full sm:w-auto sm:max-w-xs">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"/>
-                <Input
-                    type="search"
-                    placeholder="Search tasks..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-9 rounded-xl h-10 w-full bg-muted/70 dark:bg-muted/40 focus:bg-card"
-                />
-            </div>
+            {/* Search bar removed as per request */}
           </div>
           
           <Card className="rounded-2xl shadow-lg">
              <CardHeader className="pt-4 pb-2">
                 <CardTitle className="text-base font-medium text-muted-foreground">
-                    {activeTab === "all" && "Pending Tasks"}
-                    {activeTab === "high" && "High Priority Tasks"}
-                    {activeTab === "dueToday" && "Tasks Due Today"}
+                    {activeTab === "all" && "All Tasks (Pending first, then Completed)"}
+                    {activeTab === "high" && "High Priority Tasks (Pending)"}
+                    {activeTab === "dueToday" && "Tasks Due Today (Pending)"}
                     {activeTab === "completed" && "Completed Tasks"}
                 </CardTitle>
              </CardHeader>
@@ -375,3 +368,5 @@ export default function TasksPage() {
     </div>
   );
 }
+
+    

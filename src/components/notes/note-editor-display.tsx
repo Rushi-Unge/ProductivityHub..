@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Archive, Edit3, Eye, Pin, PinOff, Save, Tag, Trash2, ExternalLink } from "lucide-react";
+import { Archive, Edit3, Eye, Pin, PinOff, Save, Tag, Trash2, ArrowLeft } from "lucide-react";
 import React, { useState, useEffect, useCallback } from "react";
 import { format, parseISO } from "date-fns";
 import { Badge } from "@/components/ui/badge";
@@ -28,6 +28,8 @@ interface NoteEditorDisplayProps {
   onToggleStar: (id: string) => void;
   onToggleArchive: (id: string) => void;
   onDeleteNote: (id: string) => void; // This is for moving to trash
+  onGoBack?: () => void; // Optional: For mobile view to go back to list
+  isMobileView?: boolean; // Optional: To conditionally render elements like back button
 }
 
 export default function NoteEditorDisplay({
@@ -36,6 +38,8 @@ export default function NoteEditorDisplay({
   onToggleStar,
   onToggleArchive,
   onDeleteNote,
+  onGoBack,
+  isMobileView = false,
 }: NoteEditorDisplayProps) {
   const [title, setTitle] = useState(note.title);
   const [content, setContent] = useState(note.content);
@@ -46,7 +50,6 @@ export default function NoteEditorDisplay({
     setTitle(note.title);
     setContent(note.content);
     setTagsString(note.tags.join(", "));
-    // Default to preview when a new note is selected, unless it's a brand new empty note
     setActiveTab(note.content || note.title !== "Untitled Note" ? "preview" : "edit");
   }, [note]);
 
@@ -54,12 +57,11 @@ export default function NoteEditorDisplay({
     const updatedTags = tagsString.split(",").map(t => t.trim().toLowerCase()).filter(t => t);
     onUpdateNote({ ...note, title, content, tags: updatedTags });
   }, [onUpdateNote, note, title, content, tagsString]);
-
-  // Auto-save on blur or significant changes (debounced)
+ 
   useEffect(() => {
     const handler = setTimeout(() => {
       if (title !== note.title || content !== note.content || tagsString !== note.tags.join(", ")) {
-        // handleSave(); // Removed implicit auto-save. User must click save.
+        // Auto-save is disabled, user must click save.
       }
     }, 1000); 
     return () => clearTimeout(handler);
@@ -70,12 +72,16 @@ export default function NoteEditorDisplay({
 
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden bg-background dark:bg-muted/20">
-      {/* Header Section */}
       <header className="p-4 border-b flex items-center justify-between gap-2">
+        {isMobileView && onGoBack && (
+          <Button variant="ghost" size="icon" onClick={onGoBack} className="mr-2 rounded-lg">
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+        )}
         <Input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            onBlur={handleSave} // Save on blur from title
+            onBlur={handleSave} 
             placeholder="Note Title"
             className="text-xl font-semibold border-0 shadow-none focus-visible:ring-0 h-auto p-0 flex-grow bg-transparent"
         />
@@ -106,8 +112,6 @@ export default function NoteEditorDisplay({
          Last updated: {formattedLastUpdated}
       </div>
 
-
-      {/* Edit/Preview Tabs and Content Area */}
       <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "edit" | "preview")} className="flex-1 flex flex-col overflow-hidden px-4 pb-4">
         <div className="flex justify-between items-center mb-2">
             <TabsList className="bg-muted/50 dark:bg-muted/30 rounded-lg p-0.5">
@@ -121,7 +125,7 @@ export default function NoteEditorDisplay({
             <Textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              onBlur={handleSave} // Save on blur from content
+              onBlur={handleSave} 
               placeholder="Start writing your note..."
               className="w-full h-full p-4 resize-none border-0 shadow-none focus-visible:ring-0 text-base min-h-[300px] bg-transparent"
             />
@@ -136,7 +140,6 @@ export default function NoteEditorDisplay({
         </TabsContent>
       </Tabs>
 
-      {/* Tags Section */}
       <div className="p-4 border-t mt-auto">
         <div className="flex items-center gap-2 mb-1.5">
             <Tag className="h-4 w-4 text-muted-foreground"/>
@@ -146,7 +149,7 @@ export default function NoteEditorDisplay({
           id="note-tags"
           value={tagsString}
           onChange={(e) => setTagsString(e.target.value)}
-          onBlur={handleSave} // Save on blur from tags
+          onBlur={handleSave} 
           placeholder="Add tags, comma-separated"
           className="rounded-xl h-9 bg-muted/50 focus:bg-background"
         />
@@ -161,3 +164,5 @@ export default function NoteEditorDisplay({
     </div>
   );
 }
+
+    

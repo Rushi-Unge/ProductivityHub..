@@ -4,14 +4,12 @@
 import * as React from "react";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Plus, Search, Star, Archive, Trash2, Pin, PinOff, Folder, Edit3, Eye, Tag } from "lucide-react";
+import { Plus, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import NotesListPanel from "@/components/notes/notes-list-panel";
 import NoteEditorDisplay from "@/components/notes/note-editor-display";
+import { useIsMobile } from "@/hooks/use-mobile"; // Helper hook to detect mobile view
 
 export interface Note {
   id: string;
@@ -41,15 +39,17 @@ export default function NotesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
   const [isClient, setIsClient] = useState(false);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     setIsClient(true);
-    // Select the first available non-trashed, non-archived note by default
-    const firstNote = notes.find(n => !n.isArchived && !n.isTrashed);
-    if (firstNote) {
-      setSelectedNoteId(firstNote.id);
+    if (!isMobile) {
+      const firstNote = notes.find(n => !n.isArchived && !n.isTrashed);
+      if (firstNote && !selectedNoteId) {
+        setSelectedNoteId(firstNote.id);
+      }
     }
-  }, [notes]); // Only run once on mount based on initial notes, or when notes array identity changes.
+  }, [notes, isMobile, selectedNoteId]);
 
   const handleSelectNote = useCallback((id: string) => {
     setSelectedNoteId(id);
@@ -73,11 +73,10 @@ export default function NotesPage() {
       updatedAt: new Date().toISOString(),
     };
     setNotes(prevNotes => [newNote, ...prevNotes]);
-    setSelectedNoteId(newNote.id);
+    setSelectedNoteId(newNote.id); // Automatically select the new note for editing
     toast({ title: "New Note Created" });
   }, [toast]);
   
-  // Expose createNewNote to global scope for sidebar button
   useEffect(() => {
     if (isClient) {
       (window as any).createNewNote = handleCreateNewNote;
@@ -99,7 +98,7 @@ export default function NotesPage() {
     setNotes(prevNotes => prevNotes.map(n => n.id === id ? { ...n, isArchived: !n.isArchived, isStarred: false, isTrashed: false, updatedAt: new Date().toISOString() } : n));
     const note = notes.find(n => n.id === id);
     toast({ title: note?.isArchived ? "Note Unarchived" : "Note Archived" });
-    if (selectedNoteId === id && !note?.isArchived) { // if current note is archived, deselect it
+    if (selectedNoteId === id && !note?.isArchived) { 
         const nextSelectableNote = notes.find(n => n.id !== id && !n.isArchived && !n.isTrashed);
         setSelectedNoteId(nextSelectableNote ? nextSelectableNote.id : null);
     }
@@ -109,11 +108,11 @@ export default function NotesPage() {
     const note = notes.find(n => n.id === id);
     if (!note) return;
 
-    if (note.isTrashed) { // Permanently delete
+    if (note.isTrashed) { 
       setNotes(prevNotes => prevNotes.filter(n => n.id !== id));
       toast({ title: "Note Permanently Deleted", variant: "destructive" });
       if (selectedNoteId === id) setSelectedNoteId(null);
-    } else { // Move to trash
+    } else { 
       setNotes(prevNotes => prevNotes.map(n => n.id === id ? { ...n, isTrashed: true, isStarred: false, isArchived: false, updatedAt: new Date().toISOString() } : n));
       toast({ title: "Note Moved to Trash" });
        if (selectedNoteId === id) {
@@ -134,9 +133,13 @@ export default function NotesPage() {
     return notes.find(note => note.id === selectedNoteId) || null;
   }, [selectedNoteId, notes]);
 
+  const handleGoBackToList = () => {
+    setSelectedNoteId(null);
+  };
+
   if (!isClient) {
     return (
-      <div className="flex h-[calc(100vh-var(--header-height)-0px)] animate-fade-in">
+      <div className="flex flex-col md:flex-row h-[calc(100vh-var(--header-height)-0px)] animate-fade-in">
         <aside className="w-full md:w-[320px] p-4 border-r bg-card dark:bg-card/80 space-y-4">
           <Skeleton className="h-10 w-full rounded-xl" />
           <Skeleton className="h-6 w-1/3 rounded-lg mt-4" />
@@ -153,6 +156,43 @@ export default function NotesPage() {
     );
   }
   
+  // Responsive layout logic
+  if (isMobile) {
+    if (selectedNote) {
+      return (
+        <main className="flex-1 flex flex-col overflow-hidden bg-background h-full">
+          <NoteEditorDisplay
+            key={selectedNote.id}
+            note={selectedNote}
+            onUpdateNote={handleUpdateNote}
+            onToggleStar={handleToggleStar}
+            onToggleArchive={handleToggleArchive}
+            onDeleteNote={handleToggleTrash}
+            onGoBack={handleGoBackToList} // Pass back handler
+            isMobileView={true}
+          />
+        </main>
+      );
+    } else {
+      return (
+         <div className="flex flex-col h-[calc(100vh-var(--header-height)-0px)]">
+            <NotesListPanel
+                notes={notes}
+                selectedNoteId={selectedNoteId}
+                onSelectNote={handleSelectNote}
+                searchTerm={searchTerm}
+                onSearchTermChange={setSearchTerm}
+                onToggleTrash={handleToggleTrash}
+                onRestoreFromTrash={handleRestoreFromTrash}
+                onToggleArchive={handleToggleArchive}
+                onToggleStar={handleToggleStar}
+             />
+         </div>
+      );
+    }
+  }
+
+  // Desktop layout
   return (
     <div className="flex h-[calc(100vh-var(--header-height)-0px)]">
       <NotesListPanel
@@ -169,12 +209,13 @@ export default function NotesPage() {
       <main className="flex-1 flex flex-col overflow-hidden bg-background">
         {selectedNote ? (
           <NoteEditorDisplay
-            key={selectedNote.id} // Re-mount when note changes for clean state
+            key={selectedNote.id}
             note={selectedNote}
             onUpdateNote={handleUpdateNote}
             onToggleStar={handleToggleStar}
             onToggleArchive={handleToggleArchive}
-            onDeleteNote={handleToggleTrash} // This moves to trash
+            onDeleteNote={handleToggleTrash}
+            isMobileView={false}
           />
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground p-8">
@@ -190,3 +231,5 @@ export default function NotesPage() {
     </div>
   );
 }
+
+    
