@@ -10,7 +10,7 @@ import { PlusCircle, Download, LineChart as SummaryLineChartIcon, Percent, Arrow
 import AddTradeDialog from "@/components/add-trade-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { format, parseISO, differenceInDays, isWithinInterval, startOfWeek, endOfWeek } from "date-fns";
+import { format, parseISO, differenceInDays, isWithinInterval, startOfWeek, endOfWeek, formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -39,7 +39,7 @@ interface SummaryStat {
   value: string;
   change?: string;
   icon: React.ReactNode;
-  colorClass?: string; 
+  colorClass?: string;
 }
 
 interface StrategyNote {
@@ -86,32 +86,32 @@ function TradeDetailCard({ trade, onEdit, onDelete }: { trade: Trade; onEdit: (t
             <p className="text-sm text-muted-foreground">{trade.position === "long" ? "Long" : "Short"} Trade</p>
         </div>
       </CardHeader>
-      
+
       <CardContent className="px-4 pb-3 flex-grow space-y-3">
         <div className="aspect-[16/9] bg-muted/70 dark:bg-muted/30 rounded-lg overflow-hidden my-2 flex items-center justify-center">
-          <Image 
-            src={trade.chartPlaceholderUrl} 
-            alt={`${trade.asset} trade chart placeholder`} 
-            width={600} 
-            height={338} 
+          <Image
+            src={trade.chartPlaceholderUrl}
+            alt={`${trade.asset} trade chart placeholder`}
+            width={600}
+            height={338}
             className="w-full h-full object-cover"
-            data-ai-hint="trade chart stock" 
+            data-ai-hint="trade chart stock"
           />
         </div>
-        
+
         <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm border-t pt-3">
             <div className="text-muted-foreground">Entry:</div>
             <div className="text-right text-foreground font-medium">${trade.entryPrice.toFixed(2)} <span className="text-xs opacity-70">({formattedEntryDate})</span></div>
-            
+
             <div className="text-muted-foreground">Exit:</div>
             <div className="text-right text-foreground font-medium">
-                {trade.exitPrice ? `$${trade.exitPrice.toFixed(2)}` : 'N/A'} 
+                {trade.exitPrice ? `$${trade.exitPrice.toFixed(2)}` : 'N/A'}
                 {trade.exitTimestamp ? <span className="text-xs opacity-70"> ({formattedExitDate})</span> : ''}
             </div>
 
             <div className="text-muted-foreground">Quantity:</div>
             <div className="text-right text-foreground font-medium">{trade.quantity}</div>
-            
+
             <div className="text-muted-foreground">Risk:</div>
             <div className="text-right text-foreground font-medium">{trade.riskPercentage ? `${trade.riskPercentage}%` : "N/A"}</div>
         </div>
@@ -132,7 +132,7 @@ function TradeDetailCard({ trade, onEdit, onDelete }: { trade: Trade; onEdit: (t
 
         {trade.screenshotFilename && (
           <div className="text-xs text-muted-foreground flex items-center gap-1.5 border-t pt-3 mt-2">
-            <ImageIcon className="h-4 w-4" /> 
+            <ImageIcon className="h-4 w-4" />
             <span>Screenshot: {trade.screenshotFilename}</span>
           </div>
         )}
@@ -189,7 +189,7 @@ const initialTrades: Trade[] = [
   { id: "t3", asset: "MSFT", entryTimestamp: new Date(2024, 6, 20, 14, 0).toISOString(), exitTimestamp: new Date(2024, 6, 26, 10,0).toISOString(), position: "long", entryPrice: 338.50, exitPrice: 345.20, quantity: 8, strategy: "Momentum", reflection: "Good momentum.", riskPercentage: 2, status: "closed", chartPlaceholderUrl: "https://placehold.co/600x338.png", screenshotFilename: "msft_breakout.jpg" },
   { id: "t4", asset: "NVDA", entryTimestamp: new Date(2024, 5, 28, 11,0).toISOString(), exitTimestamp: new Date(2024, 5, 29, 15,0).toISOString(), position: "long", entryPrice: 485.30, exitPrice: 486.20, quantity: 3, strategy: "Scalp", reflection: "Choppy market.", riskPercentage: 1, status: "closed", chartPlaceholderUrl: "https://placehold.co/600x338.png" },
   { id: "t5", asset: "GOOGL", entryTimestamp: new Date(2024, 6, 28, 9,45).toISOString(), position: "long", entryPrice: 140.50, quantity: 10, strategy: "Value Dip Buy", reflection: "Monitoring for bounce.", riskPercentage: 2.5, status: "open", chartPlaceholderUrl: "https://placehold.co/600x338.png" },
-  { id: "t6", asset: "ETH/USD", entryTimestamp: new Date(2024, 6, 29, 11,00).toISOString(), exitTimestamp: new Date(2024, 6, 29, 18,30).toISOString(), position: "long", entryPrice: 2100.00, exitPrice: 2150.50, quantity: 2, strategy: "Range Break", reflection: "Quick scalp, target hit.", riskPercentage: 1, status: "closed", chartPlaceholderUrl: "https://placehold.co/600x338.png"},
+  { id: "t6", asset: "ETH/USD", entryTimestamp: new Date(2024, 6, 29, 11, 0).toISOString(), exitTimestamp: new Date(2024, 6, 29, 18,30).toISOString(), position: "long", entryPrice: 2100.00, exitPrice: 2150.50, quantity: 2, strategy: "Range Break", reflection: "Quick scalp, target hit.", riskPercentage: 1, status: "closed", chartPlaceholderUrl: "https://placehold.co/600x338.png"},
 ];
 
 initialTrades.forEach(trade => {
@@ -232,7 +232,7 @@ export default function TradesPage() {
         trade.exitTimestamp &&
         isWithinInterval(parseISO(trade.exitTimestamp), { start: firstDayOfWeek, end: lastDayOfWeek })
       );
-      
+
       const dailyPnlMap = new Map<string, number>();
       const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
       days.forEach(day => dailyPnlMap.set(day, 0));
@@ -242,7 +242,7 @@ export default function TradesPage() {
           const dayName = format(exitDate, "EEE");
           dailyPnlMap.set(dayName, (dailyPnlMap.get(dayName) || 0) + (trade.pnl || 0));
       });
-      
+
       const pnlByDayData = days.map(day => ({ name: day, pnl: dailyPnlMap.get(day) || 0 }));
 
 
@@ -286,7 +286,7 @@ export default function TradesPage() {
   const handleAddOrUpdateTrade = (tradeData: Omit<Trade, 'id' | 'pnl' | 'status' | 'chartPlaceholderUrl'> & { status?: 'open' | 'closed', exitPrice?: number, exitTimestamp?: string, riskPercentage?: number, reflection?: string, screenshotFilename?: string }, id?: string) => {
     let newPnl: number | undefined = undefined;
     let finalStatus: 'open' | 'closed' = tradeData.status || (tradeData.exitPrice && tradeData.exitTimestamp ? 'closed' : 'open');
-    
+
     let chartUrl = "https://placehold.co/600x338.png";
 
 
@@ -306,13 +306,13 @@ export default function TradesPage() {
     }
 
 
-    if (id) { 
+    if (id) {
       setTrades(trades.map(t => t.id === id ? { ...t, ...tradeData, status: finalStatus, pnl: newPnl, exitPrice: tradeData.exitPrice, exitTimestamp: tradeData.exitTimestamp, chartPlaceholderUrl: t.chartPlaceholderUrl || chartUrl, reflection: tradeData.reflection, riskPercentage: tradeData.riskPercentage, screenshotFilename: tradeData.screenshotFilename } : t));
       toast({ title: "Trade Updated", description: `Trade for ${tradeData.asset} has been updated.` });
-    } else { 
+    } else {
       const newTrade: Trade = {
         ...tradeData,
-        id: Date.now().toString(), 
+        id: Date.now().toString(),
         status: finalStatus,
         pnl: newPnl,
         exitPrice: tradeData.exitPrice,
@@ -337,7 +337,7 @@ export default function TradesPage() {
     setTrades(trades.filter(t => t.id !== id));
     toast({ title: "Trade Deleted", description: `Trade for ${tradeToDelete?.asset} has been deleted.`, variant: "destructive" });
   };
-  
+
   const openNewTradeDialog = () => {
     setTradeToEdit(null);
     setIsDialogOpen(true);
@@ -349,12 +349,12 @@ export default function TradesPage() {
     const winningTrades = closedTrades.filter(t => (t.pnl || 0) > 0).length;
     const losingTradesCount = closedTrades.filter(t => (t.pnl || 0) < 0).length;
     const winRate = closedTrades.length > 0 ? (winningTrades / closedTrades.length) * 100 : 0;
-    
+
     const grossProfit = closedTrades.filter(t => (t.pnl || 0) > 0).reduce((sum, t) => sum + (t.pnl || 0), 0);
-    const grossLoss = closedTrades.filter(t => (t.pnl || 0) < 0).reduce((sum, t) => sum + (t.pnl || 0), 0); 
+    const grossLoss = closedTrades.filter(t => (t.pnl || 0) < 0).reduce((sum, t) => sum + (t.pnl || 0), 0);
 
     const averageWin = winningTrades > 0 ? grossProfit / winningTrades : 0;
-    const averageLoss = losingTradesCount > 0 ? grossLoss / losingTradesCount : 0; 
+    const averageLoss = losingTradesCount > 0 ? grossLoss / losingTradesCount : 0;
 
     return [
       { title: "Total P&L", value: totalPnl.toLocaleString(undefined, { style: 'currency', currency: 'USD' }), change: `${winningTrades + losingTradesCount} closed trades`, icon: <SummaryLineChartIcon className="h-5 w-5 text-muted-foreground" />, colorClass: totalPnl >= 0 ? 'text-success' : 'text-destructive' },
@@ -375,7 +375,7 @@ export default function TradesPage() {
             <Skeleton className="h-10 w-10 rounded-xl" />
           </div>
         </div>
-        <Skeleton className="h-10 w-full max-w-md rounded-xl" /> 
+        <Skeleton className="h-10 w-full max-w-md rounded-xl" />
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {[1,2,3,4].map(i => <Skeleton key={i} className="h-32 w-full rounded-2xl" />)}
         </div>
@@ -409,12 +409,12 @@ export default function TradesPage() {
           <TabsTrigger value="weekly-insights" className="data-[state=active]:bg-card data-[state=active]:shadow-sm rounded-lg">Weekly Insights</TabsTrigger>
           <TabsTrigger value="strategy-notes" className="data-[state=active]:bg-card data-[state=active]:shadow-sm rounded-lg">Strategy Notes</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="trade-journal" className="space-y-6">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 {summaryStatsData.map((stat, idx) => <div key={stat.title} className="animate-slide-up-fade" style={{animationDelay: `${idx * 75}ms`}}><SummaryStatCard stat={stat} /></div>)}
             </div>
-            
+
             {trades.length === 0 ? (
                 <div className="text-center py-16 col-span-full animate-fade-in">
                 <SummaryLineChartIcon className="mx-auto h-20 w-20 text-muted-foreground opacity-30" />
@@ -504,11 +504,11 @@ export default function TradesPage() {
         </TabsContent>
       </Tabs>
 
-      <AddTradeDialog 
-        open={isDialogOpen} 
-        onOpenChange={setIsDialogOpen} 
-        onSave={handleAddOrUpdateTrade} 
-        tradeToEdit={tradeToEdit} 
+      <AddTradeDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        onSave={handleAddOrUpdateTrade}
+        tradeToEdit={tradeToEdit}
       />
 
        <div className="mt-8 text-center text-sm text-muted-foreground">
