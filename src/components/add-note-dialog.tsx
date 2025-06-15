@@ -98,6 +98,7 @@ export default function AddNoteDialog({ open, onOpenChange, onSave, noteToEdit }
 
     if (data.image && data.image.length > 0) {
       finalImageFilename = data.image[0].name;
+      // Use a placeholder if FileReader hasn't updated previewImageUrl yet, or use preview.
       finalImageUrl = previewImageUrl || `https://placehold.co/300x200.png?text=${encodeURIComponent(finalImageFilename || "image")}`;
     } else if (!data.image && !noteToEdit?.imageUrl && !previewImageUrl) { 
         finalImageUrl = undefined;
@@ -161,12 +162,12 @@ export default function AddNoteDialog({ open, onOpenChange, onSave, noteToEdit }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg md:max-w-xl lg:max-w-2xl rounded-2xl shadow-xl">
+      <DialogContent className="sm:max-w-lg md:max-w-xl lg:max-w-2xl rounded-2xl shadow-xl border bg-card">
         <DialogHeader>
-          <DialogTitle className="flex items-center text-xl font-semibold">
+          <DialogTitle className="flex items-center text-xl font-semibold text-foreground">
             {noteToEdit ? "Edit Note" : "Create New Note"}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-muted-foreground">
             {noteToEdit ? "Update your note's details." : "Capture your thoughts and ideas."}
           </DialogDescription>
         </DialogHeader>
@@ -177,9 +178,9 @@ export default function AddNoteDialog({ open, onOpenChange, onSave, noteToEdit }
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Title</FormLabel>
+                  <FormLabel className="text-muted-foreground">Title</FormLabel>
                   <FormControl>
-                    <Input placeholder="Note title" {...field} className="rounded-xl"/>
+                    <Input placeholder="Note title" {...field} className="rounded-xl bg-input text-foreground focus:bg-background"/>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -190,9 +191,9 @@ export default function AddNoteDialog({ open, onOpenChange, onSave, noteToEdit }
               name="content"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Content (Markdown supported)</FormLabel>
+                  <FormLabel className="text-muted-foreground">Content (Markdown supported)</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Write your note here..." {...field} rows={10} className="rounded-xl" />
+                    <Textarea placeholder="Write your note here..." {...field} rows={10} className="rounded-xl bg-input text-foreground focus:bg-background" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -203,9 +204,9 @@ export default function AddNoteDialog({ open, onOpenChange, onSave, noteToEdit }
               name="tagsString"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="flex items-center"><TagIcon className="mr-1.5 h-4 w-4 text-muted-foreground"/>Tags (comma-separated)</FormLabel>
+                  <FormLabel className="flex items-center text-muted-foreground"><TagIcon className="mr-1.5 h-4 w-4"/>Tags (comma-separated)</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., work, ideas, journal" {...field} className="rounded-xl"/>
+                    <Input placeholder="e.g., work, ideas, journal" {...field} className="rounded-xl bg-input text-foreground focus:bg-background"/>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -216,11 +217,11 @@ export default function AddNoteDialog({ open, onOpenChange, onSave, noteToEdit }
                 name="image"
                 render={() => (
                   <FormItem>
-                    <FormLabel>Image (Optional, Max {MAX_FILE_SIZE_MB}MB)</FormLabel>
+                    <FormLabel className="text-muted-foreground">Image (Optional, Max {MAX_FILE_SIZE_MB}MB)</FormLabel>
                     <FormControl>
                       <div className="flex flex-col gap-2">
                         <div className="flex items-center gap-2">
-                            <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()} className="flex-shrink-0 rounded-xl">
+                            <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()} className="flex-shrink-0 rounded-xl hover-scale">
                             <UploadCloud className="mr-2 h-4 w-4" /> {selectedFileName ? "Change Image" : "Upload Image"}
                             </Button>
                             <input
@@ -232,7 +233,7 @@ export default function AddNoteDialog({ open, onOpenChange, onSave, noteToEdit }
                             />
                             {selectedFileName && <span className="text-sm text-muted-foreground truncate flex-1" title={selectedFileName}>{selectedFileName}</span>}
                             {(selectedFileName || previewImageUrl) && (
-                                <Button type="button" variant="ghost" size="icon" onClick={handleRemoveImage} className="h-8 w-8 rounded-lg text-destructive hover:text-destructive hover:bg-destructive/10">
+                                <Button type="button" variant="ghost" size="icon" onClick={handleRemoveImage} className="h-8 w-8 rounded-lg text-destructive hover:text-destructive hover:bg-destructive/10 hover-scale">
                                     <Trash2 className="h-4 w-4"/>
                                     <span className="sr-only">Remove image</span>
                                 </Button>
@@ -252,9 +253,9 @@ export default function AddNoteDialog({ open, onOpenChange, onSave, noteToEdit }
                 control={form.control}
                 name="isStarred"
                 render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-xl border p-3 shadow-sm bg-muted/20">
+                    <FormItem className="flex flex-row items-center justify-between rounded-xl border p-3 shadow-sm bg-muted/20 dark:bg-muted/10">
                         <div className="space-y-0.5">
-                            <FormLabel className="text-base flex items-center"><Star className="mr-2 h-4 w-4 text-yellow-500"/>Star this note</FormLabel>
+                            <FormLabel className="text-base flex items-center text-foreground"><Star className="mr-2 h-4 w-4 text-yellow-400 fill-yellow-400"/>Star this note</FormLabel>
                             <DialogDescription className="text-xs text-muted-foreground">Starred notes are easier to find.</DialogDescription>
                         </div>
                         <FormControl>
@@ -269,9 +270,9 @@ export default function AddNoteDialog({ open, onOpenChange, onSave, noteToEdit }
               />
             <DialogFooter className="pt-4">
               <DialogClose asChild>
-                <Button type="button" variant="outline" className="rounded-xl">Cancel</Button>
+                <Button type="button" variant="outline" className="rounded-xl hover-scale">Cancel</Button>
               </DialogClose>
-              <Button type="submit" className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground">{noteToEdit ? "Save Changes" : "Create Note"}</Button>
+              <Button type="submit" className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground hover-scale">{noteToEdit ? "Save Changes" : "Create Note"}</Button>
             </DialogFooter>
           </form>
         </Form>

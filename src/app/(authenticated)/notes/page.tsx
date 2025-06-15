@@ -5,7 +5,7 @@ import * as React from "react";
 import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, Star, Archive, Trash2, StickyNote, Tag as TagIcon, Check, FilterX } from "lucide-react";
+import { Plus, Search, Star, Archive, Trash2, StickyNote, Tag as TagIcon, Check, FilterX, GripVertical } from "lucide-react";
 import NoteCard from "@/components/note-card";
 import AddNoteDialog from "@/components/add-note-dialog";
 import { useToast } from "@/hooks/use-toast";
@@ -20,13 +20,13 @@ export interface Note {
   title: string;
   content: string;
   tags: string[];
-  isStarred: boolean;
+  isStarred: boolean; // formerly isPinned
   isArchived: boolean;
   isTrashed: boolean;
   createdAt: string;
   updatedAt: string;
-  imageUrl?: string;
-  imageFilename?: string;
+  imageUrl?: string; // Optional: for attached images
+  imageFilename?: string; // Optional: for attached images
 }
 
 type NoteCategory = "all" | "starred" | "archived" | "trash";
@@ -91,10 +91,10 @@ export default function NotesPage() {
   const handleToggleTrash = (id: string) => {
     const note = notes.find(n => n.id === id);
     if (note) {
-      if (note.isTrashed) {
+      if (note.isTrashed) { // If already in trash, permanently delete
         setNotes(notes.filter(n => n.id !== id));
         toast({ title: "Note Permanently Deleted", variant: "destructive" });
-      } else {
+      } else { // Move to trash
         setNotes(notes.map(n => n.id === id ? { ...n, isTrashed: true, isArchived: false, isStarred: false, updatedAt: new Date().toISOString() } : n));
         toast({ title: "Note Moved to Trash" });
       }
@@ -162,8 +162,7 @@ export default function NotesPage() {
         activeTags.every(activeTag => note.tags.includes(activeTag))
       );
     }
-
-    // Default sort: Starred first, then by updatedAt descending
+    
     processedNotes.sort((a, b) => {
       if (activeCategory !== "trash" && activeCategory !== "archived") {
         if (a.isStarred && !b.isStarred) return -1;
@@ -175,10 +174,11 @@ export default function NotesPage() {
     return processedNotes;
   }, [notes, activeCategory, searchTerm, activeTags]);
 
+
   if (!isClient) {
     return (
       <div className="flex flex-col md:flex-row h-[calc(100vh-var(--header-height)-1px)]">
-        <aside className="w-full md:w-60 p-4 border-b md:border-b-0 md:border-r bg-card dark:bg-card/80 space-y-4">
+        <aside className="w-full md:w-60 lg:w-72 p-4 border-b md:border-b-0 md:border-r bg-card dark:bg-card/80 space-y-4">
           <Skeleton className="h-10 w-full rounded-xl" />
           {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-8 w-full rounded-lg" />)}
            <Skeleton className="h-6 w-1/2 rounded-lg mt-4" />
@@ -186,9 +186,11 @@ export default function NotesPage() {
         </aside>
         <main className="flex-1 p-4 md:p-6 space-y-4">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-2">
-            <Skeleton className="h-10 w-24 rounded-xl hidden sm:block" />
-            <Skeleton className="h-10 w-full sm:w-1/2 max-w-sm rounded-xl" />
-            <Skeleton className="h-10 w-24 rounded-xl hidden sm:block" />
+             <Skeleton className="h-10 w-40 rounded-xl" />
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+                <Skeleton className="h-10 flex-grow sm:w-64 rounded-xl" />
+                <Skeleton className="h-10 w-32 rounded-xl" />
+            </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(3)].map((_,i) => <Skeleton key={i} className="h-56 w-full rounded-2xl" />)}
@@ -198,18 +200,18 @@ export default function NotesPage() {
     );
   }
 
-  const sidebarLinkClasses = "flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-colors";
+  const sidebarLinkClasses = "flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-colors duration-150 ease-in-out";
   const activeSidebarLinkClasses = "bg-primary/10 text-primary dark:bg-primary/20";
-  const inactiveSidebarLinkClasses = "hover:bg-muted dark:hover:bg-muted/50";
+  const inactiveSidebarLinkClasses = "text-muted-foreground hover:bg-muted dark:hover:bg-muted/50 hover:text-foreground";
 
   return (
-    <div className="flex flex-col md:flex-row h-[calc(100vh-var(--header-height)-1px)]">
-      <aside className="w-full md:w-60 border-b md:border-b-0 md:border-r bg-card dark:bg-card/90 p-4 flex flex-col">
-        <Button onClick={openNewNoteDialog} className="w-full mb-6 shadow-sm rounded-xl py-3 text-base bg-primary hover:bg-primary/90 text-primary-foreground">
+    <div className="flex flex-col md:flex-row h-[calc(100vh-var(--header-height)-0px)] animate-fade-in">
+      <aside className="w-full md:w-60 lg:w-72 border-b md:border-b-0 md:border-r bg-card dark:bg-card/90 p-4 flex flex-col space-y-4">
+        <Button onClick={openNewNoteDialog} className="w-full shadow-md hover:shadow-lg transition-shadow rounded-xl py-3 text-base bg-primary hover:bg-primary/90 text-primary-foreground">
           <Plus className="mr-2 h-5 w-5" /> New Note
         </Button>
         <ScrollArea className="flex-grow md:h-[calc(100%-120px)]">
-          <nav className="space-y-1.5">
+          <nav className="space-y-1.5 pr-1">
             {(["all", "starred", "archived", "trash"] as NoteCategory[]).map(cat => {
               const count = cat === "all" ? notes.filter(n => !n.isArchived && !n.isTrashed).length :
                             cat === "starred" ? notes.filter(n => n.isStarred && !n.isArchived && !n.isTrashed).length :
@@ -222,13 +224,13 @@ export default function NotesPage() {
                   className={cn(
                     sidebarLinkClasses,
                     activeCategory === cat ? activeSidebarLinkClasses : inactiveSidebarLinkClasses,
-                    "w-full justify-start"
+                    "w-full justify-start group"
                   )}
                 >
-                  {cat === "all" && <StickyNote className="h-5 w-5" />}
-                  {cat === "starred" && <Star className="h-5 w-5" />}
-                  {cat === "archived" && <Archive className="h-5 w-5" />}
-                  {cat === "trash" && <Trash2 className="h-5 w-5" />}
+                  {cat === "all" && <StickyNote className="h-5 w-5 group-hover:text-primary transition-colors" />}
+                  {cat === "starred" && <Star className="h-5 w-5 group-hover:text-primary transition-colors" />}
+                  {cat === "archived" && <Archive className="h-5 w-5 group-hover:text-primary transition-colors" />}
+                  {cat === "trash" && <Trash2 className="h-5 w-5 group-hover:text-primary transition-colors" />}
                   <span className="capitalize">{cat}</span>
                   <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-muted/70 text-muted-foreground dark:bg-muted/30 dark:text-muted-foreground/70">{count}</span>
                 </button>
@@ -237,8 +239,8 @@ export default function NotesPage() {
           </nav>
           {allUniqueTags.length > 0 && (
             <>
-              <DropdownMenuSeparator className="my-3"/>
-              <div className="flex justify-between items-center px-3 py-2">
+              <DropdownMenuSeparator className="my-4"/>
+              <div className="flex justify-between items-center px-3 py-2 mb-1">
                 <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Tags</h3>
                 {activeTags.length > 0 && (
                     <Button variant="ghost" size="sm" onClick={clearTagFilters} className="h-auto p-1 text-xs text-muted-foreground hover:text-primary">
@@ -246,7 +248,7 @@ export default function NotesPage() {
                     </Button>
                 )}
               </div>
-              <nav className="space-y-1.5">
+              <nav className="space-y-1.5 pr-1">
                 {allUniqueTags.map(tag => (
                   <button
                     key={tag}
@@ -257,7 +259,7 @@ export default function NotesPage() {
                       "w-full justify-start relative"
                     )}
                   >
-                    <TagIcon className="h-4 w-4" />
+                    <TagIcon className="h-4 w-4 group-hover:text-primary transition-colors" />
                     <span className="capitalize truncate flex-1 text-left">{tag}</span>
                     {activeTags.includes(tag) && activeCategory === "all" && <Check className="h-4 w-4 text-primary"/>}
                   </button>
@@ -269,30 +271,32 @@ export default function NotesPage() {
       </aside>
 
       <main className="flex-1 flex flex-col bg-background overflow-hidden">
-        <header className="sticky top-0 z-10 flex flex-col sm:flex-row items-center justify-between gap-2 p-4 border-b bg-card/95 dark:bg-card/80 backdrop-blur-sm">
-          <h1 className="text-2xl font-bold text-foreground font-headline">Notes</h1>
-          <div className="relative w-full sm:max-w-xs md:max-w-sm lg:max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search notes..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 rounded-xl shadow-sm bg-background focus:bg-card"
-            />
-          </div>
-           <Button onClick={openNewNoteDialog} className="rounded-xl shadow-sm bg-primary hover:bg-primary/90 text-primary-foreground hidden sm:flex">
+        <header className="sticky top-0 z-10 flex flex-col sm:flex-row items-center justify-between gap-3 p-4 border-b bg-card/95 dark:bg-card/80 backdrop-blur-sm">
+          <h1 className="text-2xl font-bold text-foreground font-headline tracking-tight">Notes</h1>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <div className="relative w-full sm:max-w-xs md:max-w-sm lg:max-w-md flex-grow">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input
+                type="search"
+                placeholder="Search notes..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 rounded-xl shadow-sm bg-background focus:bg-card h-10"
+                />
+            </div>
+            <Button onClick={openNewNoteDialog} className="rounded-xl shadow-md hover:shadow-lg transition-shadow bg-primary hover:bg-primary/90 text-primary-foreground hidden sm:flex h-10">
               <Plus className="mr-2 h-5 w-5" /> New Note
             </Button>
-            <Button onClick={openNewNoteDialog} size="icon" className="rounded-xl shadow-sm bg-primary hover:bg-primary/90 text-primary-foreground sm:hidden">
+             <Button onClick={openNewNoteDialog} size="icon" className="rounded-xl shadow-md hover:shadow-lg transition-shadow bg-primary hover:bg-primary/90 text-primary-foreground sm:hidden h-10 w-10">
               <Plus className="h-5 w-5" />
             </Button>
+          </div>
         </header>
 
         <ScrollArea className="flex-1">
           <div className="p-4 md:p-6">
             {filteredAndSortedNotes.length === 0 ? (
-              <div className="text-center py-16 text-muted-foreground min-h-[400px] flex flex-col justify-center items-center">
+              <div className="text-center py-16 text-muted-foreground min-h-[400px] flex flex-col justify-center items-center animate-fade-in">
                 <StickyNote className="mx-auto h-20 w-20 opacity-30 mb-4" />
                 <p className="mt-6 text-xl font-medium">No notes found.</p>
                 <p className="text-sm">
@@ -303,22 +307,23 @@ export default function NotesPage() {
                    "Create a new note to get started!"}
                 </p>
                 {(searchTerm || activeTags.length > 0) && (
-                    <Button variant="outline" onClick={() => { setSearchTerm(""); setActiveTags([]); }} className="mt-4 rounded-xl">Clear Filters</Button>
+                    <Button variant="outline" onClick={() => { setSearchTerm(""); setActiveTags([]); }} className="mt-6 rounded-xl hover-scale">Clear Filters</Button>
                 )}
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {filteredAndSortedNotes.map(note => (
-                  <NoteCard
-                    key={note.id}
-                    note={note}
-                    onEdit={handleEditNote}
-                    onToggleStar={handleToggleStar}
-                    onToggleArchive={handleToggleArchive}
-                    onToggleTrash={handleToggleTrash}
-                    onRestore={handleRestoreFromTrash}
-                    isTrashedView={activeCategory === 'trash'}
-                  />
+                {filteredAndSortedNotes.map((note, index) => (
+                  <div key={note.id} className="animate-slide-up-fade" style={{ animationDelay: `${index * 50}ms`}}>
+                    <NoteCard
+                      note={note}
+                      onEdit={handleEditNote}
+                      onToggleStar={handleToggleStar}
+                      onToggleArchive={handleToggleArchive}
+                      onToggleTrash={handleToggleTrash}
+                      onRestore={handleRestoreFromTrash}
+                      isTrashedView={activeCategory === 'trash'}
+                    />
+                  </div>
                 ))}
               </div>
             )}
