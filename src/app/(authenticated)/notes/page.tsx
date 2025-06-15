@@ -6,7 +6,7 @@ import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
-import { Plus, Search, Filter, ArrowUpDown, Pin as PinIcon, Archive, Trash2, StickyNote, BookOpen, Tag, CalendarDays, GripVertical, List } from "lucide-react";
+import { Plus, Search, Filter, ArrowUpDown, Pin as PinIcon, Archive, Trash2, StickyNote, BookOpen, Tag, CalendarDays, GripVertical, List, Check } from "lucide-react";
 import NoteCard from "@/components/note-card";
 import AddNoteDialog from "@/components/add-note-dialog"; // This will be used for editing and creating
 import { useToast } from "@/hooks/use-toast";
@@ -398,3 +398,4 @@ export default function NotesPage() {
 //     </div>
 //   </div>
 // );
+
