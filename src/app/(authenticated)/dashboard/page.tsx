@@ -4,7 +4,7 @@
 import * as React from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Activity, ArrowUpRight, Briefcase, DollarSign, ListChecks, Users, Zap, Eye, StickyNote, LineChart, Edit3, ThumbsUp, TrendingUp, TrendingDown } from "lucide-react";
+import { Activity, ArrowUpRight, DollarSign, ListChecks, Users, Eye, StickyNote, TrendingUp, TrendingDown, ThumbsUp } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { format, parseISO, formatDistanceToNow } from "date-fns";
@@ -22,9 +22,9 @@ const initialDashboardTasks: Task[] = [
 ];
 
 const initialDashboardNotes: Note[] = [
-  { id: "n3", title: "Book Insights: 'Atomic Habits'", content: "Key takeaways:\n- Focus on systems, not goals.\n- Make it obvious, attractive, easy, satisfying.", createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), color: "bg-blue-200 dark:bg-blue-700/30", tags: [], isPinned: false, isArchived: false, isTrashed: false},
-  { id: "n1", title: "Project Ideas for ProHub", content: "1. AI-driven task suggestions.\n2. Team collaboration module.", createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),updatedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), color: "bg-yellow-200 dark:bg-yellow-700/30", imageUrl:"https://placehold.co/300x200.png", imageFilename: "mindmap.png", tags: [], isPinned: false, isArchived: false, isTrashed: false },
-  { id: "n2", title: "Weekly Goals (Current)", content: "- Finalize Q4 budget presentation.\n- Conduct user interviews.", createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), color: "bg-green-200 dark:bg-green-700/30", tags: [], isPinned: false, isArchived: false, isTrashed: false },
+  { id: "n3", title: "Book Insights: 'Atomic Habits'", content: "Key takeaways:\n- Focus on systems, not goals.\n- Make it obvious, attractive, easy, satisfying.", createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), tags: [], isStarred: false, isArchived: false, isTrashed: false},
+  { id: "n1", title: "Project Ideas for ProHub", content: "1. AI-driven task suggestions.\n2. Team collaboration module.", createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),updatedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), imageUrl:"https://placehold.co/300x200.png", imageFilename: "mindmap.png", tags: [], isStarred: false, isArchived: false, isTrashed: false },
+  { id: "n2", title: "Weekly Goals (Current)", content: "- Finalize Q4 budget presentation.\n- Conduct user interviews.", createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), tags: [], isStarred: false, isArchived: false, isTrashed: false },
 ];
 
 const calculatePnl = (trade: Omit<Trade, 'id' | 'pnl' | 'status' | 'chartPlaceholderUrl' | 'screenshotFilename'> & { status: 'closed', exitPrice: number, exitTimestamp: string }): number => {
@@ -56,15 +56,15 @@ export default function DashboardPage() {
   const displayedNotes = initialDashboardNotes.sort((a,b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()).slice(0, 3);
 
   const tradeStats = React.useMemo(() => {
-    if (!isClient) return []; 
+    if (!isClient) return [];
     const closedTrades = initialDashboardTrades.filter(t => t.status === 'closed' && t.pnl !== undefined);
     const totalPnl = closedTrades.reduce((sum, trade) => sum + (trade.pnl || 0), 0);
     const winningTradesCount = closedTrades.filter(t => (t.pnl || 0) > 0).length;
     const losingTradesCount = closedTrades.filter(t => (t.pnl || 0) < 0).length;
     const winRate = closedTrades.length > 0 ? (winningTradesCount / closedTrades.length) * 100 : 0;
-    
+
     const grossProfit = closedTrades.filter(t => (t.pnl || 0) > 0).reduce((sum, t) => sum + (t.pnl || 0), 0);
-    const grossLoss = closedTrades.filter(t => (t.pnl || 0) < 0).reduce((sum, t) => sum + (t.pnl || 0), 0); 
+    const grossLoss = closedTrades.filter(t => (t.pnl || 0) < 0).reduce((sum, t) => sum + (t.pnl || 0), 0);
     const averageWin = winningTradesCount > 0 ? grossProfit / winningTradesCount : 0;
     const averageLoss = losingTradesCount > 0 ? grossLoss / losingTradesCount : 0;
 
@@ -85,8 +85,8 @@ export default function DashboardPage() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {[...Array(4)].map((_, i) => <div key={i} className="h-28 bg-muted rounded-2xl"></div>)}
         </div>
-        <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-3">
-          <div className="h-64 bg-muted rounded-2xl lg:col-span-2"></div>
+        <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
+          <div className="h-64 bg-muted rounded-2xl"></div>
           <div className="h-64 bg-muted rounded-2xl"></div>
         </div>
       </div>
@@ -100,37 +100,35 @@ export default function DashboardPage() {
           <h1 className="text-3xl font-bold font-headline tracking-tight">Welcome to ProHub!</h1>
           <p className="text-muted-foreground">Here's your productivity pulse for today.</p>
         </div>
-        <div className="flex gap-2">
-            <Link href="/tasks">
-            <Button className="shadow-md hover:shadow-lg transition-shadow rounded-xl">
-                <ListChecks className="mr-2 h-4 w-4" /> View All Tasks
-            </Button>
-            </Link>
-        </div>
+        {/* Optional: Add a primary action button here if needed, e.g., "+ New Task" */}
       </div>
 
       {/* Trade Performance Summary */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {tradeStats.map((stat) => (
-          <Card key={stat.title} className="shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out hover:scale-[1.02] rounded-2xl">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">{stat.title}</CardTitle>
-              {stat.icon}
-            </CardHeader>
-            <CardContent>
-              <div className={cn("text-2xl font-bold", stat.colorClass)}>{stat.value}</div>
-              {stat.change && <p className="text-xs text-muted-foreground flex items-center"> {stat.change} </p>}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <section>
+        <h2 className="text-xl font-semibold mb-3 font-headline">Trading Snapshot</h2>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {tradeStats.map((stat) => (
+            <Card key={stat.title} className="shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out hover:scale-[1.02] rounded-2xl">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">{stat.title}</CardTitle>
+                {stat.icon}
+                </CardHeader>
+                <CardContent>
+                <div className={cn("text-2xl font-bold", stat.colorClass)}>{stat.value}</div>
+                {/* Optional: stat.change can be displayed here if relevant for dashboard */}
+                </CardContent>
+            </Card>
+            ))}
+        </div>
+      </section>
 
-      <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-3">
+
+      <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
         {/* Recent Tasks */}
-        <Card className="shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out lg:col-span-2 rounded-2xl">
+        <Card className="shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out rounded-2xl">
           <CardHeader>
             <div className="flex justify-between items-center">
-                <CardTitle>Recent Tasks</CardTitle>
+                <CardTitle>Upcoming Tasks</CardTitle>
                 <Link href="/tasks">
                     <Button variant="ghost" size="sm" className="rounded-lg">View All <ArrowUpRight className="h-4 w-4 ml-1"/></Button>
                 </Link>
@@ -144,9 +142,9 @@ export default function DashboardPage() {
                   <li key={task.id} className="flex items-center justify-between p-3 bg-muted/50 dark:bg-muted/20 rounded-xl transition-colors hover:bg-muted dark:hover:bg-muted/30">
                     <div className="flex-1 min-w-0">
                       <p className={`font-medium truncate ${task.status === 'completed' ? 'line-through text-muted-foreground' : 'text-foreground'}`}>{task.title}</p>
-                      <div className="text-xs text-muted-foreground">
-                        Priority: <Badge variant={task.priority === 'high' ? 'destructive' : task.priority === 'medium' ? 'warning' : 'info'} className={cn("capitalize text-xs px-1.5 py-0")}>{task.priority}</Badge>
-                        {task.dueDate && ` | Due: ${format(parseISO(task.dueDate), "MMM d, yyyy")}`}
+                      <div className="text-xs text-muted-foreground flex items-center flex-wrap gap-x-2">
+                        <Badge variant={task.priority === 'high' ? 'destructive' : task.priority === 'medium' ? 'warning' : 'info'} className={cn("capitalize text-xs px-1.5 py-0")}>{task.priority}</Badge>
+                        {task.dueDate && <span className="whitespace-nowrap">Due: {format(parseISO(task.dueDate), "MMM d, yyyy")}</span>}
                       </div>
                     </div>
                     <Link href="/tasks">
@@ -181,11 +179,11 @@ export default function DashboardPage() {
             {displayedNotes.length > 0 ? (
               <ul className="space-y-3">
                 {displayedNotes.map(note => (
-                  <li key={note.id} className={cn("p-3 rounded-xl transition-colors hover:opacity-80", note.color || "bg-muted/50 dark:bg-muted/20")}>
+                  <li key={note.id} className={cn("p-3 rounded-xl transition-colors hover:opacity-80 bg-muted/50 dark:bg-muted/20 hover:bg-muted dark:hover:bg-muted/30")}>
                     <Link href="/notes" className="block group">
-                      <h4 className={cn("font-medium truncate group-hover:underline", note.color?.includes("dark:") || note.color?.includes("700") || note.color?.includes("800") ? "text-primary-foreground" : "text-card-foreground")}>{note.title}</h4>
-                      <p className={cn("text-xs line-clamp-2 group-hover:underline", note.color?.includes("dark:") || note.color?.includes("700") || note.color?.includes("800")  ? "text-primary-foreground/80" : "text-card-foreground/80")}>{note.content}</p>
-                      <p className={cn("text-xs mt-1", note.color?.includes("dark:") || note.color?.includes("700") || note.color?.includes("800")  ? "text-primary-foreground/60" : "text-muted-foreground/80")}>{formatDistanceToNow(parseISO(note.createdAt), { addSuffix: true })}</p>
+                      <h4 className={cn("font-medium truncate group-hover:underline text-card-foreground")}>{note.title}</h4>
+                      <p className={cn("text-xs line-clamp-2 group-hover:underline text-card-foreground/80")}>{note.content}</p>
+                      <p className={cn("text-xs mt-1 text-muted-foreground/80")}>{formatDistanceToNow(parseISO(note.createdAt), { addSuffix: true })}</p>
                     </Link>
                   </li>
                 ))}
@@ -202,5 +200,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    

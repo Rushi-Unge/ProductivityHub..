@@ -5,27 +5,26 @@ import * as React from "react";
 import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, Star, Archive, Trash2, StickyNote, Tag as TagIcon, Filter } from "lucide-react";
+import { Plus, Search, Star, Archive, Trash2, StickyNote, Tag as TagIcon, Filter, Check } from "lucide-react";
 import NoteCard from "@/components/note-card";
 import AddNoteDialog from "@/components/add-note-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuCheckboxItem } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 
 
 export interface Note {
   id: string;
   title: string;
-  content: string; 
+  content: string;
   tags: string[];
-  isStarred: boolean; // Replaces isPinned
+  isStarred: boolean;
   isArchived: boolean;
   isTrashed: boolean;
-  createdAt: string; 
-  updatedAt: string; 
-  // color field removed
+  createdAt: string;
+  updatedAt: string;
   imageUrl?: string;
   imageFilename?: string;
 }
@@ -52,19 +51,19 @@ export default function NotesPage() {
   const [activeCategory, setActiveCategory] = useState<NoteCategory>("all");
   const [sortOption, setSortOption] = useState<SortOption>("updatedAt_desc");
   const [activeTags, setActiveTags] = useState<string[]>([]);
-  
+
   useEffect(() => setIsClient(true), []);
 
   const handleAddOrUpdateNote = (noteData: Omit<Note, 'id' | 'createdAt' | 'updatedAt' | 'isArchived' | 'isTrashed'> & { tagsString?: string }, id?: string) => {
     const noteTags = noteData.tagsString ? noteData.tagsString.split(',').map(tag => tag.trim().toLowerCase()).filter(tag => tag) : noteData.tags || [];
-    
-    if (id) { 
+
+    if (id) {
       setNotes(notes.map(n => n.id === id ? { ...n, ...noteData, tags: noteTags, updatedAt: new Date().toISOString() } : n));
       toast({ title: "Note Updated", description: `"${noteData.title}" has been updated.` });
-    } else { 
+    } else {
       const newNote: Note = {
         ...noteData,
-        id: Date.now().toString(), 
+        id: Date.now().toString(),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         isArchived: false,
@@ -87,18 +86,18 @@ export default function NotesPage() {
   };
 
   const handleToggleArchive = (id: string) => {
-    setNotes(notes.map(n => n.id === id ? { ...n, isArchived: !n.isArchived, isTrashed: false, isStarred: n.isArchived ? n.isStarred : false, updatedAt: new Date().toISOString() } : n)); // Unstar if archiving
+    setNotes(notes.map(n => n.id === id ? { ...n, isArchived: !n.isArchived, isTrashed: false, isStarred: n.isArchived ? n.isStarred : false, updatedAt: new Date().toISOString() } : n));
      toast({ title: notes.find(n => n.id ===id)?.isArchived ? "Note Unarchived" : "Note Archived" });
   };
-  
+
   const handleToggleTrash = (id: string) => {
     const note = notes.find(n => n.id === id);
     if (note) {
-      if (note.isTrashed) { 
+      if (note.isTrashed) {
         setNotes(notes.filter(n => n.id !== id));
         toast({ title: "Note Permanently Deleted", variant: "destructive" });
-      } else { 
-        setNotes(notes.map(n => n.id === id ? { ...n, isTrashed: true, isArchived: false, isStarred: false, updatedAt: new Date().toISOString() } : n)); // Unstar and unarchive if trashing
+      } else {
+        setNotes(notes.map(n => n.id === id ? { ...n, isTrashed: true, isArchived: false, isStarred: false, updatedAt: new Date().toISOString() } : n));
         toast({ title: "Note Moved to Trash" });
       }
     }
@@ -108,7 +107,7 @@ export default function NotesPage() {
     setNotes(notes.map(n => n.id === id ? { ...n, isTrashed: false, updatedAt: new Date().toISOString() } : n));
     toast({ title: "Note Restored" });
   };
-  
+
   const openNewNoteDialog = () => {
     setNoteToEdit(null);
     setIsDialogOpen(true);
@@ -116,14 +115,15 @@ export default function NotesPage() {
 
   const allUniqueTags = useMemo(() => {
     const tagsSet = new Set<string>();
-    notes.forEach(note => note.tags.forEach(tag => tagsSet.add(tag)));
+    notes.filter(n => !n.isTrashed).forEach(note => note.tags.forEach(tag => tagsSet.add(tag)));
     return Array.from(tagsSet).sort();
   }, [notes]);
 
   const toggleTagFilter = (tagToToggle: string) => {
-    setActiveTags(prev => 
-      prev.includes(tagToToggle) 
-        ? prev.filter(t => t !== tagToToggle) 
+    setActiveCategory("all"); // When a tag is selected, switch to "all" notes to apply tag filter
+    setActiveTags(prev =>
+      prev.includes(tagToToggle)
+        ? prev.filter(t => t !== tagToToggle)
         : [...prev, tagToToggle]
     );
   };
@@ -155,19 +155,18 @@ export default function NotesPage() {
       );
     }
 
-    if (activeTags.length > 0) {
-      processedNotes = processedNotes.filter(note => 
+    if (activeTags.length > 0 && activeCategory === "all") { // Apply tag filter only on "all" notes view
+      processedNotes = processedNotes.filter(note =>
         activeTags.every(activeTag => note.tags.includes(activeTag))
       );
     }
-    
-    // Pinned (starred) notes always come first in "all" and "starred" categories if not sorting by title
+
     processedNotes.sort((a, b) => {
       if (activeCategory !== "trash" && activeCategory !== "archived" && !sortOption.startsWith("title")) {
         if (a.isStarred && !b.isStarred) return -1;
         if (!a.isStarred && b.isStarred) return 1;
       }
-      
+
       switch (sortOption) {
         case "updatedAt_desc": return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
         case "updatedAt_asc": return new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime();
@@ -181,7 +180,7 @@ export default function NotesPage() {
 
     return processedNotes;
   }, [notes, activeCategory, searchTerm, sortOption, activeTags]);
-  
+
   if (!isClient) {
     // Skeleton Loader
     return (
@@ -207,7 +206,7 @@ export default function NotesPage() {
   }
 
   const sidebarLinkClasses = "flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-colors";
-  const activeSidebarLinkClasses = "bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground";
+  const activeSidebarLinkClasses = "bg-primary/10 text-primary dark:bg-primary/20"; // Removed dark:text-primary-foreground to use theme default
   const inactiveSidebarLinkClasses = "hover:bg-muted dark:hover:bg-muted/50";
 
   return (
@@ -227,7 +226,7 @@ export default function NotesPage() {
               return (
                 <button
                   key={cat}
-                  onClick={() => { setActiveCategory(cat); setActiveTags([]); }} // Reset tag filter on category change
+                  onClick={() => { setActiveCategory(cat); setActiveTags([]); }}
                   className={cn(
                     sidebarLinkClasses,
                     activeCategory === cat ? activeSidebarLinkClasses : inactiveSidebarLinkClasses,
@@ -255,13 +254,13 @@ export default function NotesPage() {
                     onClick={() => toggleTagFilter(tag)}
                     className={cn(
                       sidebarLinkClasses, "group",
-                      activeTags.includes(tag) ? activeSidebarLinkClasses : inactiveSidebarLinkClasses,
+                      activeTags.includes(tag) && activeCategory === "all" ? activeSidebarLinkClasses : inactiveSidebarLinkClasses,
                       "w-full justify-start relative"
                     )}
                   >
                     <TagIcon className="h-4 w-4" />
                     <span className="capitalize truncate flex-1 text-left">{tag}</span>
-                    {activeTags.includes(tag) && <Plus className="h-4 w-4 rotate-45 text-primary transition-transform duration-200" />}
+                    {activeTags.includes(tag) && activeCategory === "all" && <Plus className="h-4 w-4 rotate-45 text-primary transition-transform duration-200" />}
                   </button>
                 ))}
               </nav>
@@ -285,27 +284,32 @@ export default function NotesPage() {
               className="pl-10 rounded-xl shadow-sm bg-background focus:bg-card"
             />
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="rounded-xl shadow-sm">
-                <Filter className="mr-2 h-4 w-4" /> Sort
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 rounded-xl shadow-lg">
-              <DropdownMenuLabel>Sort by</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuRadioGroup value={sortOption} onValueChange={(value) => setSortOption(value as SortOption)}>
-                <DropdownMenuRadioItem value="updatedAt_desc">Last Modified (Newest)</DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="updatedAt_asc">Last Modified (Oldest)</DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="createdAt_desc">Date Created (Newest)</DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="createdAt_asc">Date Created (Oldest)</DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="title_asc">Title (A-Z)</DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="title_desc">Title (Z-A)</DropdownMenuRadioItem>
-              </DropdownMenuRadioGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex items-center gap-2">
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="rounded-xl shadow-sm">
+                    <Filter className="mr-2 h-4 w-4" /> Sort
+                </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56 rounded-xl shadow-lg">
+                <DropdownMenuLabel>Sort by</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuRadioGroup value={sortOption} onValueChange={(value) => setSortOption(value as SortOption)}>
+                    <DropdownMenuRadioItem value="updatedAt_desc">Last Modified (Newest)</DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="updatedAt_asc">Last Modified (Oldest)</DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="createdAt_desc">Date Created (Newest)</DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="createdAt_asc">Date Created (Oldest)</DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="title_asc">Title (A-Z)</DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="title_desc">Title (Z-A)</DropdownMenuRadioItem>
+                </DropdownMenuRadioGroup>
+                </DropdownMenuContent>
+            </DropdownMenu>
+            <Button onClick={openNewNoteDialog} className="rounded-xl shadow-sm bg-primary hover:bg-primary/90 text-primary-foreground sm:hidden">
+              <Plus className="h-5 w-5" />
+            </Button>
+          </div>
         </header>
-        
+
         <ScrollArea className="flex-1">
           <div className="p-4 md:p-6">
             {filteredAndSortedNotes.length === 0 ? (
@@ -313,10 +317,10 @@ export default function NotesPage() {
                 <StickyNote className="mx-auto h-20 w-20 opacity-30 mb-4" />
                 <p className="mt-6 text-xl font-medium">No notes found.</p>
                 <p className="text-sm">
-                  {activeCategory === 'trash' ? "Trash is empty." : 
+                  {activeCategory === 'trash' ? "Trash is empty." :
                    activeCategory === 'archived' ? "No archived notes." :
                    activeCategory === 'starred' ? "No starred notes." :
-                   searchTerm || activeTags.length > 0 ? "Try adjusting your search or filters." : 
+                   searchTerm || activeTags.length > 0 ? "Try adjusting your search or filters." :
                    "Create a new note to get started!"}
                 </p>
                 {(searchTerm || activeTags.length > 0) && (
@@ -324,12 +328,12 @@ export default function NotesPage() {
                 )}
               </div>
             ) : (
-              <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 2xl:columns-5 gap-6 space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {filteredAndSortedNotes.map(note => (
-                  <NoteCard 
-                    key={note.id} 
-                    note={note} 
-                    onEdit={handleEditNote} 
+                  <NoteCard
+                    key={note.id}
+                    note={note}
+                    onEdit={handleEditNote}
                     onToggleStar={handleToggleStar}
                     onToggleArchive={handleToggleArchive}
                     onToggleTrash={handleToggleTrash}
@@ -343,11 +347,11 @@ export default function NotesPage() {
         </ScrollArea>
       </main>
 
-      <AddNoteDialog 
-        open={isDialogOpen} 
-        onOpenChange={setIsDialogOpen} 
-        onSave={handleAddOrUpdateNote} 
-        noteToEdit={noteToEdit} 
+      <AddNoteDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        onSave={handleAddOrUpdateNote}
+        noteToEdit={noteToEdit}
       />
     </div>
   );
