@@ -52,7 +52,6 @@ export default function AddTaskDialog({ open, onOpenChange, onSave, taskToEdit }
         },
   });
 
-  // Reset form when taskToEdit changes or dialog opens for new task
   React.useEffect(() => {
     if (open) {
       form.reset(
@@ -81,7 +80,7 @@ export default function AddTaskDialog({ open, onOpenChange, onSave, taskToEdit }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[480px]">
+      <DialogContent className="sm:max-w-[480px] rounded-2xl shadow-xl">
         <DialogHeader>
           <DialogTitle>{taskToEdit ? "Edit Task" : "Add New Task"}</DialogTitle>
           <DialogDescription>
@@ -97,7 +96,7 @@ export default function AddTaskDialog({ open, onOpenChange, onSave, taskToEdit }
                 <FormItem>
                   <FormLabel>Title</FormLabel>
                   <FormControl>
-                    <Input placeholder="E.g., Finish project proposal" {...field} />
+                    <Input placeholder="E.g., Finish project proposal" {...field} className="rounded-xl"/>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -110,7 +109,7 @@ export default function AddTaskDialog({ open, onOpenChange, onSave, taskToEdit }
                 <FormItem>
                   <FormLabel>Description (Optional)</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Add more details about the task..." {...field} />
+                    <Textarea placeholder="Add more details about the task..." {...field} className="rounded-xl"/>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -128,7 +127,7 @@ export default function AddTaskDialog({ open, onOpenChange, onSave, taskToEdit }
                         <Button
                           variant={"outline"}
                           className={cn(
-                            "w-full pl-3 text-left font-normal",
+                            "w-full pl-3 text-left font-normal rounded-xl",
                             !field.value && "text-muted-foreground"
                           )}
                         >
@@ -141,12 +140,12 @@ export default function AddTaskDialog({ open, onOpenChange, onSave, taskToEdit }
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
+                    <PopoverContent className="w-auto p-0 rounded-xl shadow-lg" align="start">
                       <Calendar
                         mode="single"
                         selected={field.value}
                         onSelect={field.onChange}
-                        disabled={(date) => date < new Date(new Date().setHours(0,0,0,0)) } // Disable past dates
+                        disabled={(date) => date < new Date(new Date().setHours(0,0,0,0)) } 
                         initialFocus
                       />
                     </PopoverContent>
@@ -163,11 +162,11 @@ export default function AddTaskDialog({ open, onOpenChange, onSave, taskToEdit }
                   <FormLabel>Priority</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value || 'medium'}>
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="rounded-xl">
                         <SelectValue placeholder="Select priority" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
+                    <SelectContent className="rounded-xl shadow-lg">
                       <SelectItem value="low">Low</SelectItem>
                       <SelectItem value="medium">Medium</SelectItem>
                       <SelectItem value="high">High</SelectItem>
@@ -177,11 +176,11 @@ export default function AddTaskDialog({ open, onOpenChange, onSave, taskToEdit }
                 </FormItem>
               )}
             />
-            <DialogFooter>
+            <DialogFooter className="pt-2">
               <DialogClose asChild>
-                <Button type="button" variant="outline">Cancel</Button>
+                <Button type="button" variant="outline" className="rounded-xl">Cancel</Button>
               </DialogClose>
-              <Button type="submit">{taskToEdit ? "Save Changes" : "Add Task"}</Button>
+              <Button type="submit" className="rounded-xl">{taskToEdit ? "Save Changes" : "Add Task"}</Button>
             </DialogFooter>
           </form>
         </Form>

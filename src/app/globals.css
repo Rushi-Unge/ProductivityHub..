@@ -5,113 +5,113 @@
 
 @layer base {
   :root {
-    /* Light Mode - Modern & Clean with Purple/Blue Primary */
-    --background: 220 20% 98%; /* Almost White #F9FAFB */
-    --foreground: 224 71% 15%; /* Dark Blue-Gray #1F2937 */
+    /* Light Mode - As per new spec */
+    --background: 0 0% 98%; /* #FAFAFA */
+    --foreground: 215 28% 17%; /* #1F2937 */
     
-    --card: 0 0% 100%; /* Pure White #FFFFFF */
-    --card-foreground: 224 71% 15%; /* Dark Blue-Gray #1F2937 */
+    --card: 0 0% 100%; /* #FFFFFF */
+    --card-foreground: 215 28% 17%; /* #1F2937 */
     
-    --popover: 0 0% 100%; /* Pure White */
-    --popover-foreground: 224 71% 15%; /* Dark Blue-Gray */
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 28% 17%;
     
-    --primary: 255 85% 60%; /* Vibrant Lavender/Purple #8A70D6 */
+    --primary: 242 100% 70%; /* #6C63FF - Indigo */
     --primary-foreground: 0 0% 100%; /* White */
     
-    --secondary: 30 95% 53%; /* Accent Orange #F97316 (Kept for consistency if used elsewhere) */
-    --secondary-foreground: 0 0% 100%; /* White */
+    --secondary: 25 95% 53%; /* #F97316 - Timer Orange / general secondary */
+    --secondary-foreground: 0 0% 100%; 
     
-    --muted: 220 14% 90%; /* Light Gray #E5E7EB */
-    --muted-foreground: 220 9% 46%; /* Medium Gray #6B7280 */
+    --muted: 210 17% 95%; /* #F3F4F6 - Section Background / Hover BG */
+    --muted-foreground: 215 14% 47%; /* #6B7280 - Light Text */
     
-    --accent: 240 100% 70%; /* Bright Blue #6366F1 (For gradients with primary) */
-    --accent-foreground: 0 0% 100%; /* White */
+    --accent: 250 100% 73%; /* #8F75FF - Gradient Accent */
+    --accent-foreground: 0 0% 100%;
     
-    --destructive: 0 72% 51%; /* Strong Red #EF4444 */
-    --destructive-foreground: 0 0% 98%; /* White */
+    --destructive: 0 84% 60%; /* #EF4444 - Error/Danger Red */
+    --destructive-foreground: 0 0% 98%;
     
-    --success: 145 63% 42%; /* Green #22C55E */
-    --success-foreground: 0 0% 98%; /* White */
+    --success: 145 63% 42%; /* #22C55E - Green */
+    --success-foreground: 0 0% 98%;
 
-    --warning: 38 92% 50%; /* Amber #F59E0B */
-    --warning-foreground: 224 71% 15%; /* Dark text for contrast */
+    --warning: 38 92% 50%; /* #F59E0B - Amber */
+    --warning-foreground: 215 28% 17%; /* Dark text for contrast */
 
-    --info: 200 88% 57%; /* Sky Blue #38BDF8 */
-    --info-foreground: 0 0% 100%; /* White */
+    --info: 200 88% 57%; /* #38BDF8 - Sky Blue */
+    --info-foreground: 0 0% 100%;
         
-    --border: 220 13% 88%; /* Light Gray #DEE2E6 */
-    --input: 220 13% 94%; /* Very Light Gray #EFF2F5 (input background) */
-    --ring: 255 85% 65%; /* Slightly lighter primary for focus */
+    --border: 210 14% 90%; /* #E5E7EB - Border Color / Input BG */
+    --input: 210 14% 90%; /* #E5E7EB */
+    --ring: 242 100% 72%; /* Slightly lighter primary for focus */
     
-    --radius: 0.5rem;
+    --radius: 0.75rem; /* rounded-2xl equivalent is often 1rem, but 0.75rem for rounded-xl as per ShadCN */
 
-    --chart-1: 255 85% 60%; /* Primary */
-    --chart-2: 240 100% 70%; /* Accent */
-    --chart-3: 30 95% 53%; /* Secondary (Orange) */
-    --chart-4: 145 63% 42%; /* Success (Green) */
-    --chart-5: 0 72% 51%; /* Destructive (Red) */
+    --chart-1: 242 100% 70%; /* Primary */
+    --chart-2: 250 100% 73%; /* Accent */
+    --chart-3: 25 95% 53%;   /* Secondary (Orange) */
+    --chart-4: 145 63% 42%;  /* Success (Green) */
+    --chart-5: 0 84% 60%;    /* Destructive (Red) */
 
     --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 224 71% 15%;
-    --sidebar-primary: 255 85% 60%;
+    --sidebar-foreground: 215 28% 17%;
+    --sidebar-primary: 242 100% 70%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 17% 96%; /* Light hover #F3F4F6 */
-    --sidebar-accent-foreground: 255 85% 60%; /* Primary on hover */
-    --sidebar-border: 220 14% 90%;
-    --sidebar-ring: 255 85% 65%;
+    --sidebar-accent: 210 17% 95%; 
+    --sidebar-accent-foreground: 242 100% 70%; 
+    --sidebar-border: 210 14% 90%;
+    --sidebar-ring: 242 100% 72%;
 
-    --section-background: 220 17% 96%; /* Off-White #F3F4F6 */
+    --section-background: 210 17% 95%; /* #F3F4F6 */
   }
 
   .dark {
-    /* Dark Mode - Deep, Modern & Focused */
-    --background: 225 25% 12%; /* Very Dark Blue #161B22 */
-    --foreground: 210 40% 95%; /* Light Gray/Off-white #E6EDF3 */
+    /* Dark Mode - As per new spec */
+    --background: 234 22% 15%; /* #1E1E2F */
+    --foreground: 210 29% 87%; /* #E5E7EB */
     
-    --card: 225 20% 18%; /* Dark Slate Blue #23293A */
-    --card-foreground: 210 40% 95%;
+    --card: 216 28% 27%; /* #334155 */
+    --card-foreground: 210 29% 87%;
     
-    --popover: 225 20% 15%; /* Slightly darker slate #1D2333 */
-    --popover-foreground: 210 40% 95%;
+    --popover: 216 28% 22%; 
+    --popover-foreground: 210 29% 87%;
     
-    --primary: 255 80% 70%; /* Lighter Lavender/Purple #A48DF0 */
-    --primary-foreground: 225 25% 12%; /* Dark background for contrast on primary */
+    --primary: 242 100% 75%; /* Lighter Indigo for dark mode */
+    --primary-foreground: 234 22% 15%; 
     
-    --secondary: 30 85% 60%; /* Brighter Orange #FB8C3A */
-    --secondary-foreground: 225 25% 12%;
+    --secondary: 25 90% 60%; /* Brighter Orange */
+    --secondary-foreground: 234 22% 15%;
     
-    --muted: 225 15% 25%; /* Medium Dark Slate #333A4C */
-    --muted-foreground: 210 20% 70%; /* Lighter Gray #A0AEC0 */
+    --muted: 216 28% 22%; /* Darker muted */
+    --muted-foreground: 210 17% 67%; /* Lighter muted foreground */
     
-    --accent: 240 90% 75%; /* Brighter Blue #8DA0F3 */
-    --accent-foreground: 225 25% 12%;
+    --accent: 250 100% 78%; /* Lighter Gradient Accent */
+    --accent-foreground: 234 22% 15%;
     
-    --destructive: 0 70% 60%; /* Brighter Red #FF6B6B */
+    --destructive: 0 75% 65%; /* Brighter Red */
     --destructive-foreground: 0 0% 98%;
     
-    --success: 140 60% 50%; /* Brighter Green #4FD18B */
-    --success-foreground: 225 25% 12%;
+    --success: 145 60% 50%; /* Brighter Green */
+    --success-foreground: 234 22% 15%;
 
-    --warning: 38 80% 55%; /* Brighter Amber #F7B048 */
-    --warning-foreground: 225 25% 12%;
+    --warning: 38 90% 55%; /* Brighter Amber */
+    --warning-foreground: 234 22% 15%;
 
-    --info: 200 80% 60%; /* Brighter Sky Blue #5AC5F8 */
-    --info-foreground: 225 25% 12%;
+    --info: 200 85% 60%; /* Brighter Sky Blue */
+    --info-foreground: 234 22% 15%;
         
-    --border: 225 15% 30%; /* Darker border #3A4257 */
-    --input: 225 15% 22%; /* Darker Input Background #2B3143 */
-    --ring: 255 80% 75%; /* Lighter ring color for focus */
+    --border: 216 28% 32%; /* Darker border */
+    --input: 216 28% 22%; 
+    --ring: 242 100% 78%; 
 
-    --sidebar-background: 225 22% 15%; /* #1D2333 Darker than card */
-    --sidebar-foreground: 210 40% 90%;
-    --sidebar-primary: 255 80% 70%;
-    --sidebar-primary-foreground: 225 25% 12%;
-    --sidebar-accent: 225 15% 25%; /* Hover state */
-    --sidebar-accent-foreground: 255 80% 75%; /* Text color on hover */
-    --sidebar-border: 225 15% 20%;
-    --sidebar-ring: 255 80% 75%;
+    --sidebar-background: 243 15% 29%; /* #3F3D56 - Specific request for dark sidebar */
+    --sidebar-foreground: 210 29% 87%;
+    --sidebar-primary: 242 100% 75%;
+    --sidebar-primary-foreground: 243 15% 29%;
+    --sidebar-accent: 216 28% 22%; 
+    --sidebar-accent-foreground: 242 100% 78%; 
+    --sidebar-border: 216 28% 20%;
+    --sidebar-ring: 242 100% 78%;
 
-    --section-background: 225 25% 10%; /* Even Darker Background #12161E */
+    --section-background: 234 22% 12%; /* Slightly darker than main dark BG for depth */
   }
 }
 
@@ -120,7 +120,9 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-body;
+    font-size: 16px; /* Base font size */
+    line-height: 1.6; /* Balanced line-height */
   }
   /* Custom scrollbar for webkit browsers */
   ::-webkit-scrollbar {
@@ -138,9 +140,56 @@
   ::-webkit-scrollbar-thumb:hover {
     @apply bg-primary/70;
   }
+
+  /* Markdown specific typography */
+  .prose {
+    @apply text-foreground;
+  }
+  .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+    @apply text-foreground font-headline;
+  }
+  .prose p, .prose li, .prose blockquote {
+    @apply text-foreground;
+  }
+  .prose a {
+    @apply text-primary hover:text-accent;
+  }
+  .prose strong {
+    @apply text-foreground;
+  }
+  .prose em {
+    @apply text-foreground;
+  }
+  .prose code {
+    @apply bg-muted text-foreground px-1 py-0.5 rounded-md font-code text-sm;
+  }
+  .prose pre {
+    @apply bg-muted text-foreground p-4 rounded-md overflow-x-auto;
+  }
+  .prose pre code {
+    @apply bg-transparent p-0;
+  }
+  .prose ul {
+    @apply list-disc pl-5;
+  }
+  .prose ol {
+    @apply list-decimal pl-5;
+  }
+  .prose blockquote {
+    @apply border-l-4 border-primary pl-4 italic text-muted-foreground;
+  }
+  .prose hr {
+    @apply border-border my-4;
+  }
+
+  .dark .prose {
+     @apply text-foreground; /* foreground is already light in dark mode */
+  }
+  /* Add other specific dark mode prose styles if needed */
 }
 
 .auth-gradient {
+  /* Uses primary and accent which are now updated */
   background-image: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
 }
 
@@ -150,15 +199,10 @@
   transition: background-position 0.5s ease;
 }
 .btn-gradient:hover {
-  background-position: right center; /* change the direction of the change here */
+  background-position: right center; 
 }
 
-
-/* Ensure text in note cards is visible on colored backgrounds in light mode */
-.light .note-card-custom-text {
-  /* If bg is explicitly dark (e.g., bg-slate-700), use light text */
-  /* Otherwise, use default card-foreground */
-}
+/* Ensure text in note cards is visible on colored backgrounds */
 .light .note-card-custom-text.on-dark-bg {
   color: hsl(var(--primary-foreground)); 
 }
@@ -166,10 +210,6 @@
   color: hsl(var(--card-foreground));
 }
 
-
-.light .note-card-custom-muted-text {
- /* Handled by more specific logic in note-card.tsx now */
-}
 .light .note-card-custom-muted-text.on-dark-bg {
   color: hsla(var(--primary-foreground), 0.8);
 }
@@ -177,11 +217,9 @@
    color: hsla(var(--card-foreground), 0.8);
 }
 
-
-/* Ensure text in note cards is visible on colored backgrounds in dark mode */
 .dark .note-card-custom-text {
-  color: hsl(var(--card-foreground)); /* Default light text for dark mode */
+  color: hsl(var(--card-foreground)); 
 }
 .dark .note-card-custom-muted-text {
-  color: hsla(var(--card-foreground), 0.8); /* Light text with opacity */
+  color: hsla(var(--card-foreground), 0.8);
 }

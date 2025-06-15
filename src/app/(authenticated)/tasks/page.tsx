@@ -10,6 +10,7 @@ import AddTaskDialog from "@/components/add-task-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { aiTaskPrioritization, type AiTaskPrioritizationInput, type AiTaskPrioritizationOutput } from "@/ai/flows/ai-task-prioritization";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 
 export interface Task {
   id: string;
@@ -112,31 +113,28 @@ export default function TasksPage() {
             aiReason: aiData.reason,
           };
         }
-        return {...originalTask, aiReason: undefined, aiPriority: undefined}; // Clear AI fields for non-matched or completed tasks
+        return {...originalTask, aiReason: undefined, aiPriority: undefined}; 
       });
 
       updatedTasks.sort((a, b) => {
         if (a.status === 'completed' && b.status !== 'completed') return 1;
         if (a.status !== 'completed' && b.status === 'completed') return -1;
         if (a.status === 'completed' && b.status === 'completed') {
-            // For completed tasks, sort by most recently completed (or due date as fallback)
             const dateA = a.dueDate ? new Date(a.dueDate).getTime() : 0;
             const dateB = b.dueDate ? new Date(b.dueDate).getTime() : 0;
-            return dateB - dateA; // Newest completed first
+            return dateB - dateA; 
         }
-        // For pending tasks, sort by AI priority first
         if (a.aiPriority !== undefined && b.aiPriority !== undefined) {
           return a.aiPriority - b.aiPriority;
         }
         if (a.aiPriority !== undefined) return -1; 
         if (b.aiPriority !== undefined) return 1;  
         
-        // Fallback sort for pending tasks if no AI priority
-        const dateA = a.dueDate ? new Date(a.dueDate).getTime() : Infinity; // Tasks without due date last
+        const dateA = a.dueDate ? new Date(a.dueDate).getTime() : Infinity; 
         const dateB = b.dueDate ? new Date(b.dueDate).getTime() : Infinity;
-        if (dateA !== dateB) return dateA - dateB; // Earliest due date first
+        if (dateA !== dateB) return dateA - dateB; 
 
-        const priorityOrder = { high: 1, medium: 2, low: 3 }; // Higher priority (lower number) first
+        const priorityOrder = { high: 1, medium: 2, low: 3 };
         return (priorityOrder[a.priority as keyof typeof priorityOrder] || 4) - (priorityOrder[b.priority as keyof typeof priorityOrder] || 4);
       });
       
@@ -154,18 +152,14 @@ export default function TasksPage() {
   const completedTasks = tasks.filter(t => t.status === 'completed').sort((a,b) => {
     const dateA = a.dueDate ? new Date(a.dueDate).getTime() : 0;
     const dateB = b.dueDate ? new Date(b.dueDate).getTime() : 0;
-    return dateB - dateA; // Sort completed by most recent due date first
+    return dateB - dateA; 
   });
   
-  
-  // If AI is active, all pending tasks are shown in one list, sorted by AI.
-  // Otherwise, default sort by due date then priority.
   const allPendingTasksSorted = [...pendingTasksOriginal].sort((a, b) => {
       if (a.aiPriority !== undefined && b.aiPriority !== undefined) return a.aiPriority - b.aiPriority;
-      if (a.aiPriority !== undefined) return -1; // a has AI priority, b does not, so a comes first
-      if (b.aiPriority !== undefined) return 1;  // b has AI priority, a does not, so b comes first
+      if (a.aiPriority !== undefined) return -1; 
+      if (b.aiPriority !== undefined) return 1;  
       
-      // Fallback: sort by due date (earliest first), then by priority (high > medium > low)
       const dateA = a.dueDate ? new Date(a.dueDate).getTime() : Infinity;
       const dateB = b.dueDate ? new Date(b.dueDate).getTime() : Infinity;
       if (dateA !== dateB) return dateA - dateB;
@@ -179,15 +173,15 @@ export default function TasksPage() {
     return (
       <div className="space-y-6 p-4 md:p-6">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-2">
-          <Skeleton className="h-10 w-48 rounded-lg" />
+          <Skeleton className="h-10 w-48 rounded-xl" />
           <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-            <Skeleton className="h-10 w-full sm:w-40 rounded-lg" />
-            <Skeleton className="h-10 w-full sm:w-32 rounded-lg" />
+            <Skeleton className="h-10 w-full sm:w-40 rounded-xl" />
+            <Skeleton className="h-10 w-full sm:w-32 rounded-xl" />
           </div>
         </div>
-        <Skeleton className="h-10 w-full max-w-xs sm:max-w-sm rounded-lg" />
+        <Skeleton className="h-10 w-full max-w-xs sm:max-w-sm rounded-xl" />
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {[1,2,3,4].map(i => <Skeleton key={i} className="h-64 w-full rounded-lg" />)}
+          {[1,2,3,4].map(i => <Skeleton key={i} className="h-64 w-full rounded-2xl" />)}
         </div>
       </div>
     );
@@ -203,24 +197,24 @@ export default function TasksPage() {
           <p className="text-muted-foreground">Organize, prioritize, and conquer your to-do list.</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-          <Button onClick={handleAiPrioritize} disabled={isLoadingAi || pendingTasksOriginal.length === 0} className="w-full sm:w-auto shadow-md hover:shadow-lg transition-shadow">
+          <Button onClick={handleAiPrioritize} disabled={isLoadingAi || pendingTasksOriginal.length === 0} className="w-full sm:w-auto shadow-md hover:shadow-lg transition-shadow rounded-xl">
             <Brain className="mr-2 h-4 w-4" /> {isLoadingAi ? "AI Thinking..." : "Prioritize with AI"}
           </Button>
-          <Button onClick={openNewTaskDialog} className="w-full sm:w-auto shadow-md hover:shadow-lg transition-shadow">
+          <Button onClick={openNewTaskDialog} className="w-full sm:w-auto shadow-md hover:shadow-lg transition-shadow rounded-xl">
             <PlusCircle className="mr-2 h-4 w-4" /> Add Task
           </Button>
         </div>
       </div>
 
       <Tabs defaultValue="pending" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 mb-4 bg-muted/50 dark:bg-muted/20 rounded-lg p-1 max-w-xs sm:max-w-sm">
-          <TabsTrigger value="pending" className="flex items-center gap-2 data-[state=active]:bg-card data-[state=active]:shadow-md"><ListChecks className="h-4 w-4"/>Pending ({pendingTasksOriginal.length})</TabsTrigger>
-          <TabsTrigger value="completed" className="flex items-center gap-2 data-[state=active]:bg-card data-[state=active]:shadow-md"><CheckSquare className="h-4 w-4"/>Completed ({completedTasks.length})</TabsTrigger>
+        <TabsList className={cn("grid w-full grid-cols-2 mb-4 bg-muted/50 dark:bg-muted/20 rounded-xl p-1 max-w-xs sm:max-w-sm")}>
+          <TabsTrigger value="pending" className="flex items-center gap-2 data-[state=active]:bg-card data-[state=active]:shadow-md rounded-lg"><ListChecks className="h-4 w-4"/>Pending ({pendingTasksOriginal.length})</TabsTrigger>
+          <TabsTrigger value="completed" className="flex items-center gap-2 data-[state=active]:bg-card data-[state=active]:shadow-md rounded-lg"><CheckSquare className="h-4 w-4"/>Completed ({completedTasks.length})</TabsTrigger>
         </TabsList>
         
         {isLoadingAi && (
-           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mt-4">
-             {Array.from({length: Math.min(pendingTasksOriginal.length, 4)}).map((_, i) => <Skeleton key={i} className="h-64 w-full rounded-lg" />)}
+           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mt-4">
+             {Array.from({length: Math.min(pendingTasksOriginal.length, 4)}).map((_, i) => <Skeleton key={i} className="h-64 w-full rounded-2xl" />)}
            </div>
         )}
 
@@ -261,7 +255,7 @@ function TaskGrid({ tasks, title, ...props }: TaskGridProps) {
   }
   return (
     <div className="space-y-4">
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {tasks.map(task => (
           <TaskCard key={task.id} task={task} {...props} />
         ))}

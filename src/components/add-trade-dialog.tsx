@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format, parseISO } from "date-fns";
-import type { Trade } from "@/app/(authenticated)/analytics/page"; 
+import type { Trade } from "@/app/(authenticated)/trades/page"; 
 import { UploadCloud } from "lucide-react";
 
 const MAX_FILE_SIZE_MB = 5;
@@ -53,7 +53,7 @@ const tradeFormSchema = z.object({
         (fileList) => !fileList || fileList.length === 0 || ACCEPTED_IMAGE_TYPES.includes(fileList[0]?.type),
         "Only .jpg, .jpeg, .png and .webp formats are supported."
     ),
-  screenshotFilename: z.string().optional(), // To store filename for existing trades if file isn't re-uploaded
+  screenshotFilename: z.string().optional(),
 }).refine(data => {
     if (data.exitTimestamp && !data.exitPrice) {
         return false; 
@@ -121,8 +121,8 @@ export default function AddTradeDialog({ open, onOpenChange, onSave, tradeToEdit
           strategy: tradeToEdit.strategy,
           reflection: tradeToEdit.reflection,
           riskPercentage: tradeToEdit.riskPercentage,
-          screenshot: null, // Do not pre-fill FileList
-          screenshotFilename: tradeToEdit.screenshotFilename, // Keep existing filename
+          screenshot: null, 
+          screenshotFilename: tradeToEdit.screenshotFilename,
         });
         setSelectedFileName(tradeToEdit.screenshotFilename || null);
       } else {
@@ -147,11 +147,9 @@ export default function AddTradeDialog({ open, onOpenChange, onSave, tradeToEdit
 
 
   const onSubmit = (data: TradeFormValues) => {
-    let screenshotFilenameToSave = data.screenshotFilename; // Keep existing if no new file
+    let screenshotFilenameToSave = data.screenshotFilename; 
     if (data.screenshot && data.screenshot.length > 0) {
       screenshotFilenameToSave = data.screenshot[0].name;
-      // In a real app, you would upload data.screenshot[0] here and get a URL
-      // For now, we just use the filename as a placeholder.
     }
 
     const dataToSave = {
@@ -171,15 +169,13 @@ export default function AddTradeDialog({ open, onOpenChange, onSave, tradeToEdit
       setSelectedFileName(files[0].name);
     } else {
       form.setValue("screenshot", null, { shouldValidate: true });
-      // If clearing the file input, and there was an existing filename, retain it.
-      // If it was a new trade, or no existing filename, clear it.
       setSelectedFileName(tradeToEdit?.screenshotFilename && !form.getValues("screenshot") ? tradeToEdit.screenshotFilename : null);
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg rounded-2xl shadow-xl">
         <DialogHeader>
           <DialogTitle>{tradeToEdit ? "Edit Trade" : "Add New Trade"}</DialogTitle>
           <DialogDescription>
@@ -195,7 +191,7 @@ export default function AddTradeDialog({ open, onOpenChange, onSave, tradeToEdit
                 <FormItem>
                   <FormLabel>Asset (e.g., AAPL, BTC/USD)</FormLabel>
                   <FormControl>
-                    <Input placeholder="Asset ticker or pair" {...field} />
+                    <Input placeholder="Asset ticker or pair" {...field} className="rounded-xl"/>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -209,11 +205,11 @@ export default function AddTradeDialog({ open, onOpenChange, onSave, tradeToEdit
                   <FormLabel>Position</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="rounded-xl">
                         <SelectValue placeholder="Select position" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
+                    <SelectContent className="rounded-xl shadow-lg">
                       <SelectItem value="long">Long</SelectItem>
                       <SelectItem value="short">Short</SelectItem>
                     </SelectContent>
@@ -230,7 +226,7 @@ export default function AddTradeDialog({ open, onOpenChange, onSave, tradeToEdit
                     <FormItem>
                     <FormLabel>Entry Date & Time</FormLabel>
                     <FormControl>
-                        <Input type="datetime-local" {...field} />
+                        <Input type="datetime-local" {...field} className="rounded-xl"/>
                     </FormControl>
                     <FormMessage />
                     </FormItem>
@@ -243,7 +239,7 @@ export default function AddTradeDialog({ open, onOpenChange, onSave, tradeToEdit
                     <FormItem>
                     <FormLabel>Exit Date & Time (Optional)</FormLabel>
                     <FormControl>
-                        <Input type="datetime-local" {...field} value={field.value || ""} />
+                        <Input type="datetime-local" {...field} value={field.value || ""} className="rounded-xl"/>
                     </FormControl>
                     <FormMessage />
                     </FormItem>
@@ -258,7 +254,7 @@ export default function AddTradeDialog({ open, onOpenChange, onSave, tradeToEdit
                     <FormItem>
                     <FormLabel>Entry Price</FormLabel>
                     <FormControl>
-                        <Input type="number" step="any" placeholder="0.00" {...field} onChange={e => field.onChange(e.target.value === "" ? undefined : parseFloat(e.target.value))} value={field.value === undefined ? "" : field.value} />
+                        <Input type="number" step="any" placeholder="0.00" {...field} onChange={e => field.onChange(e.target.value === "" ? undefined : parseFloat(e.target.value))} value={field.value === undefined ? "" : field.value} className="rounded-xl"/>
                     </FormControl>
                     <FormMessage />
                     </FormItem>
@@ -271,7 +267,7 @@ export default function AddTradeDialog({ open, onOpenChange, onSave, tradeToEdit
                     <FormItem>
                     <FormLabel>Exit Price (Optional)</FormLabel>
                     <FormControl>
-                        <Input type="number" step="any" placeholder="0.00" {...field} onChange={e => field.onChange(e.target.value === "" ? null : parseFloat(e.target.value))} value={field.value === null || field.value === undefined ? "" : String(field.value)} />
+                        <Input type="number" step="any" placeholder="0.00" {...field} onChange={e => field.onChange(e.target.value === "" ? null : parseFloat(e.target.value))} value={field.value === null || field.value === undefined ? "" : String(field.value)} className="rounded-xl"/>
                     </FormControl>
                     <FormMessage />
                     </FormItem>
@@ -286,7 +282,7 @@ export default function AddTradeDialog({ open, onOpenChange, onSave, tradeToEdit
                     <FormItem>
                     <FormLabel>Quantity / Size</FormLabel>
                     <FormControl>
-                        <Input type="number" step="any" placeholder="0" {...field} onChange={e => field.onChange(e.target.value === "" ? undefined : parseFloat(e.target.value))} value={field.value === undefined ? "" : field.value}/>
+                        <Input type="number" step="any" placeholder="0" {...field} onChange={e => field.onChange(e.target.value === "" ? undefined : parseFloat(e.target.value))} value={field.value === undefined ? "" : field.value} className="rounded-xl"/>
                     </FormControl>
                     <FormMessage />
                     </FormItem>
@@ -299,7 +295,7 @@ export default function AddTradeDialog({ open, onOpenChange, onSave, tradeToEdit
                     <FormItem>
                     <FormLabel>Risk % (Optional)</FormLabel>
                     <FormControl>
-                        <Input type="number" step="0.1" placeholder="e.g., 1.5 for 1.5%" {...field} onChange={e => field.onChange(e.target.value === "" ? null : parseFloat(e.target.value))} value={field.value === null || field.value === undefined ? "" : String(field.value)} />
+                        <Input type="number" step="0.1" placeholder="e.g., 1.5 for 1.5%" {...field} onChange={e => field.onChange(e.target.value === "" ? null : parseFloat(e.target.value))} value={field.value === null || field.value === undefined ? "" : String(field.value)} className="rounded-xl"/>
                     </FormControl>
                     <FormMessage />
                     </FormItem>
@@ -313,7 +309,7 @@ export default function AddTradeDialog({ open, onOpenChange, onSave, tradeToEdit
                 <FormItem>
                   <FormLabel>Strategy (Optional)</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., Breakout, Mean Reversion" {...field} />
+                    <Input placeholder="e.g., Breakout, Mean Reversion" {...field} className="rounded-xl"/>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -326,7 +322,7 @@ export default function AddTradeDialog({ open, onOpenChange, onSave, tradeToEdit
                 <FormItem>
                   <FormLabel>Reflection (Optional)</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Why did you take this trade? What did you learn?" {...field} rows={3} />
+                    <Textarea placeholder="Why did you take this trade? What did you learn?" {...field} rows={3} className="rounded-xl"/>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -335,12 +331,12 @@ export default function AddTradeDialog({ open, onOpenChange, onSave, tradeToEdit
              <FormField
                 control={form.control}
                 name="screenshot"
-                render={({ fieldState }) => (
+                render={() => (
                   <FormItem>
                     <FormLabel>Trade Screenshot (Optional, Max {MAX_FILE_SIZE_MB}MB)</FormLabel>
                     <FormControl>
                       <div className="flex items-center gap-2">
-                        <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()} className="flex-shrink-0">
+                        <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()} className="flex-shrink-0 rounded-xl">
                           <UploadCloud className="mr-2 h-4 w-4" /> {selectedFileName ? "Change File" : "Upload Image"}
                         </Button>
                         <input
@@ -354,16 +350,16 @@ export default function AddTradeDialog({ open, onOpenChange, onSave, tradeToEdit
                       </div>
                     </FormControl>
                     <FormMessage />
-                    {form.formState.errors.screenshot && <FormMessage>{form.formState.errors.screenshot.message}</FormMessage>}
+                    {form.formState.errors.screenshot && <FormMessage>{form.formState.errors.screenshot.message as string}</FormMessage>}
                   </FormItem>
                 )}
               />
 
-            <DialogFooter>
+            <DialogFooter className="pt-2">
               <DialogClose asChild>
-                <Button type="button" variant="outline">Cancel</Button>
+                <Button type="button" variant="outline" className="rounded-xl">Cancel</Button>
               </DialogClose>
-              <Button type="submit">{tradeToEdit ? "Save Changes" : "Add Trade"}</Button>
+              <Button type="submit" className="rounded-xl">{tradeToEdit ? "Save Changes" : "Add Trade"}</Button>
             </DialogFooter>
           </form>
         </Form>

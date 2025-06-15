@@ -1,6 +1,7 @@
 
 "use client"
 
+import * as React from "react"; // Ensure React is imported
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,11 +10,11 @@ import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { User, Mail, Lock, Eye, EyeOff } from "lucide-react"; 
+import { User, Mail, Lock, Eye, EyeOff, Zap } from "lucide-react"; 
 import { cn } from "@/lib/utils";
 
 const loginSchema = z.object({
@@ -39,7 +40,7 @@ export default function AuthForm() {
   const router = useRouter();
   const { toast } = useToast();
   const [isClient, setIsClient] = useState(false);
-  const [activeTab, setActiveTab] = useState<"login" | "signup">("signup");
+  const [activeTab, setActiveTab] = useState<"signup" | "login">("signup");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -58,7 +59,7 @@ export default function AuthForm() {
   });
 
   const onLoginSubmit = (data: LoginFormValues) => {
-    toast({ title: "Login Successful", description: `Welcome back, ${data.email}!` });
+    toast({ title: "Login Successful", description: `Welcome back!` });
     if (isClient) localStorage.setItem("prohub-auth-status", "loggedIn");
     router.push("/dashboard");
   };
@@ -72,19 +73,34 @@ export default function AuthForm() {
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
   const toggleConfirmPasswordVisibility = () => setShowConfirmPassword(!showConfirmPassword);
 
+  const AppLogo = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8 text-primary transition-transform duration-300 group-hover:scale-110">
+      <path d="M12 2C10.3431 2 9 3.34315 9 5V7H15V5C15 3.34315 13.6569 2 12 2Z" />
+      <path d="M9 9V15C9 16.6569 10.3431 18 12 18C13.6569 18 15 16.6569 15 15V9H9Z" />
+      <path d="M7 18C7 19.6569 8.34315 21 10 21H14C15.6569 21 17 19.6569 17 18V16H7V18Z" />
+      <path d="M5 7C3.34315 7 2 8.34315 2 10V14C2 15.6569 3.34315 17 5 17H7V7H5Z" />
+      <path d="M19 7H17V17H19C20.6569 17 22 15.6569 22 14V10C22 8.34315 20.6569 7 19 7Z" />
+    </svg>
+  );
+
+
   if (!isClient) {
     return (
-        <Card className="w-full max-w-md bg-slate-800/30 dark:bg-slate-900/40 backdrop-blur-lg shadow-2xl border-slate-700/50 animate-pulse">
-            <CardContent className="p-6 md:p-8">
-                <div className="flex mb-6 rounded-lg bg-slate-700/30 dark:bg-slate-800/40 p-1">
-                    <div className="h-10 flex-1 bg-slate-600/50 dark:bg-slate-700/50 rounded-md m-1"></div>
-                    <div className="h-10 flex-1 bg-slate-600/50 dark:bg-slate-700/50 rounded-md m-1"></div>
+        <Card className="w-full max-w-md bg-card/10 dark:bg-card/20 backdrop-blur-md shadow-xl border-white/10 animate-pulse rounded-2xl">
+            <CardHeader className="flex flex-col items-center text-center p-6">
+                <div className="h-8 w-8 bg-primary/30 rounded-md mb-2"></div>
+                <div className="h-7 w-32 bg-white/30 rounded-md mb-4"></div>
+                <div className="flex w-full rounded-lg bg-white/5 p-1">
+                    <div className="h-10 flex-1 bg-primary/20 rounded-md m-0.5"></div>
+                    <div className="h-10 flex-1 bg-transparent rounded-md m-0.5"></div>
                 </div>
+            </CardHeader>
+            <CardContent className="p-6 md:p-8 pt-0">
                 <div className="space-y-4">
                     {[1,2,3].map(i => (
                         <div key={i} className="space-y-1.5">
-                            <div className="h-4 bg-slate-600/50 dark:bg-slate-700/50 rounded w-1/4"></div>
-                            <div className="h-11 bg-slate-600/50 dark:bg-slate-700/50 rounded-md w-full"></div>
+                            <div className="h-4 bg-slate-200/20 dark:bg-slate-700/30 rounded w-1/4"></div>
+                            <div className="h-11 bg-white/10 dark:bg-slate-800/50 rounded-md w-full"></div>
                         </div>
                     ))}
                      <div className="h-11 bg-primary/50 rounded-md w-full mt-6"></div>
@@ -95,15 +111,17 @@ export default function AuthForm() {
   }
 
   return (
-    <Card className="w-full max-w-md bg-slate-800/30 dark:bg-slate-900/40 backdrop-blur-lg shadow-2xl border-slate-700/50">
-      <CardContent className="p-6 md:p-8">
-        <div className="flex mb-6 rounded-lg bg-slate-700/30 dark:bg-slate-800/40 p-1">
+    <Card className="w-full max-w-md bg-card/10 dark:bg-card/20 backdrop-blur-md shadow-xl border-white/10 rounded-2xl">
+      <CardHeader className="flex flex-col items-center text-center p-6">
+        <AppLogo />
+        <h2 className="text-2xl font-semibold text-white mt-2 font-headline">ProHub</h2>
+         <div className="flex w-full mt-4 rounded-lg bg-white/5 p-1">
           <Button
             onClick={() => setActiveTab("login")}
             variant="ghost"
             className={cn(
-              "flex-1 text-white hover:bg-primary/30",
-              activeTab === "login" ? "bg-primary/70 hover:bg-primary" : "bg-transparent"
+              "flex-1 text-white hover:bg-primary/80",
+              activeTab === "login" ? "bg-primary hover:bg-primary/90" : "bg-transparent"
             )}
           >
             Login
@@ -112,14 +130,15 @@ export default function AuthForm() {
             onClick={() => setActiveTab("signup")}
             variant="ghost"
             className={cn(
-              "flex-1 text-white hover:bg-primary/30",
-              activeTab === "signup" ? "bg-primary/70 hover:bg-primary" : "bg-transparent"
+              "flex-1 text-white hover:bg-primary/80",
+              activeTab === "signup" ? "bg-primary hover:bg-primary/90" : "bg-transparent"
             )}
           >
             Sign Up
           </Button>
         </div>
-
+      </CardHeader>
+      <CardContent className="p-6 md:p-8 pt-0">
         {activeTab === "login" && (
           <Form {...loginForm}>
             <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
@@ -131,7 +150,7 @@ export default function AuthForm() {
                     <Label className="text-slate-300">Email</Label>
                     <div className="relative">
                        <Mail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-                       <Input placeholder="Enter your email" {...field} className="pl-10 bg-slate-700/40 dark:bg-slate-800/50 border-slate-600/70 dark:border-slate-700/80 text-white placeholder:text-slate-400 focus:bg-slate-700/60 dark:focus:bg-slate-800/70 focus:border-primary/70" />
+                       <Input placeholder="your.email@example.com" {...field} className="pl-10 bg-white/10 dark:bg-slate-800/50 border-slate-600/70 dark:border-slate-700/80 text-white placeholder:text-slate-400 focus:bg-white/20 dark:focus:bg-slate-800/70 focus:border-primary/70" />
                     </div>
                     <FormMessage className="text-red-400" />
                   </FormItem>
@@ -145,7 +164,7 @@ export default function AuthForm() {
                     <Label className="text-slate-300">Password</Label>
                      <div className="relative">
                         <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-                        <Input type={showPassword ? "text" : "password"} placeholder="Enter your password" {...field} className="pl-10 pr-10 bg-slate-700/40 dark:bg-slate-800/50 border-slate-600/70 dark:border-slate-700/80 text-white placeholder:text-slate-400 focus:bg-slate-700/60 dark:focus:bg-slate-800/70 focus:border-primary/70" />
+                        <Input type={showPassword ? "text" : "password"} placeholder="Enter your password" {...field} className="pl-10 pr-10 bg-white/10 dark:bg-slate-800/50 border-slate-600/70 dark:border-slate-700/80 text-white placeholder:text-slate-400 focus:bg-white/20 dark:focus:bg-slate-800/70 focus:border-primary/70" />
                         <button type="button" onClick={togglePasswordVisibility} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200">
                             {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                         </button>
@@ -154,7 +173,7 @@ export default function AuthForm() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full btn-gradient text-white font-semibold py-3 mt-2">
+              <Button type="submit" className="w-full btn-gradient text-white font-semibold py-3 mt-2 text-base">
                 Login
               </Button>
             </form>
@@ -172,7 +191,7 @@ export default function AuthForm() {
                     <Label className="text-slate-300">Full Name</Label>
                     <div className="relative">
                         <User className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-                        <Input placeholder="Enter your full name" {...field} className="pl-10 bg-slate-700/40 dark:bg-slate-800/50 border-slate-600/70 dark:border-slate-700/80 text-white placeholder:text-slate-400 focus:bg-slate-700/60 dark:focus:bg-slate-800/70 focus:border-primary/70" />
+                        <Input placeholder="Your Full Name" {...field} className="pl-10 bg-white/10 dark:bg-slate-800/50 border-slate-600/70 dark:border-slate-700/80 text-white placeholder:text-slate-400 focus:bg-white/20 dark:focus:bg-slate-800/70 focus:border-primary/70" />
                     </div>
                     <FormMessage className="text-red-400" />
                   </FormItem>
@@ -186,7 +205,7 @@ export default function AuthForm() {
                     <Label className="text-slate-300">Email</Label>
                      <div className="relative">
                         <Mail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-                        <Input placeholder="Enter your email" {...field} className="pl-10 bg-slate-700/40 dark:bg-slate-800/50 border-slate-600/70 dark:border-slate-700/80 text-white placeholder:text-slate-400 focus:bg-slate-700/60 dark:focus:bg-slate-800/70 focus:border-primary/70" />
+                        <Input placeholder="your.email@example.com" {...field} className="pl-10 bg-white/10 dark:bg-slate-800/50 border-slate-600/70 dark:border-slate-700/80 text-white placeholder:text-slate-400 focus:bg-white/20 dark:focus:bg-slate-800/70 focus:border-primary/70" />
                     </div>
                     <FormMessage className="text-red-400" />
                   </FormItem>
@@ -200,7 +219,7 @@ export default function AuthForm() {
                     <Label className="text-slate-300">Password</Label>
                     <div className="relative">
                         <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-                        <Input type={showPassword ? "text" : "password"} placeholder="Create a password" {...field} className="pl-10 pr-10 bg-slate-700/40 dark:bg-slate-800/50 border-slate-600/70 dark:border-slate-700/80 text-white placeholder:text-slate-400 focus:bg-slate-700/60 dark:focus:bg-slate-800/70 focus:border-primary/70" />
+                        <Input type={showPassword ? "text" : "password"} placeholder="Create a password" {...field} className="pl-10 pr-10 bg-white/10 dark:bg-slate-800/50 border-slate-600/70 dark:border-slate-700/80 text-white placeholder:text-slate-400 focus:bg-white/20 dark:focus:bg-slate-800/70 focus:border-primary/70" />
                         <button type="button" onClick={togglePasswordVisibility} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200">
                             {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                         </button>
@@ -217,7 +236,7 @@ export default function AuthForm() {
                     <Label className="text-slate-300">Confirm Password</Label>
                     <div className="relative">
                         <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-                        <Input type={showConfirmPassword ? "text" : "password"} placeholder="Confirm your password" {...field} className="pl-10 pr-10 bg-slate-700/40 dark:bg-slate-800/50 border-slate-600/70 dark:border-slate-700/80 text-white placeholder:text-slate-400 focus:bg-slate-700/60 dark:focus:bg-slate-800/70 focus:border-primary/70" />
+                        <Input type={showConfirmPassword ? "text" : "password"} placeholder="Confirm your password" {...field} className="pl-10 pr-10 bg-white/10 dark:bg-slate-800/50 border-slate-600/70 dark:border-slate-700/80 text-white placeholder:text-slate-400 focus:bg-white/20 dark:focus:bg-slate-800/70 focus:border-primary/70" />
                         <button type="button" onClick={toggleConfirmPasswordVisibility} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200">
                             {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                         </button>
@@ -230,16 +249,17 @@ export default function AuthForm() {
                 control={signupForm.control}
                 name="terms"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 pt-2">
                     <FormControl>
                       <Checkbox
                         checked={field.value}
                         onCheckedChange={field.onChange}
-                        className="border-slate-500 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                        className="border-slate-400 data-[state=checked]:bg-primary data-[state=checked]:border-primary data-[state=checked]:text-primary-foreground mt-0.5"
+                        id="terms"
                       />
                     </FormControl>
                     <div className="space-y-1 leading-none">
-                      <Label className="text-slate-400 text-sm">
+                      <Label htmlFor="terms" className="text-slate-300 text-sm font-normal">
                         I agree to the <a href="#" className="text-primary hover:underline">Terms</a> and <a href="#" className="text-primary hover:underline">Privacy Policy</a>
                       </Label>
                       <FormMessage className="text-red-400" />
@@ -247,7 +267,7 @@ export default function AuthForm() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full btn-gradient text-white font-semibold py-3 mt-2">
+              <Button type="submit" className="w-full btn-gradient text-white font-semibold py-3 mt-2 text-base">
                 Create Account
               </Button>
             </form>

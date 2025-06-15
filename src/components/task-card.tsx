@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { MoreVertical, Edit3, Trash2, CheckCircle, Circle, Zap, AlertTriangle, Info } from "lucide-react";
-import type { Task } from "@/app/(authenticated)/tasks/page"; // Assuming Task type is exported from tasks page
+import type { Task } from "@/app/(authenticated)/tasks/page"; 
 import { cn } from "@/lib/utils";
 
 interface TaskCardProps {
@@ -23,21 +23,21 @@ export default function TaskCard({ task, onToggleComplete, onEdit, onDelete }: T
     switch (priority) {
       case 'low':
         return {
-          variant: "outline" as const, // Or a custom variant if defined
-          icon: <Info className="mr-1 h-3 w-3 text-info" />,
-          className: "border-info text-info bg-info/10",
+          variant: "info" as const, 
+          icon: <Info className="mr-1 h-3 w-3" />, // text-info should be handled by variant
+          className: "bg-info/10 text-info-foreground border-info/30",
         };
       case 'medium':
         return {
-          variant: "outline" as const, // Or a custom variant
-          icon: <AlertTriangle className="mr-1 h-3 w-3 text-warning" />,
-          className: "border-warning text-warning-foreground bg-warning/20",
+          variant: "warning" as const,
+          icon: <AlertTriangle className="mr-1 h-3 w-3" />, // text-warning should be handled by variant
+          className: "bg-warning/10 text-warning-foreground border-warning/30",
         };
       case 'high':
         return {
           variant: "destructive" as const,
-          icon: <Zap className="mr-1 h-3 w-3" />, // No specific class needed if variant destructive handles color
-          className: "", // Relies on destructive variant for styling
+          icon: <Zap className="mr-1 h-3 w-3" />, 
+          className: "bg-destructive/10 text-destructive-foreground border-destructive/30", // Adjusted for more subtle destructive badge
         };
       default:
         return {
@@ -52,8 +52,8 @@ export default function TaskCard({ task, onToggleComplete, onEdit, onDelete }: T
   
   return (
     <Card className={cn(
-        "shadow-md hover:shadow-xl transition-all duration-300 ease-in-out flex flex-col", 
-        task.status === 'completed' ? 'opacity-60 bg-muted/30' : 'bg-card hover:scale-[1.01]'
+        "shadow-md hover:shadow-lg transition-all duration-300 ease-in-out flex flex-col rounded-2xl", 
+        task.status === 'completed' ? 'opacity-60 bg-muted/30 dark:bg-muted/10' : 'bg-card hover:scale-[1.01]'
       )}>
       <CardHeader className="flex flex-row items-start justify-between pb-3 px-4 pt-4">
         <div className="space-y-1 flex-1 min-w-0">
@@ -75,7 +75,7 @@ export default function TaskCard({ task, onToggleComplete, onEdit, onDelete }: T
               <MoreVertical className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align="end" className="rounded-xl shadow-lg">
             <DropdownMenuItem onClick={() => onEdit(task)} className="cursor-pointer">
               <Edit3 className="mr-2 h-4 w-4" /> Edit
             </DropdownMenuItem>
@@ -92,13 +92,13 @@ export default function TaskCard({ task, onToggleComplete, onEdit, onDelete }: T
           </p>
         )}
         {task.priority && (
-          <Badge variant={priorityStyles.variant} className={cn("capitalize text-xs flex items-center w-fit", priorityStyles.className)}>
+          <Badge variant={priorityStyles.variant} className={cn("capitalize text-xs flex items-center w-fit rounded-md", priorityStyles.className)}>
             {priorityStyles.icon}
             {task.priority}
           </Badge>
         )}
          {task.aiReason && (
-          <div className="mt-2 p-2 bg-primary/10 rounded-md border border-primary/20">
+          <div className="mt-2 p-2 bg-primary/10 rounded-lg border border-primary/20">
             <p className="text-xs text-primary font-semibold">AI Suggestion:</p>
             <p className="text-xs text-primary/80">{task.aiReason}</p>
           </div>
@@ -120,7 +120,7 @@ export default function TaskCard({ task, onToggleComplete, onEdit, onDelete }: T
             {task.status === 'completed' ? 'Completed' : 'Mark complete'}
           </label>
         </div>
-        {task.status === 'completed' ? <CheckCircle className="h-5 w-5 text-success animate-pulse" /> : <Circle className="h-5 w-5 text-muted-foreground" />}
+        {task.status === 'completed' ? <CheckCircle className="h-5 w-5 text-success animate-pulse-subtle" /> : <Circle className="h-5 w-5 text-muted-foreground" />}
       </CardFooter>
     </Card>
   );

@@ -10,7 +10,7 @@ import {
   SidebarSeparator,
 } from "@/components/ui/sidebar";
 import { SidebarNavItem } from "./sidebar-nav-item";
-import { LayoutDashboard, ListChecks, FileText, Settings as SettingsIcon, Sun, Moon, LogOut, StickyNote, LineChart } from "lucide-react";
+import { LayoutDashboard, ListChecks, FileText, Settings as SettingsIcon, Sun, Moon, LogOut, StickyNote, LineChart, Zap } from "lucide-react"; // Added Zap
 import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -22,10 +22,22 @@ const navItems = [
   { href: "/dashboard", icon: <LayoutDashboard className="h-5 w-5" />, label: "Dashboard" },
   { href: "/tasks", icon: <ListChecks className="h-5 w-5" />, label: "Tasks" },
   { href: "/notes", icon: <StickyNote className="h-5 w-5" />, label: "Notes" },
-  { href: "/analytics", icon: <LineChart className="h-5 w-5" />, label: "Trades" }, 
+  { href: "/trades", icon: <LineChart className="h-5 w-5" />, label: "Trades" }, 
   { href: "/docs", icon: <FileText className="h-5 w-5" />, label: "Docs" },
   { href: "/settings", icon: <SettingsIcon className="h-5 w-5" />, label: "Settings" },
 ];
+
+// Abstract Logo SVG component
+const AppLogo = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8 text-primary transition-transform duration-300 group-hover:scale-110">
+    <path d="M12 2C10.3431 2 9 3.34315 9 5V7H15V5C15 3.34315 13.6569 2 12 2Z" />
+    <path d="M9 9V15C9 16.6569 10.3431 18 12 18C13.6569 18 15 16.6569 15 15V9H9Z" />
+    <path d="M7 18C7 19.6569 8.34315 21 10 21H14C15.6569 21 17 19.6569 17 18V16H7V18Z" />
+    <path d="M5 7C3.34315 7 2 8.34315 2 10V14C2 15.6569 3.34315 17 5 17H7V7H5Z" />
+    <path d="M19 7H17V17H19C20.6569 17 22 15.6569 22 14V10C22 8.34315 20.6569 7 19 7Z" />
+  </svg>
+);
+
 
 export function MainSidebarContent() {
   const { theme, setTheme } = useTheme();
@@ -55,14 +67,7 @@ export function MainSidebarContent() {
     <>
       <SidebarHeader className="p-4">
         <div className="flex items-center gap-2 group-data-[collapsible=icon]:justify-center">
-          {/* Modern Abstract Logo SVG */}
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8 text-primary transition-transform duration-300 group-hover:scale-110">
-            <path d="M12 2C10.3431 2 9 3.34315 9 5V7H15V5C15 3.34315 13.6569 2 12 2Z" />
-            <path d="M9 9V15C9 16.6569 10.3431 18 12 18C13.6569 18 15 16.6569 15 15V9H9Z" />
-            <path d="M7 18C7 19.6569 8.34315 21 10 21H14C15.6569 21 17 19.6569 17 18V16H7V18Z" />
-            <path d="M5 7C3.34315 7 2 8.34315 2 10V14C2 15.6569 3.34315 17 5 17H7V7H5Z" />
-            <path d="M19 7H17V17H19C20.6569 17 22 15.6569 22 14V10C22 8.34315 20.6569 7 19 7Z" />
-          </svg>
+          <AppLogo />
           <h1 className="text-2xl font-headline font-semibold text-primary group-data-[collapsible=icon]:hidden transition-opacity duration-300">
             ProHub
           </h1>
@@ -86,15 +91,15 @@ export function MainSidebarContent() {
         <div className="group-data-[collapsible=icon]:hidden flex flex-col space-y-2">
            <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="w-full justify-start px-2 py-2 h-auto hover:bg-sidebar-accent transition-colors duration-200">
+              <Button variant="ghost" className="w-full justify-start px-2 py-2 h-auto hover:bg-sidebar-accent transition-colors duration-200 rounded-xl">
                 <Avatar className="h-8 w-8 mr-2">
-                  <AvatarImage src="https://placehold.co/100x100.png" alt="User" data-ai-hint="user avatar" />
+                  <AvatarImage src="https://placehold.co/100x100.png" alt="User" data-ai-hint="user avatar professional" />
                   <AvatarFallback>PH</AvatarFallback>
                 </Avatar>
                 <span className="truncate font-medium">User Name</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent side="right" align="start" className="w-56">
+            <DropdownMenuContent side="right" align="start" className="w-56 rounded-xl shadow-lg">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => router.push('/settings')} className="cursor-pointer">
@@ -110,8 +115,7 @@ export function MainSidebarContent() {
 
           <Button
             variant="ghost"
-            size="icon"
-            className="w-full justify-start px-2 h-auto hover:bg-sidebar-accent transition-colors duration-200 flex items-center gap-2"
+            className="w-full justify-start px-2 h-auto hover:bg-sidebar-accent transition-colors duration-200 flex items-center gap-2 rounded-xl"
             onClick={toggleTheme}
             aria-label="Toggle theme"
           >
@@ -124,14 +128,14 @@ export function MainSidebarContent() {
         <div className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:space-y-2 hidden">
            <DropdownMenu>
             <DropdownMenuTrigger asChild>
-               <Button variant="ghost" size="icon" className="h-9 w-9 hover:bg-sidebar-accent transition-colors duration-200">
+               <Button variant="ghost" size="icon" className="h-9 w-9 hover:bg-sidebar-accent transition-colors duration-200 rounded-full">
                 <Avatar className="h-full w-full">
-                  <AvatarImage src="https://placehold.co/100x100.png" alt="User" data-ai-hint="user avatar" />
+                  <AvatarImage src="https://placehold.co/100x100.png" alt="User" data-ai-hint="user avatar person" />
                   <AvatarFallback>PH</AvatarFallback>
                 </Avatar>
                </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent side="right" align="center" className="w-56">
+            <DropdownMenuContent side="right" align="center" className="w-56 rounded-xl shadow-lg">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => router.push('/settings')} className="cursor-pointer">
@@ -147,7 +151,7 @@ export function MainSidebarContent() {
           <Button
             variant="ghost"
             size="icon"
-            className="h-9 w-9 hover:bg-sidebar-accent transition-colors duration-200"
+            className="h-9 w-9 hover:bg-sidebar-accent transition-colors duration-200 rounded-full"
             onClick={toggleTheme}
             aria-label="Toggle theme"
           >

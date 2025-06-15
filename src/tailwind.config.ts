@@ -65,10 +65,6 @@ export default {
           DEFAULT: 'hsl(var(--info))',
           foreground: 'hsl(var(--info-foreground))',
         },
-        danger: { // Maintained for completeness, though destructive is often used
-          DEFAULT: 'hsl(var(--destructive))', // Aliased to destructive
-          foreground: 'hsl(var(--destructive-foreground))',
-        },
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
@@ -92,9 +88,15 @@ export default {
         },
       },
       borderRadius: {
-        lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
+        lg: 'var(--radius)', // maps to rounded-xl (1rem with 0.75rem radius var)
+        md: 'calc(var(--radius) - 0.25rem)', // maps to rounded-lg (0.5rem)
+        sm: 'calc(var(--radius) - 0.375rem)', // maps to rounded-md (0.375rem)
+        "2xl": "calc(var(--radius) + 0.25rem)", // For the specifically requested rounded-2xl
+      },
+      boxShadow: {
+        'md': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)', // Subtle shadow
+        'lg': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)',
+        'xl': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
       },
       keyframes: {
         'accordion-down': {
@@ -123,11 +125,7 @@ export default {
         'accordion-up': 'accordion-up 0.2s ease-out',
         'pulse-subtle': 'pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
-      boxShadow: {
-        'deep': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)',
-        'soft': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05)',
-      }
     },
   },
-  plugins: [require('tailwindcss-animate')],
+  plugins: [require('tailwindcss-animate'), require('@tailwindcss/typography')],
 } satisfies Config;
