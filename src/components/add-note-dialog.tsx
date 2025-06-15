@@ -10,32 +10,19 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Palette, Check, UploadCloud, Pin as PinIcon, Tag } from "lucide-react";
+import { UploadCloud, Star, Tag as TagIcon } from "lucide-react";
 import type { Note } from "@/app/(authenticated)/notes/page";
-import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
-
-const noteColorOptions = [
-  { label: "Default", value: "bg-card", name: "Default" },
-  { label: "Yellow", value: "bg-yellow-200 dark:bg-yellow-700/30", name: "Yellow" },
-  { label: "Green", value: "bg-green-200 dark:bg-green-700/30", name: "Green" },
-  { label: "Blue", value: "bg-blue-200 dark:bg-blue-700/30", name: "Blue" },
-  { label: "Pink", value: "bg-pink-200 dark:bg-pink-700/30", name: "Pink" },
-  { label: "Purple", value: "bg-purple-200 dark:bg-purple-700/30", name: "Purple" },
-  { label: "Orange", value: "bg-orange-200 dark:bg-orange-700/30", name: "Orange" },
-];
 
 const MAX_FILE_SIZE_MB = 5;
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"];
 
-// Extended form schema
 const noteFormSchema = z.object({
   title: z.string().min(1, { message: "Title is required." }).max(100, { message: "Title cannot exceed 100 characters." }),
-  content: z.string().min(1, { message: "Content is required." }).max(10000, { message: "Content cannot exceed 10000 characters." }),
-  color: z.string().default("bg-card"),
-  tagsString: z.string().optional().describe("Comma-separated tags"), // For input
-  isPinned: z.boolean().default(false),
+  content: z.string().max(10000, { message: "Content cannot exceed 10000 characters." }).optional(), // Content is optional
+  tagsString: z.string().optional().describe("Comma-separated tags"),
+  isStarred: z.boolean().default(false),
   image: z.any()
     .optional()
     .refine(
@@ -55,7 +42,7 @@ type NoteFormValues = z.infer<typeof noteFormSchema>;
 interface AddNoteDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (noteData: NoteFormValues & { tags?: string[] }, id?: string) => void; // onSave expects tags as array
+  onSave: (noteData: Omit<Note, 'id' | 'createdAt' | 'updatedAt' | 'isArchived' | 'isTrashed'> & { tagsString?: string; tags: string[] }, id?: string) => void;
   noteToEdit?: Note | null;
 }
 
@@ -69,9 +56,8 @@ export default function AddNoteDialog({ open, onOpenChange, onSave, noteToEdit }
     defaultValues: {
       title: "",
       content: "",
-      color: "bg-card",
       tagsString: "",
-      isPinned: false,
+      isStarred: false,
       image: null,
       imageFilename: undefined,
       imageUrl: undefined,
@@ -85,9 +71,8 @@ export default function AddNoteDialog({ open, onOpenChange, onSave, noteToEdit }
           ? {
               title: noteToEdit.title,
               content: noteToEdit.content,
-              color: noteToEdit.color || "bg-card",
               tagsString: noteToEdit.tags?.join(', ') || "",
-              isPinned: noteToEdit.isPinned || false,
+              isStarred: noteToEdit.isStarred || false,
               image: null, 
               imageFilename: noteToEdit.imageFilename,
               imageUrl: noteToEdit.imageUrl,
@@ -95,9 +80,8 @@ export default function AddNoteDialog({ open, onOpenChange, onSave, noteToEdit }
           : {
               title: "",
               content: "",
-              color: "bg-card",
               tagsString: "",
-              isPinned: false,
+              isStarred: false,
               image: null,
               imageFilename: undefined,
               imageUrl: undefined,
@@ -114,14 +98,26 @@ export default function AddNoteDialog({ open, onOpenChange, onSave, noteToEdit }
 
     if (data.image && data.image.length > 0) {
       finalImageFilename = data.image[0].name;
+      // Generate a placeholder URL or use the actual Data URL for preview
+      // For simplicity, using a placeholder if actual upload isn't handled
       finalImageUrl = previewImageUrl || `https://placehold.co/300x200.png?text=${encodeURIComponent(finalImageFilename || "image")}`;
-    } else if (!data.image && !finalImageFilename) { 
+    } else if (!data.image && !noteToEdit?.imageUrl) { // If no new image and no existing image
         finalImageUrl = undefined;
+        finalImageFilename = undefined;
     }
 
-    const tagsArray = data.tagsString ? data.tagsString.split(',').map(tag => tag.trim()).filter(tag => tag) : [];
+
+    const tagsArray = data.tagsString ? data.tagsString.split(',').map(tag => tag.trim().toLowerCase()).filter(tag => tag) : [];
     
-    onSave({ ...data, tags: tagsArray, imageFilename: finalImageFilename, imageUrl: finalImageUrl }, noteToEdit?.id);
+    const dataToSave: Omit<Note, 'id'|'createdAt'|'updatedAt'|'isArchived'|'isTrashed'> & {tagsString?: string, tags: string[]} = {
+        title: data.title,
+        content: data.content || "",
+        tags: tagsArray,
+        isStarred: data.isStarred,
+        imageUrl: finalImageUrl,
+        imageFilename: finalImageFilename,
+    };
+    onSave(dataToSave, noteToEdit?.id);
     onOpenChange(false);
   };
 
@@ -135,26 +131,45 @@ export default function AddNoteDialog({ open, onOpenChange, onSave, noteToEdit }
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreviewImageUrl(reader.result as string);
+        form.setValue("imageUrl", reader.result as string); // Store data URL for preview
       };
       reader.readAsDataURL(file);
 
     } else {
       form.setValue("image", null, { shouldValidate: true });
-      setSelectedFileName(noteToEdit?.imageFilename && !form.getValues("image") ? noteToEdit.imageFilename : null);
-      setPreviewImageUrl(noteToEdit?.imageUrl && !form.getValues("image") ? noteToEdit.imageUrl : null);
+      if (noteToEdit?.imageUrl && !form.getValues("image")) { // if clearing an existing image
+        setSelectedFileName(noteToEdit.imageFilename || null);
+        setPreviewImageUrl(noteToEdit.imageUrl);
+        form.setValue("imageUrl", noteToEdit.imageUrl);
+      } else { // clearing a newly selected image or no image
+        setSelectedFileName(null);
+        setPreviewImageUrl(null);
+        form.setValue("imageUrl", undefined);
+      }
+    }
+  };
+  
+  const handleRemoveImage = () => {
+    form.setValue("image", null, { shouldValidate: true });
+    form.setValue("imageFilename", undefined);
+    form.setValue("imageUrl", undefined);
+    setSelectedFileName(null);
+    setPreviewImageUrl(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""; // Clear the file input
     }
   };
 
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg md:max-w-xl lg:max-w-2xl rounded-2xl shadow-xl">
+      <DialogContent className="sm:max-w-lg md:max-w-xl lg:max-w-2xl rounded-xl shadow-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center text-xl">
-            <Palette className="mr-2 h-5 w-5 text-primary" />
-            {noteToEdit ? "Edit Note" : "Add New Note"}
+          <DialogTitle className="flex items-center text-xl font-semibold">
+            {noteToEdit ? "Edit Note" : "Create New Note"}
           </DialogTitle>
           <DialogDescription>
-            {noteToEdit ? "Update your note's details." : "Create a new note. Use Markdown for formatting."}
+            {noteToEdit ? "Update your note's details." : "Capture your thoughts and ideas."}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -166,7 +181,7 @@ export default function AddNoteDialog({ open, onOpenChange, onSave, noteToEdit }
                 <FormItem>
                   <FormLabel>Title</FormLabel>
                   <FormControl>
-                    <Input placeholder="Note title" {...field} className="rounded-xl"/>
+                    <Input placeholder="Note title" {...field} className="rounded-lg"/>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -179,7 +194,7 @@ export default function AddNoteDialog({ open, onOpenChange, onSave, noteToEdit }
                 <FormItem>
                   <FormLabel>Content (Markdown supported)</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Write your note here..." {...field} rows={8} className="rounded-xl" />
+                    <Textarea placeholder="Write your note here..." {...field} rows={10} className="rounded-lg" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -190,40 +205,9 @@ export default function AddNoteDialog({ open, onOpenChange, onSave, noteToEdit }
               name="tagsString"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="flex items-center"><Tag className="mr-1.5 h-4 w-4"/>Tags (comma-separated)</FormLabel>
+                  <FormLabel className="flex items-center"><TagIcon className="mr-1.5 h-4 w-4 text-muted-foreground"/>Tags (comma-separated)</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., work, ideas, journal" {...field} className="rounded-xl"/>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="color"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Note Color</FormLabel>
-                  <FormControl>
-                    <div className="flex flex-wrap gap-2">
-                      {noteColorOptions.map(option => (
-                        <Button
-                          type="button"
-                          key={option.value}
-                          variant="outline"
-                          className={cn(
-                            "h-8 w-8 rounded-full p-0 border-2",
-                            field.value === option.value ? "border-primary ring-2 ring-primary ring-offset-2" : "border-muted",
-                            option.value 
-                          )}
-                          onClick={() => field.onChange(option.value)}
-                          title={option.name}
-                        >
-                          {field.value === option.value && <Check className="h-4 w-4 text-primary-foreground mix-blend-difference" />}
-                           <span className="sr-only">{option.name}</span>
-                        </Button>
-                      ))}
-                    </div>
+                    <Input placeholder="e.g., work, ideas, journal" {...field} className="rounded-lg"/>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -238,7 +222,7 @@ export default function AddNoteDialog({ open, onOpenChange, onSave, noteToEdit }
                     <FormControl>
                       <div className="flex flex-col gap-2">
                         <div className="flex items-center gap-2">
-                            <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()} className="flex-shrink-0 rounded-xl">
+                            <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()} className="flex-shrink-0 rounded-lg">
                             <UploadCloud className="mr-2 h-4 w-4" /> {selectedFileName ? "Change Image" : "Upload Image"}
                             </Button>
                             <input
@@ -248,10 +232,16 @@ export default function AddNoteDialog({ open, onOpenChange, onSave, noteToEdit }
                             accept={ACCEPTED_IMAGE_TYPES.join(",")}
                             onChange={handleFileChange}
                             />
-                            {selectedFileName && <span className="text-sm text-muted-foreground truncate" title={selectedFileName}>{selectedFileName}</span>}
+                            {selectedFileName && <span className="text-sm text-muted-foreground truncate flex-1" title={selectedFileName}>{selectedFileName}</span>}
+                            {(selectedFileName || previewImageUrl) && (
+                                <Button type="button" variant="ghost" size="icon" onClick={handleRemoveImage} className="h-8 w-8 rounded-md text-destructive hover:text-destructive hover:bg-destructive/10">
+                                    <Trash2 className="h-4 w-4"/>
+                                    <span className="sr-only">Remove image</span>
+                                </Button>
+                            )}
                         </div>
                         {previewImageUrl && (
-                            <img src={previewImageUrl} alt="Preview" className="mt-2 max-h-40 w-auto rounded-lg border object-contain bg-muted/50" data-ai-hint={selectedFileName ? selectedFileName.split('.')[0] : "note image"}/>
+                            <img src={previewImageUrl} alt="Preview" className="mt-2 max-h-40 w-auto rounded-lg border object-contain bg-muted/50" data-ai-hint={selectedFileName ? selectedFileName.split('.')[0] : "note image abstract"}/>
                         )}
                       </div>
                     </FormControl>
@@ -262,17 +252,18 @@ export default function AddNoteDialog({ open, onOpenChange, onSave, noteToEdit }
               />
               <FormField
                 control={form.control}
-                name="isPinned"
+                name="isStarred"
                 render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-xl border p-3 shadow-sm bg-muted/30">
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm bg-card">
                         <div className="space-y-0.5">
-                            <FormLabel className="text-base flex items-center"><PinIcon className="mr-2 h-4 w-4"/>Pin this note</FormLabel>
-                            <DialogDescription className="text-xs">Pinned notes appear at the top and in the "Pinned" section.</DialogDescription>
+                            <FormLabel className="text-base flex items-center"><Star className="mr-2 h-4 w-4 text-yellow-500"/>Star this note</FormLabel>
+                            <DialogDescription className="text-xs text-muted-foreground">Starred notes are easier to find.</DialogDescription>
                         </div>
                         <FormControl>
                             <Switch
                                 checked={field.value}
                                 onCheckedChange={field.onChange}
+                                className="data-[state=checked]:bg-primary"
                             />
                         </FormControl>
                     </FormItem>
@@ -280,9 +271,9 @@ export default function AddNoteDialog({ open, onOpenChange, onSave, noteToEdit }
               />
             <DialogFooter className="pt-4">
               <DialogClose asChild>
-                <Button type="button" variant="outline" className="rounded-xl">Cancel</Button>
+                <Button type="button" variant="outline" className="rounded-lg">Cancel</Button>
               </DialogClose>
-              <Button type="submit" className="rounded-xl">{noteToEdit ? "Save Changes" : "Add Note"}</Button>
+              <Button type="submit" className="rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground">{noteToEdit ? "Save Changes" : "Create Note"}</Button>
             </DialogFooter>
           </form>
         </Form>
