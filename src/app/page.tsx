@@ -10,11 +10,11 @@ export default function AuthenticationPage() {
         <div className="absolute inset-0 bg-primary/30 opacity-50 mix-blend-multiply"></div>
         <Image
           src="https://placehold.co/1200x1800.png" 
-          alt="Abstract productivity illustration"
+          alt="Productivity dashboard and task management illustration"
           width={1200}
           height={1800}
           className="object-cover rounded-2xl shadow-2xl max-h-[calc(100vh-4rem)] w-auto h-auto z-10"
-          data-ai-hint="abstract productivity concept" 
+          data-ai-hint="productivity dashboard tasks charts" 
           priority
         />
       </div>
@@ -25,3 +25,4 @@ export default function AuthenticationPage() {
     </main>
   );
 }
+

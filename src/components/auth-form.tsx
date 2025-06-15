@@ -76,9 +76,22 @@ export default function AuthForm() {
     router.push("/dashboard");
   };
 
+  const handleGoogleLogin = () => {
+    // Simulate Google login
+    toast({ title: "Login Successful", description: "Welcome via Google!" });
+    if (isClient) {
+      localStorage.setItem("prohub-auth-status", "loggedIn");
+    }
+    router.push("/dashboard");
+  };
+
   if (!isClient) {
     return (
         <Card className="w-full max-w-md shadow-2xl bg-card/80 backdrop-blur-md border-none animate-pulse">
+            <CardHeader className="pb-4 pt-6 space-y-2 text-center">
+                <div className="h-8 w-8 bg-muted rounded-full mx-auto"></div>
+                <div className="h-6 bg-muted rounded w-1/3 mx-auto"></div>
+            </CardHeader>
             <CardHeader className="pb-2">
                  <div className="h-10 bg-muted rounded-md w-full"></div>
             </CardHeader>
@@ -108,8 +121,21 @@ export default function AuthForm() {
 
   return (
     <Card className="w-full max-w-md shadow-2xl bg-card/80 backdrop-blur-md border-none">
+      <CardHeader className="pb-4 pt-6 space-y-2 text-center">
+        {/* App Logo */}
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-10 h-10 text-primary transition-transform duration-300 group-hover:scale-110 mx-auto">
+            <path d="M12 2C10.3431 2 9 3.34315 9 5V7H15V5C15 3.34315 13.6569 2 12 2Z" />
+            <path d="M9 9V15C9 16.6569 10.3431 18 12 18C13.6569 18 15 16.6569 15 15V9H9Z" />
+            <path d="M7 18C7 19.6569 8.34315 21 10 21H14C15.6569 21 17 19.6569 17 18V16H7V18Z" />
+            <path d="M5 7C3.34315 7 2 8.34315 2 10V14C2 15.6569 3.34315 17 5 17H7V7H5Z" />
+            <path d="M19 7H17V17H19C20.6569 17 22 15.6569 22 14V10C22 8.34315 20.6569 7 19 7Z" />
+        </svg>
+        <h1 className="text-3xl font-headline font-semibold text-primary">
+            ProHub
+        </h1>
+      </CardHeader>
       <Tabs defaultValue="login" className="w-full">
-        <CardHeader className="pb-2">
+        <CardHeader className="pb-2 pt-0">
           <TabsList className="grid w-full grid-cols-2 bg-muted/50 dark:bg-muted/20">
             <TabsTrigger value="login" className="data-[state=active]:bg-card data-[state=active]:shadow-md">Login</TabsTrigger>
             <TabsTrigger value="signup" className="data-[state=active]:bg-card data-[state=active]:shadow-md">Sign Up</TabsTrigger>
@@ -158,10 +184,10 @@ export default function AuthForm() {
                 </Button>
                 <p className="text-center text-sm text-muted-foreground">Or continue with</p>
                 <div className="grid grid-cols-2 gap-4">
-                  <Button variant="outline" className="w-full">
+                  <Button variant="outline" className="w-full" type="button" onClick={handleGoogleLogin}>
                     <Chrome className="mr-2 h-4 w-4" /> Google
                   </Button>
-                  <Button variant="outline" className="w-full">
+                  <Button variant="outline" className="w-full" type="button">
                     <Github className="mr-2 h-4 w-4" /> GitHub
                   </Button>
                 </div>
@@ -225,10 +251,10 @@ export default function AuthForm() {
                 </Button>
                 <p className="text-center text-sm text-muted-foreground">Or sign up with</p>
                  <div className="grid grid-cols-2 gap-4">
-                  <Button variant="outline" className="w-full">
+                  <Button variant="outline" className="w-full" type="button" onClick={handleGoogleLogin}>
                     <Chrome className="mr-2 h-4 w-4" /> Google
                   </Button>
-                  <Button variant="outline" className="w-full">
+                  <Button variant="outline" className="w-full" type="button">
                     <Github className="mr-2 h-4 w-4" /> GitHub
                   </Button>
                 </div>
@@ -240,3 +266,4 @@ export default function AuthForm() {
     </Card>
   );
 }
+
