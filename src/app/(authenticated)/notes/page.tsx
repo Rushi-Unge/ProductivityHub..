@@ -17,16 +17,16 @@ export interface Note {
   createdAt: string; // ISO string date
   updatedAt?: string; // ISO string date
   color: string; 
-  imageFilename?: string; // Placeholder for image functionality
-  imageUrl?: string; // Placeholder for image display URL (e.g., data URI or remote URL)
+  imageFilename?: string; 
+  imageUrl?: string; 
 }
 
 const initialNotes: Note[] = [
-  { id: "n1", title: "Project Ideas", content: "Brainstorm new features for the ProHub dashboard. Consider AI-driven insights or a team collaboration module.", createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), color: "bg-yellow-200 dark:bg-yellow-700/30", imageFilename: "brainstorm_sketch.png", imageUrl:"https://placehold.co/300x200.png?text=IdeaSketch" },
-  { id: "n2", title: "Weekly Goals", content: "1. Finalize Q4 budget.\n2. Conduct user interviews for feedback.\n3. Write blog post on productivity.", createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), color: "bg-green-200 dark:bg-green-700/30" },
-  { id: "n3", title: "Book Recommendations", content: "Atomic Habits by James Clear\nDeep Work by Cal Newport\nThe Pragmatic Programmer", createdAt: new Date().toISOString(), color: "bg-blue-200 dark:bg-blue-700/30" },
-  { id: "n4", title: "Quick Reminder", content: "Pick up dry cleaning on Friday after 5 PM.", createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), color: "bg-card" },
-  { id: "n5", title: "Urgent: Client Call Prep", content: "Prepare agenda and slides for the call with Acme Corp. tomorrow morning.", createdAt: new Date(Date.now() - 0.5 * 24 * 60 * 60 * 1000).toISOString(), color: "bg-pink-200 dark:bg-pink-700/30", imageFilename: "acme_logo.png", imageUrl:"https://placehold.co/150x50.png?text=AcmeCorp" },
+  { id: "n1", title: "Project Ideas for ProHub", content: "1. AI-driven task suggestions based on project context.\n2. Team collaboration module with shared tasks and notes.\n3. Customizable dashboard widgets.\n4. Integration with Google Calendar for deadlines.", createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), color: "bg-yellow-200 dark:bg-yellow-700/30", imageFilename: "brainstorm_mindmap.png", imageUrl:"https://placehold.co/300x200.png?text=MindMap" },
+  { id: "n2", title: "Weekly Goals (Aug 12-18)", content: "- Finalize Q4 budget presentation.\n- Conduct user interviews for feedback on the new 'Trades' feature.\n- Write blog post: '5 Ways to Boost Productivity with ProHub'.\n- Plan sprint for next week.", createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), color: "bg-green-200 dark:bg-green-700/30" },
+  { id: "n3", title: "Book Insights: 'Atomic Habits'", content: "Key takeaways:\n- Focus on systems, not goals.\n- Make it obvious, attractive, easy, satisfying.\n- Habit stacking is powerful.\n- Environment design matters more than willpower.", createdAt: new Date().toISOString(), color: "bg-blue-200 dark:bg-blue-700/30" },
+  { id: "n4", title: "Quick Reminder - Meeting Prep", content: "Client: Innovatech Solutions\nDate: Tomorrow, 10:00 AM\nTopic: Project milestone review\nAction: Prepare slides on recent progress & gather questions.", createdAt: new Date(Date.now() - 0.5 * 24 * 60 * 60 * 1000).toISOString(), color: "bg-pink-200 dark:bg-pink-700/30" },
+  { id: "n5", title: "Trading Strategy: ORB", content: "Opening Range Breakout (ORB)\n- Timeframe: 5-min / 15-min\n- Identify high/low of first X minutes.\n- Entry on breakout with volume confirmation.\n- Stop loss: Below/above the range.\n- Target: 1.5R or 2R.", createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), color: "bg-purple-200 dark:bg-purple-700/30", imageFilename: "orb_chart_example.png", imageUrl:"https://placehold.co/300x200.png?text=ORB+Setup" },
 ];
 
 
@@ -53,7 +53,7 @@ export default function NotesPage() {
         imageFilename: noteData.imageFilename,
         imageUrl: noteData.imageUrl,
       };
-      setNotes([newNote, ...notes]);
+      setNotes([newNote, ...notes]); // Add new notes to the beginning
       toast({ title: "Note Added", description: `"${newNote.title}" has been added.` });
     }
   };
@@ -89,7 +89,7 @@ export default function NotesPage() {
   }
 
   return (
-    <div className="space-y-6 p-1 md:p-2">
+    <div className="space-y-6 p-4 md:p-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold font-headline tracking-tight flex items-center">
@@ -109,14 +109,16 @@ export default function NotesPage() {
           <p className="text-sm text-muted-foreground">Click "Add Note" to get started.</p>
         </div>
       ) : (
-        <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-4 space-y-4">
+        // Masonry-like layout using CSS columns
+        <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
           {notes.map(note => (
-            <NoteCard 
-              key={note.id} 
-              note={note} 
-              onEdit={handleEditNote} 
-              onDelete={handleDeleteNote} 
-            />
+            <div key={note.id} className="break-inside-avoid"> {/* Prevents cards from breaking across columns */}
+              <NoteCard 
+                note={note} 
+                onEdit={handleEditNote} 
+                onDelete={handleDeleteNote} 
+              />
+            </div>
           ))}
         </div>
       )}

@@ -164,7 +164,7 @@ initialTrades.forEach(trade => {
 });
 
 
-export default function TradingJournalPage() {
+export default function TradesPage() {
   const [trades, setTrades] = useState<Trade[]>(initialTrades);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [tradeToEdit, setTradeToEdit] = useState<Trade | null>(null);
@@ -246,13 +246,13 @@ export default function TradingJournalPage() {
     const grossLoss = closedTrades.filter(t => (t.pnl || 0) < 0).reduce((sum, t) => sum + (t.pnl || 0), 0); 
 
     const averageWin = winningTrades > 0 ? grossProfit / winningTrades : 0;
-    const averageLoss = losingTradesCount > 0 ? grossLoss / losingTradesCount : 0; 
+    const averageLoss = losingTradesCount > 0 ? grossLoss / losingTradesCount : 0; // Absolute value for display
 
     return [
-      { title: "Total P&L", value: totalPnl.toLocaleString(undefined, { style: 'currency', currency: 'USD' }), change: "+12.3% from last month", icon: <SummaryLineChartIcon className="h-5 w-5 text-muted-foreground" />, colorClass: totalPnl >= 0 ? 'text-success' : 'text-destructive' },
-      { title: "Win Rate", value: `${winRate.toFixed(0)}%`, change: `${winningTrades} wins / ${closedTrades.length - winningTrades} losses`, icon: <Percent className="h-5 w-5 text-muted-foreground" /> },
+      { title: "Total P&L", value: totalPnl.toLocaleString(undefined, { style: 'currency', currency: 'USD' }), change: `${totalPnl >=0 ? '+' : ''}${totalPnl.toFixed(0)} vs last period`, icon: <SummaryLineChartIcon className="h-5 w-5 text-muted-foreground" />, colorClass: totalPnl >= 0 ? 'text-success' : 'text-destructive' },
+      { title: "Win Rate", value: `${winRate.toFixed(0)}%`, change: `${winningTrades} wins / ${losingTradesCount} losses`, icon: <Percent className="h-5 w-5 text-muted-foreground" /> },
       { title: "Avg. Win", value: averageWin.toLocaleString(undefined, { style: 'currency', currency: 'USD' }), change: "Across winning trades", icon: <ArrowUp className="h-5 w-5 text-success" /> },
-      { title: "Avg. Loss", value: averageLoss.toLocaleString(undefined, { style: 'currency', currency: 'USD' }), change: "Across losing trades", icon: <ArrowDown className="h-5 w-5 text-destructive" /> },
+      { title: "Avg. Loss", value: Math.abs(averageLoss).toLocaleString(undefined, { style: 'currency', currency: 'USD' }), change: "Across losing trades", icon: <ArrowDown className="h-5 w-5 text-destructive" /> },
     ];
   }, [trades]);
 
@@ -282,8 +282,8 @@ export default function TradingJournalPage() {
     <div className="space-y-6 p-4 md:p-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold font-headline tracking-tight">Trading Journal</h1>
-          <p className="text-muted-foreground">Track your trades and analyze performance.</p>
+          <h1 className="text-3xl font-bold font-headline tracking-tight">Trades</h1>
+          <p className="text-muted-foreground">Log your trades and analyze your performance.</p>
         </div>
         <div className="flex items-center gap-2">
             <Button onClick={openNewTradeDialog} size="default" className="shadow-md hover:shadow-lg transition-shadow">

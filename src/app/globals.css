@@ -14,7 +14,7 @@
     --primary: 243 96% 70%; /* #6C63FF Primary Indigo */
     --primary-foreground: 0 0% 100%; /* #FFFFFF Button Text Light */
     
-    --secondary: 30 95% 53%; /* #F97316 Timer Orange (Pomodoro Orange) */
+    --secondary: 30 95% 53%; /* #F97316 Accent Orange (Used for Timer, can be repurposed) */
     --secondary-foreground: 0 0% 100%; /* #FFFFFF Button Text Light */
     
     --muted: 220 14% 90%; /* #E5E7EB Input/Text Field BG, Border Color (Muted Gray) */
@@ -44,7 +44,7 @@
     /* Chart colors can be adjusted if needed, using primary, accent, success, warning, destructive */
     --chart-1: 243 96% 70%; /* Primary Indigo */
     --chart-2: 249 100% 73%; /* Gradient Accent */
-    --chart-3: 30 95% 53%; /* Timer Orange */
+    --chart-3: 30 95% 53%; /* Accent Orange */
     --chart-4: 145 63% 42%; /* Success Green */
     --chart-5: 0 84% 60%; /* Error/Danger Red */
 
@@ -63,52 +63,54 @@
   }
 
   .dark {
-    --background: 215 39% 17%; /* #1E293B Background Dark */
-    --foreground: 210 40% 98%; /* #F8FAFC Text Dark Primary */
-    --card: 215 25% 27%; /* #334155 Card Dark */
+    --background: 222 47% 11%; /* Slightly desaturated dark blue, e.g., #111827 */
+    --foreground: 210 40% 98%; /* Off-white, e.g., #F8FAFC */
+    
+    --card: 222 47% 15%; /* Darker shade of background for cards, e.g., #1A202C */
     --card-foreground: 210 40% 98%; /* #F8FAFC */
-    --popover: 215 25% 27%; /* #334155 */
+    
+    --popover: 222 47% 13%; /* Slightly darker than card for popovers, e.g., #161A25 */
     --popover-foreground: 210 40% 98%; /* #F8FAFC */
     
-    --primary: 243 96% 70%; /* #6C63FF Primary Indigo */
+    --primary: 243 96% 70%; /* #6C63FF (Keep primary vibrant) */
     --primary-foreground: 0 0% 100%; /* #FFFFFF */
     
-    --secondary: 30 95% 53%; /* #F97316 Timer Orange */
-    --secondary-foreground: 0 0% 100%; /* #FFFFFF */
+    --secondary: 30 90% 60%; /* #FC832A (Slightly brighter orange for dark mode accents) */
+    --secondary-foreground: 215 28% 17%; /* Darker text on orange for contrast */
     
-    --muted: 215 25% 20%; /* Darker muted for dark mode */
-    --muted-foreground: 210 29% 83%; /* #CBD5E1 Text Dark Light */
+    --muted: 222 40% 25%; /* Muted blue-gray, e.g., #2D3748 */
+    --muted-foreground: 210 30% 75%; /* Lighter gray for muted text, e.g., #A0AEC0 */
     
-    --accent: 249 100% 73%; /* #8F75FF Gradient Accent */
+    --accent: 249 90% 75%; /* #9880FF (Slightly lighter accent for dark mode) */
     --accent-foreground: 0 0% 100%; /* #FFFFFF */
     
-    --destructive: 0 70% 55%; /* Softer red for dark mode */
+    --destructive: 0 70% 60%; /* #FF5252 (Slightly less intense red) */
     --destructive-foreground: 0 0% 98%;
     
-    --success: 145 55% 50%; /* Softer green for dark mode */
-    --success-foreground: 0 0% 98%;
+    --success: 145 60% 50%; /* #38A169 (Good contrast green) */
+    --success-foreground: 0 0% 100%;
 
-    --warning: 37 90% 50%; /* #F59E0B Warning Amber (can stay same or be adjusted) */
-    --warning-foreground: 215 39% 17%; /* Darker text for contrast on amber in dark mode */
+    --warning: 37 85% 55%; /* #F0A518 (Vibrant warning yellow/orange) */
+    --warning-foreground: 215 28% 17%; /* Dark text for contrast */
 
-    --info: 207 90% 61%; /* #38BDF8 Info/Low Priority Sky Blue (can stay same or be adjusted) */
+    --info: 207 80% 55%; /* #4299E1 (Clear info blue) */
     --info-foreground: 0 0% 100%; 
         
-    --border: 215 25% 22%; /* Darker border */
-    --input: 215 25% 22%; /* Darker input background */
-    --ring: 243 96% 70%; /* #6C63FF */
+    --border: 222 40% 20%; /* Dark border, e.g., #242C3A */
+    --input: 222 40% 18%; /* Dark input background, e.g., #1F2532 */
+    --ring: 243 80% 75%; /* Lighter ring color for focus in dark mode */
 
     /* Sidebar specific colors for dark mode */
-    --sidebar-background: 243 15% 20%; /* #3F3D56 Deep Indigo (adjusted HSL) */
-    --sidebar-foreground: 210 40% 98%; /* #F8FAFC */
+    --sidebar-background: 222 47% 13%; /* Similar to popover or slightly darker, e.g., #161A25 */
+    --sidebar-foreground: 210 40% 90%; /* Slightly softer than main foreground, e.g., #E2E8F0 */
     --sidebar-primary: 243 96% 70%; /* #6C63FF */
     --sidebar-primary-foreground: 0 0% 100%; /* #FFFFFF */
-    --sidebar-accent: 215 25% 27%; /* #334155 Card Dark (for hover) */
-    --sidebar-accent-foreground: 243 96% 70%; /* #6C63FF */
-    --sidebar-border: 215 25% 22%; /* Darker border */
-    --sidebar-ring: 243 96% 70%; /* #6C63FF */
+    --sidebar-accent: 222 40% 22%; /* Hover state, e.g., #283040 */
+    --sidebar-accent-foreground: 243 90% 78%; /* #A192FF (Text color on hover) */
+    --sidebar-border: 222 40% 18%; /* #1F2532 */
+    --sidebar-ring: 243 80% 75%;
 
-    --section-background: 215 30% 22%; /* Slightly lighter than card dark for sections */
+    --section-background: 222 47% 18%; /* For sections like settings, e.g., #202736 */
   }
 }
 
@@ -119,22 +121,8 @@
   body {
     @apply bg-background text-foreground;
   }
-  /* Apply section background to specific layout elements if needed */
-  /* Example: .settings-page { @apply bg-section-background; } */
 }
 
-/* Custom gradient for auth page */
 .auth-gradient {
   background-image: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
-}
-/* No specific dark mode override for auth-gradient needed if primary/accent are suitable for dark too */
-/* Or, if needed:
-.dark .auth-gradient {
-   background-image: linear-gradient(135deg, hsl(var(--primary) / 0.9), hsl(var(--accent) / 0.9));
-}
-*/
-
-/* For active tab indicators using primary color */
-.tab-active-indicator {
-  @apply border-b-2 border-primary;
 }

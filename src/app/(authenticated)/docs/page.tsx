@@ -12,8 +12,8 @@ const mockDocs = [
   {
     category: "Getting Started",
     articles: [
-      { title: "Welcome to ProHub", content: "# Welcome to ProHub\n\nThis guide will help you get started with ProHub and make the most of its productivity features. ProHub is designed to be your central hub for managing tasks, notes, focus sessions, and more.\n\n## Key Features:\n- **Dashboard**: Get a quick overview of your productivity.\n- **Task Management**: Create, organize, and prioritize your tasks with AI assistance.\n- **Focus Timer**: Utilize the Pomodoro technique to enhance concentration.\n- **Notes**: Capture ideas, reminders, and detailed notes with color-coding and image support.\n- **Trading Journal**: Log and analyze your trades to improve your strategies." },
-      { title: "Account Setup & Navigation", content: "# Account Setup & Navigation\n\n## Setting Up Your Account\n1. **Sign Up**: If you're new, use the Sign Up form with your email and a secure password.\n2. **Login**: Existing users can log in using their credentials.\n3. **Profile Settings**: Navigate to 'Settings > Profile' to update your name, email, and avatar.\n\n## Navigating ProHub\nThe main navigation is on the left sidebar. It provides quick access to all sections:\n- **Dashboard**: Your landing page after login.\n- **Tasks**: Manage all your to-do items.\n- **Timer**: Access the Pomodoro focus timer.\n- **Notes**: Your personal note-taking space.\n- **Trading Journal**: Log and review trades.\n- **Docs**: You are here! Access help and documentation.\n- **Settings**: Customize your profile and application preferences." },
+      { title: "Welcome to ProHub", content: "# Welcome to ProHub\n\nThis guide will help you get started with ProHub and make the most of its productivity features. ProHub is designed to be your central hub for managing tasks, notes, and trades.\n\n## Key Features:\n- **Dashboard**: Get a quick overview of your productivity.\n- **Task Management**: Create, organize, and prioritize your tasks with AI assistance.\n- **Notes**: Capture ideas, reminders, and detailed notes with color-coding and image support.\n- **Trades**: Log and analyze your trades to improve your strategies." },
+      { title: "Account Setup & Navigation", content: "# Account Setup & Navigation\n\n## Setting Up Your Account\n1. **Sign Up**: If you're new, use the Sign Up form with your email and a secure password.\n2. **Login**: Existing users can log in using their credentials.\n3. **Profile Settings**: Navigate to 'Settings > Profile' to update your name, email, and avatar.\n\n## Navigating ProHub\nThe main navigation is on the left sidebar. It provides quick access to all sections:\n- **Dashboard**: Your landing page after login.\n- **Tasks**: Manage all your to-do items.\n- **Notes**: Your personal note-taking space.\n- **Trades**: Log and review trades.\n- **Docs**: You are here! Access help and documentation.\n- **Settings**: Customize your profile and application preferences." },
     ],
   },
   {
@@ -30,15 +30,9 @@ const mockDocs = [
     ],
   },
   {
-    category: "Focus Timer",
+    category: "Trades (Trading Journal)",
     articles: [
-      { title: "Using the Pomodoro Timer", content: "## The Pomodoro Technique\n\nThe focus timer helps you work in focused intervals, typically 25 minutes, followed by a short break. This is known as the Pomodoro Technique.\n\n## How to Use\n1. Go to the 'Timer' page.\n2. Select a mode: **Focus (25m)**, **Short Break (5m)**, or **Long Break (15m)**.\n3. Click **'Start'**.\n4. The timer will count down. When the session ends, you'll receive a notification.\n5. It's recommended to take a long break after 4 focus sessions.\n\n## Linking Tasks (Conceptual)\nThe 'Link Task' button is a conceptual feature. In a future version, you could associate a timer session with a specific task from your list." },
-    ],
-  },
-  {
-    category: "Trading Journal",
-    articles: [
-        { title: "Logging Trades", content: "## Adding a New Trade\n1. Go to the 'Trading Journal' page.\n2. Click **'+ New Trade'**.\n3. Fill in the trade details: Asset, Position (Long/Short), Entry/Exit Date & Time, Entry/Exit Price, Quantity, Strategy, Reflection, Risk %.\n4. **Add Screenshot (Optional)**: Upload a screenshot of your trade setup (Currently simulated with filename).\n5. Click 'Add Trade'.\n\n## Reviewing Performance\nThe journal provides summary statistics like Total P&L, Win Rate, Average Win, and Average Loss to help you analyze your trading performance."}
+        { title: "Logging Trades", content: "## Adding a New Trade\n1. Go to the 'Trades' page.\n2. Click **'+ New Trade'**.\n3. Fill in the trade details: Asset, Position (Long/Short), Entry/Exit Date & Time, Entry/Exit Price, Quantity, Strategy, Reflection, Risk %.\n4. **Add Screenshot (Optional)**: Upload a screenshot of your trade setup (Currently simulated with filename).\n5. Click 'Add Trade'.\n\n## Reviewing Performance\nThe journal provides summary statistics like Total P&L, Win Rate, Average Win, and Average Loss to help you analyze your trading performance."}
     ]
   }
 ];
@@ -47,7 +41,7 @@ export default function DocsPage() {
   const [selectedArticle, setSelectedArticle] = useState(mockDocs[0].articles[0]);
 
   return (
-    <div className="flex flex-col h-[calc(100vh-var(--header-height,4rem)-2rem)] md:flex-row gap-6 p-1 md:p-2">
+    <div className="flex flex-col h-[calc(100vh-var(--header-height,4rem)-2rem)] md:flex-row gap-6 p-4 md:p-6">
       <aside className="w-full md:w-72 lg:w-80">
         <Card className="shadow-lg h-full">
           <CardHeader className="pb-2">

@@ -10,7 +10,7 @@ import {
   SidebarSeparator,
 } from "@/components/ui/sidebar";
 import { SidebarNavItem } from "./sidebar-nav-item";
-import { LayoutDashboard, ListChecks, Timer, FileText, Settings as SettingsIcon, Sun, Moon, LogOut, StickyNote, LineChart } from "lucide-react"; // Changed BarChart3 to LineChart
+import { LayoutDashboard, ListChecks, FileText, Settings as SettingsIcon, Sun, Moon, LogOut, StickyNote, LineChart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -21,9 +21,8 @@ import { useEffect, useState } from "react";
 const navItems = [
   { href: "/dashboard", icon: <LayoutDashboard className="h-5 w-5" />, label: "Dashboard" },
   { href: "/tasks", icon: <ListChecks className="h-5 w-5" />, label: "Tasks" },
-  { href: "/timer", icon: <Timer className="h-5 w-5" />, label: "Timer" },
   { href: "/notes", icon: <StickyNote className="h-5 w-5" />, label: "Notes" },
-  { href: "/analytics", icon: <LineChart className="h-5 w-5" />, label: "Trading Journal" }, 
+  { href: "/analytics", icon: <LineChart className="h-5 w-5" />, label: "Trades" }, 
   { href: "/docs", icon: <FileText className="h-5 w-5" />, label: "Docs" },
   { href: "/settings", icon: <SettingsIcon className="h-5 w-5" />, label: "Settings" },
 ];
@@ -159,5 +158,3 @@ export function MainSidebarContent() {
     </>
   );
 }
-
-    
