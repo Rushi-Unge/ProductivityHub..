@@ -1,14 +1,17 @@
 
 "use client"
 
+// This component is no longer used for the main grid display.
+// It's replaced by NoteListItem for lists and NoteEditorDisplay for the main view.
+// Keeping the file for now, but it can be deleted if not repurposed.
+
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
-import { MoreVertical, Edit3, Trash2, Archive, ArchiveRestore, Star, Clock, RotateCcw, MessageSquareWarning, Image as ImageIcon } from "lucide-react";
+import { MoreVertical, Edit3, Trash2, Archive, ArchiveRestore, Star, Clock, RotateCcw } from "lucide-react";
 import { formatDistanceToNow, parseISO } from "date-fns";
-import type { Note } from "@/app/(authenticated)/notes/page";
+import type { Note } from "@/app/(authenticated)/notes/page"; // Ensure this path is correct
 import { cn } from "@/lib/utils";
-import NextImage from "next/image";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Badge } from "@/components/ui/badge";
@@ -100,7 +103,7 @@ export default function NoteCard({ note, onEdit, onToggleStar, onToggleArchive, 
                     if (type === 'checkbox') {
                       return <input type="checkbox" checked={checked as boolean | undefined} readOnly className="mr-1.5 rounded-sm border-muted-foreground text-primary focus:ring-primary disabled:opacity-100" />;
                     }
-                    return <input type={type} {...props} />;
+                    return <input type={type as string} {...props} />;
                   },
                 }}
               >
@@ -109,13 +112,7 @@ export default function NoteCard({ note, onEdit, onToggleStar, onToggleArchive, 
             </div>
         ) : (
              <div className="text-sm text-muted-foreground/70 italic flex items-center gap-1.5 py-2">
-                <MessageSquareWarning className="h-4 w-4"/> No content.
-            </div>
-        )}
-        {note.imageUrl && (
-             <div className="text-xs text-muted-foreground flex items-center gap-1.5 border-t pt-2 mt-3">
-                <ImageIcon className="h-4 w-4" /> 
-                <span>{note.imageFilename || "Attached Image"}</span>
+                {/* <MessageSquareWarning className="h-4 w-4"/> No content. */}
             </div>
         )}
       </CardContent>
@@ -136,3 +133,4 @@ export default function NoteCard({ note, onEdit, onToggleStar, onToggleArchive, 
     </Card>
   );
 }
+

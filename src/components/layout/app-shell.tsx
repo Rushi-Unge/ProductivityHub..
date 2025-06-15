@@ -7,7 +7,7 @@ import { SidebarProvider, Sidebar, SidebarInset, SidebarTrigger as UiSidebarTrig
 import { MainSidebarContent } from "./sidebar-content";
 import { Button } from "@/components/ui/button";
 import { Bell, Settings, LogOut as LogOutIcon, Sun, Moon } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useTheme } from "next-themes";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -55,7 +55,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       localStorage.removeItem("prohub-user-email");
     }
     router.push("/");
-    // Optionally, clear Zustand/Jotai state if used for auth user details
   };
 
   const toggleTheme = () => {
@@ -75,7 +74,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }
   
   if (!isClient || (isClient && localStorage.getItem("prohub-auth-status") !== "loggedIn")) {
-    return ( // Render a minimal loading state or null if redirecting immediately
+    return ( 
         <div className="flex items-center justify-center min-h-screen bg-background">
             <Skeleton className="h-12 w-12 rounded-full" /> 
             <Skeleton className="h-4 w-32 ml-4" />
