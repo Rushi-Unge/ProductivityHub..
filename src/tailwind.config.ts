@@ -88,17 +88,17 @@ export default {
         },
       },
       borderRadius: {
-        '2xl': "calc(var(--radius) + 0.5rem)", // e.g., 1.25rem if --radius is 0.75rem
-        xl: 'var(--radius)', // e.g., 0.75rem
-        lg: 'calc(var(--radius) - 0.25rem)', // e.g., 0.5rem
-        md: 'calc(var(--radius) - 0.375rem)', // e.g., 0.375rem
-        sm: 'calc(var(--radius) - 0.5rem)', // e.g., 0.25rem
+        '2xl': "calc(var(--radius) + 0.5rem)", 
+        xl: 'var(--radius)', 
+        lg: 'calc(var(--radius) - 0.25rem)', 
+        md: 'calc(var(--radius) - 0.375rem)', 
+        sm: 'calc(var(--radius) - 0.5rem)', 
       },
       boxShadow: { 
-        'sm': '0 1px 2px 0 rgba(0, 0, 0, 0.03)', // Adjusted for softer shadows
-        'md': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05)', // Adjusted
-        'lg': '0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -4px rgba(0, 0, 0, 0.07)', // Adjusted
-        'xl': '0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.08)', // Adjusted
+        'sm': '0 1px 2px 0 rgba(0, 0, 0, 0.03)', 
+        'md': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05)', 
+        'lg': '0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -4px rgba(0, 0, 0, 0.07)', 
+        'xl': '0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.08)', 
       },
       keyframes: {
         'accordion-down': {
@@ -131,3 +131,4 @@ export default {
   },
   plugins: [require('tailwindcss-animate'), require('@tailwindcss/typography')],
 } satisfies Config;
+

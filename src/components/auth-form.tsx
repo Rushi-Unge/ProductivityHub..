@@ -85,11 +85,11 @@ export default function AuthForm() {
 
   if (!isClient) {
     return (
-        <Card className="w-full max-w-md bg-card/10 dark:bg-card/20 backdrop-blur-md shadow-xl border-white/10 animate-pulse rounded-2xl">
+        <Card className="w-full max-w-md bg-card/10 dark:bg-card/20 backdrop-blur-md shadow-xl border-border/30 animate-pulse rounded-2xl">
             <CardHeader className="flex flex-col items-center text-center p-6">
                 <div className="h-8 w-8 bg-primary/30 rounded-md mb-2"></div>
-                <div className="h-7 w-32 bg-white/30 rounded-md mb-4"></div>
-                <div className="flex w-full rounded-lg bg-white/5 p-1">
+                <div className="h-7 w-32 bg-foreground/30 rounded-md mb-4"></div>
+                <div className="flex w-full rounded-lg bg-muted/20 p-1">
                     <div className="h-10 flex-1 bg-primary/20 rounded-md m-0.5"></div>
                     <div className="h-10 flex-1 bg-transparent rounded-md m-0.5"></div>
                 </div>
@@ -98,8 +98,8 @@ export default function AuthForm() {
                 <div className="space-y-4">
                     {[1,2,3].map(i => (
                         <div key={i} className="space-y-1.5">
-                            <div className="h-4 bg-slate-200/20 dark:bg-slate-700/30 rounded w-1/4"></div>
-                            <div className="h-11 bg-white/10 dark:bg-slate-800/50 rounded-md w-full"></div>
+                            <div className="h-4 bg-muted-foreground/20 rounded w-1/4"></div>
+                            <div className="h-11 bg-card/30 dark:bg-card/50 rounded-md w-full"></div>
                         </div>
                     ))}
                      <div className="h-11 bg-primary/50 rounded-md w-full mt-6"></div>
@@ -110,17 +110,17 @@ export default function AuthForm() {
   }
 
   return (
-    <Card className="w-full max-w-md bg-card/10 dark:bg-card/20 backdrop-blur-md shadow-xl border-white/10 rounded-2xl">
+    <Card className="w-full max-w-md bg-card/80 dark:bg-card/90 backdrop-blur-lg shadow-xl border-border/30 dark:border-border/50 rounded-2xl">
       <CardHeader className="flex flex-col items-center text-center p-6">
         <AppLogo />
-        <h2 className="text-2xl font-semibold text-white mt-2 font-headline">ProHub</h2>
-         <div className="flex w-full mt-4 rounded-lg bg-white/5 p-1">
+        <h2 className="text-2xl font-semibold text-foreground mt-2 font-headline">ProHub</h2>
+         <div className="flex w-full mt-4 rounded-lg bg-muted/50 dark:bg-muted/30 p-1">
           <Button
             onClick={() => setActiveTab("login")}
             variant="ghost"
             className={cn(
-              "flex-1 text-white hover:bg-primary/80 rounded-md",
-              activeTab === "login" ? "bg-primary hover:bg-primary/90" : "bg-transparent"
+              "flex-1 text-foreground hover:bg-primary/10 rounded-md",
+              activeTab === "login" ? "bg-primary hover:bg-primary/90 text-primary-foreground" : "bg-transparent"
             )}
           >
             Login
@@ -129,8 +129,8 @@ export default function AuthForm() {
             onClick={() => setActiveTab("signup")}
             variant="ghost"
             className={cn(
-              "flex-1 text-white hover:bg-primary/80 rounded-md",
-              activeTab === "signup" ? "bg-primary hover:bg-primary/90" : "bg-transparent"
+              "flex-1 text-foreground hover:bg-primary/10 rounded-md",
+              activeTab === "signup" ? "bg-primary hover:bg-primary/90 text-primary-foreground" : "bg-transparent"
             )}
           >
             Sign Up
@@ -146,12 +146,12 @@ export default function AuthForm() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <Label className="text-slate-300">Email</Label>
+                    <Label className="text-muted-foreground">Email</Label>
                     <div className="relative">
-                       <Mail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-                       <Input placeholder="your.email@example.com" {...field} className="pl-10 bg-white/10 dark:bg-slate-800/50 border-slate-600/70 dark:border-slate-700/80 text-white placeholder:text-slate-400 focus:bg-white/20 dark:focus:bg-slate-800/70 focus:border-primary/70 rounded-md" />
+                       <Mail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground/70" />
+                       <Input placeholder="your.email@example.com" {...field} className="pl-10 bg-background/70 dark:bg-muted/40 border-border/70 dark:border-border/60 text-foreground placeholder:text-muted-foreground/80 focus:bg-background focus:dark:bg-muted/50 focus:border-primary/70 rounded-md" />
                     </div>
-                    <FormMessage className="text-red-300" />
+                    <FormMessage className="text-destructive" />
                   </FormItem>
                 )}
               />
@@ -160,19 +160,19 @@ export default function AuthForm() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <Label className="text-slate-300">Password</Label>
+                    <Label className="text-muted-foreground">Password</Label>
                      <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-                        <Input type={showPassword ? "text" : "password"} placeholder="Enter your password" {...field} className="pl-10 pr-10 bg-white/10 dark:bg-slate-800/50 border-slate-600/70 dark:border-slate-700/80 text-white placeholder:text-slate-400 focus:bg-white/20 dark:focus:bg-slate-800/70 focus:border-primary/70 rounded-md" />
-                        <button type="button" onClick={togglePasswordVisibility} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200">
+                        <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground/70" />
+                        <Input type={showPassword ? "text" : "password"} placeholder="Enter your password" {...field} className="pl-10 pr-10 bg-background/70 dark:bg-muted/40 border-border/70 dark:border-border/60 text-foreground placeholder:text-muted-foreground/80 focus:bg-background focus:dark:bg-muted/50 focus:border-primary/70 rounded-md" />
+                        <button type="button" onClick={togglePasswordVisibility} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/70 hover:text-foreground/90">
                             {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                         </button>
                     </div>
-                    <FormMessage className="text-red-300" />
+                    <FormMessage className="text-destructive" />
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full btn-gradient text-white font-semibold py-3 mt-2 text-base rounded-md">
+              <Button type="submit" className="w-full btn-gradient text-primary-foreground font-semibold py-3 mt-2 text-base rounded-md">
                 Login
               </Button>
             </form>
@@ -187,12 +187,12 @@ export default function AuthForm() {
                 name="fullName"
                 render={({ field }) => (
                   <FormItem>
-                    <Label className="text-slate-300">Full Name</Label>
+                    <Label className="text-muted-foreground">Full Name</Label>
                     <div className="relative">
-                        <User className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-                        <Input placeholder="Your Full Name" {...field} className="pl-10 bg-white/10 dark:bg-slate-800/50 border-slate-600/70 dark:border-slate-700/80 text-white placeholder:text-slate-400 focus:bg-white/20 dark:focus:bg-slate-800/70 focus:border-primary/70 rounded-md" />
+                        <User className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground/70" />
+                        <Input placeholder="Your Full Name" {...field} className="pl-10 bg-background/70 dark:bg-muted/40 border-border/70 dark:border-border/60 text-foreground placeholder:text-muted-foreground/80 focus:bg-background focus:dark:bg-muted/50 focus:border-primary/70 rounded-md" />
                     </div>
-                    <FormMessage className="text-red-300" />
+                    <FormMessage className="text-destructive" />
                   </FormItem>
                 )}
               />
@@ -201,12 +201,12 @@ export default function AuthForm() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <Label className="text-slate-300">Email</Label>
+                    <Label className="text-muted-foreground">Email</Label>
                      <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-                        <Input placeholder="your.email@example.com" {...field} className="pl-10 bg-white/10 dark:bg-slate-800/50 border-slate-600/70 dark:border-slate-700/80 text-white placeholder:text-slate-400 focus:bg-white/20 dark:focus:bg-slate-800/70 focus:border-primary/70 rounded-md" />
+                        <Mail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground/70" />
+                        <Input placeholder="your.email@example.com" {...field} className="pl-10 bg-background/70 dark:bg-muted/40 border-border/70 dark:border-border/60 text-foreground placeholder:text-muted-foreground/80 focus:bg-background focus:dark:bg-muted/50 focus:border-primary/70 rounded-md" />
                     </div>
-                    <FormMessage className="text-red-300" />
+                    <FormMessage className="text-destructive" />
                   </FormItem>
                 )}
               />
@@ -215,15 +215,15 @@ export default function AuthForm() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <Label className="text-slate-300">Password</Label>
+                    <Label className="text-muted-foreground">Password</Label>
                     <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-                        <Input type={showPassword ? "text" : "password"} placeholder="Create a password" {...field} className="pl-10 pr-10 bg-white/10 dark:bg-slate-800/50 border-slate-600/70 dark:border-slate-700/80 text-white placeholder:text-slate-400 focus:bg-white/20 dark:focus:bg-slate-800/70 focus:border-primary/70 rounded-md" />
-                        <button type="button" onClick={togglePasswordVisibility} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200">
+                        <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground/70" />
+                        <Input type={showPassword ? "text" : "password"} placeholder="Create a password" {...field} className="pl-10 pr-10 bg-background/70 dark:bg-muted/40 border-border/70 dark:border-border/60 text-foreground placeholder:text-muted-foreground/80 focus:bg-background focus:dark:bg-muted/50 focus:border-primary/70 rounded-md" />
+                        <button type="button" onClick={togglePasswordVisibility} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/70 hover:text-foreground/90">
                             {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                         </button>
                     </div>
-                    <FormMessage className="text-red-300" />
+                    <FormMessage className="text-destructive" />
                   </FormItem>
                 )}
               />
@@ -232,15 +232,15 @@ export default function AuthForm() {
                 name="confirmPassword"
                 render={({ field }) => (
                   <FormItem>
-                    <Label className="text-slate-300">Confirm Password</Label>
+                    <Label className="text-muted-foreground">Confirm Password</Label>
                     <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-                        <Input type={showConfirmPassword ? "text" : "password"} placeholder="Confirm your password" {...field} className="pl-10 pr-10 bg-white/10 dark:bg-slate-800/50 border-slate-600/70 dark:border-slate-700/80 text-white placeholder:text-slate-400 focus:bg-white/20 dark:focus:bg-slate-800/70 focus:border-primary/70 rounded-md" />
-                        <button type="button" onClick={toggleConfirmPasswordVisibility} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200">
+                        <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground/70" />
+                        <Input type={showConfirmPassword ? "text" : "password"} placeholder="Confirm your password" {...field} className="pl-10 pr-10 bg-background/70 dark:bg-muted/40 border-border/70 dark:border-border/60 text-foreground placeholder:text-muted-foreground/80 focus:bg-background focus:dark:bg-muted/50 focus:border-primary/70 rounded-md" />
+                        <button type="button" onClick={toggleConfirmPasswordVisibility} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/70 hover:text-foreground/90">
                             {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                         </button>
                     </div>
-                    <FormMessage className="text-red-300" />
+                    <FormMessage className="text-destructive" />
                   </FormItem>
                 )}
               />
@@ -253,20 +253,20 @@ export default function AuthForm() {
                       <Checkbox
                         checked={field.value}
                         onCheckedChange={field.onChange}
-                        className="border-slate-400 data-[state=checked]:bg-primary data-[state=checked]:border-primary data-[state=checked]:text-primary-foreground mt-0.5"
+                        className="border-muted-foreground data-[state=checked]:bg-primary data-[state=checked]:border-primary data-[state=checked]:text-primary-foreground mt-0.5"
                         id="terms"
                       />
                     </FormControl>
                     <div className="space-y-1 leading-none">
-                      <Label htmlFor="terms" className="text-slate-300 text-sm font-normal">
+                      <Label htmlFor="terms" className="text-muted-foreground text-sm font-normal">
                         I agree to the <a href="#" className="text-primary hover:underline">Terms</a> and <a href="#" className="text-primary hover:underline">Privacy Policy</a>
                       </Label>
-                      <FormMessage className="text-red-300" />
+                      <FormMessage className="text-destructive" />
                     </div>
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full btn-gradient text-white font-semibold py-3 mt-2 text-base rounded-md">
+              <Button type="submit" className="w-full btn-gradient text-primary-foreground font-semibold py-3 mt-2 text-base rounded-md">
                 Create Account
               </Button>
             </form>
@@ -277,4 +277,3 @@ export default function AuthForm() {
   );
 }
 
-    

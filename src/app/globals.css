@@ -24,7 +24,7 @@
     --muted: 220 13% 94%; /* #F3F4F6 - Slightly off-white */
     --muted-foreground: 220 9% 46%; /* #6B7280 - Medium gray text */
     
-    --accent: 240 82% 70%; /* Lighter Indigo for accents if needed, or can be same as primary */
+    --accent: 240 82% 70%; /* Lighter Indigo for accents #7C7FF5 */
     --accent-foreground: 0 0% 100%;
     
     --destructive: 0 72% 51%; /* #EF4444 - Error/Danger Red */
@@ -51,17 +51,17 @@
     --chart-4: 145 63% 42%;  
     --chart-5: 0 72% 51%;    
 
-    /* Sidebar specific colors, aligning with new theme if possible or keeping distinct */
-    --sidebar-background: 0 0% 100%; /* White sidebar in light mode */
+    /* Sidebar specific colors */
+    --sidebar-background: 0 0% 100%; 
     --sidebar-foreground: 220 26% 14%; 
     --sidebar-primary: 240 82% 66%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 13% 94%; /* Light hover for sidebar items */
-    --sidebar-accent-foreground: 240 82% 66%; /* Primary color for active/hover text */
+    --sidebar-accent: 220 13% 94%; 
+    --sidebar-accent-foreground: 240 82% 66%; 
     --sidebar-border: 220 13% 89%;
     --sidebar-ring: 240 82% 68%;
 
-    --section-background: 220 13% 98%; /* Page content area, same as main background */
+    --section-background: 220 13% 98%; 
   }
 
   .dark {
@@ -72,47 +72,48 @@
     --card: 222 23% 23%; /* #2D3748 */
     --card-foreground: 220 17% 90%; /* #E2E8F0 */
     
-    --popover: 222 23% 20%; /* #283141 - Slightly darker popover */
+    --popover: 222 23% 20%; /* #283141 */
     --popover-foreground: 220 17% 90%;
     
-    --primary: 240 82% 70%; /* #7C7FF5 - Lighter Indigo for dark mode */
-    --primary-foreground: 222 29% 12%; /* Darker text on light primary */
+    --primary: 240 82% 70%; /* #7C7FF5 - Lighter Indigo */
+    --primary-foreground: 222 29% 12%; 
     
-    --secondary: 222 23% 28%; /* #374151 - Dark Gray for secondary elements */
+    --secondary: 222 23% 28%; /* #374151 */
     --secondary-foreground: 220 17% 90%; 
     
-    --muted: 222 23% 25%; /* #313B4A - Darker muted */
-    --muted-foreground: 220 12% 65%; /* #9CA3AF - Medium-light gray text */
+    --muted: 222 23% 25%; /* #313B4A */
+    --muted-foreground: 220 12% 65%; /* #9CA3AF */
     
-    --accent: 240 82% 75%; /* Lighter Indigo for accents */
+    --accent: 240 82% 75%; /* Even Lighter Indigo for dark accents #8E90F6 */
     --accent-foreground: 222 29% 12%;
     
-    --destructive: 0 70% 60%; /* #F47174 - Brighter Red */
+    --destructive: 0 70% 60%; /* #F47174 */
     --destructive-foreground: 0 0% 98%;
     
-    --success: 145 58% 50%; /* #4ADE80 - Brighter Green */
+    --success: 145 58% 50%; /* #4ADE80 */
     --success-foreground: 222 29% 12%;
 
-    --warning: 38 90% 55%; /* #FBBF24 - Brighter Amber */
+    --warning: 38 90% 55%; /* #FBBF24 */
     --warning-foreground: 222 29% 12%;
 
-    --info: 200 85% 60%; /* #5EC9F8 - Brighter Sky Blue */
+    --info: 200 85% 60%; /* #5EC9F8 */
     --info-foreground: 222 29% 12%;
         
-    --border: 222 23% 30%; /* #3A4556 - Softer border */
-    --input: 222 23% 25%; /* #313B4A - Dark input background */
+    --border: 222 23% 30%; /* #3A4556 */
+    --input: 222 23% 25%; /* #313B4A */
     --ring: 240 82% 72%; 
 
-    --sidebar-background: 222 29% 15%; /* #1A202C - Slightly darker than main dark BG */
+    /* Sidebar specific colors */
+    --sidebar-background: 222 29% 15%; /* #1A202C */
     --sidebar-foreground: 220 17% 90%;
     --sidebar-primary: 240 82% 70%;
     --sidebar-primary-foreground: 222 29% 15%;
-    --sidebar-accent: 222 23% 28%; /* Dark hover for sidebar items */
+    --sidebar-accent: 222 23% 28%; 
     --sidebar-accent-foreground: 240 82% 75%; 
     --sidebar-border: 222 23% 25%; 
     --sidebar-ring: 240 82% 72%;
 
-    --section-background: 222 29% 17%; /* Page content area, same as main background */
+    --section-background: 222 29% 17%; 
   }
 }
 
@@ -188,8 +189,14 @@
 }
 
 .auth-gradient {
-  background-image: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
+  /* Subtle gradient for auth page */
+  background-image: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--muted)) 100%);
 }
+
+.dark .auth-gradient {
+   background-image: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--card)) 100%);
+}
+
 
 .btn-gradient {
   background-image: linear-gradient(to right, hsl(var(--primary)) 0%, hsl(var(--accent)) 51%, hsl(var(--primary)) 100%);
@@ -200,7 +207,7 @@
   background-position: right center; 
 }
 
-/* Note card text color utilities - Kept for reference but might be simplified */
+/* Note card text color utilities */
 .light .note-card-custom-text.on-dark-bg {
   color: hsl(var(--primary-foreground)); 
 }
@@ -221,3 +228,4 @@
 .dark .note-card-custom-muted-text {
   color: hsla(var(--card-foreground), 0.8);
 }
+
