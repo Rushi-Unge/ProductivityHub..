@@ -12,7 +12,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { SidebarNavItem } from "./sidebar-nav-item";
-import { LayoutDashboard, ListChecks, Timer, BarChart2, FileText, Settings as SettingsIcon, Sun, Moon, LogOut, StickyNote } from "lucide-react";
+import { LayoutDashboard, ListChecks, Timer, BookText, FileText, Settings as SettingsIcon, Sun, Moon, LogOut, StickyNote } from "lucide-react"; // Changed BarChart2 to BookText
 import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -25,7 +25,7 @@ const navItems = [
   { href: "/tasks", icon: <ListChecks />, label: "Tasks" },
   { href: "/timer", icon: <Timer />, label: "Timer" },
   { href: "/notes", icon: <StickyNote />, label: "Notes" },
-  { href: "/analytics", icon: <BarChart2 />, label: "Analytics" },
+  { href: "/analytics", icon: <BookText />, label: "Trading Journal" }, // Changed label and icon
   { href: "/docs", icon: <FileText />, label: "Docs" },
   { href: "/settings", icon: <SettingsIcon />, label: "Settings" },
 ];
@@ -145,3 +145,5 @@ export function MainSidebarContent() {
     </>
   );
 }
+
+    
