@@ -13,6 +13,12 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format, parseISO } from "date-fns";
 import type { Trade } from "@/app/(authenticated)/analytics/page"; 
+import { UploadCloud } from "lucide-react";
+
+const MAX_FILE_SIZE_MB = 5;
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+
 
 const tradeFormSchema = z.object({
   asset: z.string().min(1, "Asset name is required."),
@@ -32,11 +38,22 @@ const tradeFormSchema = z.object({
     z.number({ invalid_type_error: "Exit price must be a number." }).positive("Exit price must be positive.").optional().nullable()
   ),
   strategy: z.string().optional(),
-  reflection: z.string().optional(), // Changed from notes
-  riskPercentage: z.preprocess( // Added riskPercentage
+  reflection: z.string().optional(), 
+  riskPercentage: z.preprocess( 
     (val) => val === "" || val === undefined || val === null ? null : parseFloat(String(val)),
     z.number({ invalid_type_error: "Risk percentage must be a number." }).min(0, "Risk cannot be negative.").max(100, "Risk cannot exceed 100%.").optional().nullable()
   ),
+  screenshot: z.any()
+    .optional()
+    .refine(
+        (fileList) => !fileList || fileList.length === 0 || fileList[0]?.size <= MAX_FILE_SIZE_BYTES,
+        `Max image size is ${MAX_FILE_SIZE_MB}MB.`
+    )
+    .refine(
+        (fileList) => !fileList || fileList.length === 0 || ACCEPTED_IMAGE_TYPES.includes(fileList[0]?.type),
+        "Only .jpg, .jpeg, .png and .webp formats are supported."
+    ),
+  screenshotFilename: z.string().optional(), // To store filename for existing trades if file isn't re-uploaded
 }).refine(data => {
     if (data.exitTimestamp && !data.exitPrice) {
         return false; 
@@ -54,19 +71,24 @@ const tradeFormSchema = z.object({
 });
 
 
-type TradeFormValues = Omit<Trade, 'id' | 'pnl' | 'status' | 'chartPlaceholderUrl'> & {
-    entryTimestamp: string; // form uses string
-    exitTimestamp?: string | null; // form uses string
+type TradeFormValues = Omit<Trade, 'id' | 'pnl' | 'status' | 'chartPlaceholderUrl' | 'screenshotFilename'> & {
+    entryTimestamp: string; 
+    exitTimestamp?: string | null; 
+    screenshot?: FileList | null;
+    screenshotFilename?: string;
 };
 
 interface AddTradeDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (tradeData: TradeFormValues, id?: string) => void;
+  onSave: (tradeData: TradeFormValues & { screenshotFilename?: string }, id?: string) => void;
   tradeToEdit?: Trade | null;
 }
 
 export default function AddTradeDialog({ open, onOpenChange, onSave, tradeToEdit }: AddTradeDialogProps) {
+  const [selectedFileName, setSelectedFileName] = React.useState<string | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
   const form = useForm<TradeFormValues>({
     resolver: zodResolver(tradeFormSchema),
     defaultValues: {
@@ -80,6 +102,8 @@ export default function AddTradeDialog({ open, onOpenChange, onSave, tradeToEdit
       strategy: "",
       reflection: "",
       riskPercentage: undefined,
+      screenshot: null,
+      screenshotFilename: undefined,
     },
   });
 
@@ -97,7 +121,10 @@ export default function AddTradeDialog({ open, onOpenChange, onSave, tradeToEdit
           strategy: tradeToEdit.strategy,
           reflection: tradeToEdit.reflection,
           riskPercentage: tradeToEdit.riskPercentage,
+          screenshot: null, // Do not pre-fill FileList
+          screenshotFilename: tradeToEdit.screenshotFilename, // Keep existing filename
         });
+        setSelectedFileName(tradeToEdit.screenshotFilename || null);
       } else {
         form.reset({
           asset: "",
@@ -110,21 +137,44 @@ export default function AddTradeDialog({ open, onOpenChange, onSave, tradeToEdit
           strategy: "",
           reflection: "",
           riskPercentage: undefined,
+          screenshot: null,
+          screenshotFilename: undefined,
         });
+        setSelectedFileName(null);
       }
     }
   }, [open, tradeToEdit, form]);
 
 
   const onSubmit = (data: TradeFormValues) => {
+    let screenshotFilenameToSave = data.screenshotFilename; // Keep existing if no new file
+    if (data.screenshot && data.screenshot.length > 0) {
+      screenshotFilenameToSave = data.screenshot[0].name;
+      // In a real app, you would upload data.screenshot[0] here and get a URL
+      // For now, we just use the filename as a placeholder.
+    }
+
     const dataToSave = {
         ...data,
-        // Ensure timestamps are full ISO strings if they exist
         entryTimestamp: new Date(data.entryTimestamp).toISOString(),
         exitTimestamp: data.exitTimestamp ? new Date(data.exitTimestamp).toISOString() : undefined,
+        screenshotFilename: screenshotFilenameToSave,
     };
     onSave(dataToSave, tradeToEdit?.id);
     onOpenChange(false);
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      form.setValue("screenshot", files, { shouldValidate: true });
+      setSelectedFileName(files[0].name);
+    } else {
+      form.setValue("screenshot", null, { shouldValidate: true });
+      // If clearing the file input, and there was an existing filename, retain it.
+      // If it was a new trade, or no existing filename, clear it.
+      setSelectedFileName(tradeToEdit?.screenshotFilename && !form.getValues("screenshot") ? tradeToEdit.screenshotFilename : null);
+    }
   };
 
   return (
@@ -282,6 +332,33 @@ export default function AddTradeDialog({ open, onOpenChange, onSave, tradeToEdit
                 </FormItem>
               )}
             />
+             <FormField
+                control={form.control}
+                name="screenshot"
+                render={({ fieldState }) => (
+                  <FormItem>
+                    <FormLabel>Trade Screenshot (Optional, Max {MAX_FILE_SIZE_MB}MB)</FormLabel>
+                    <FormControl>
+                      <div className="flex items-center gap-2">
+                        <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()} className="flex-shrink-0">
+                          <UploadCloud className="mr-2 h-4 w-4" /> {selectedFileName ? "Change File" : "Upload Image"}
+                        </Button>
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          className="hidden"
+                          accept={ACCEPTED_IMAGE_TYPES.join(",")}
+                          onChange={handleFileChange}
+                        />
+                        {selectedFileName && <span className="text-sm text-muted-foreground truncate" title={selectedFileName}>{selectedFileName}</span>}
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                    {form.formState.errors.screenshot && <FormMessage>{form.formState.errors.screenshot.message}</FormMessage>}
+                  </FormItem>
+                )}
+              />
+
             <DialogFooter>
               <DialogClose asChild>
                 <Button type="button" variant="outline">Cancel</Button>
@@ -294,5 +371,3 @@ export default function AddTradeDialog({ open, onOpenChange, onSave, tradeToEdit
     </Dialog>
   );
 }
-
-    

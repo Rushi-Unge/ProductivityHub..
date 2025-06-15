@@ -5,17 +5,18 @@ import { useState, useEffect, useCallback } from 'react';
 import TimerCircle from '@/components/timer-circle';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Play, Pause, RotateCcw, Coffee, Briefcase } from 'lucide-react';
+import { Play, Pause, RotateCcw, Coffee, Briefcase, Settings2 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from "@/hooks/use-toast";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 const PRESETS = {
-  pomodoro: 25 * 60, // 25 minutes
-  shortBreak: 5 * 60, // 5 minutes
-  longBreak: 15 * 60, // 15 minutes
+  pomodoro: { duration: 25 * 60, label: "Focus", icon: <Briefcase /> },
+  shortBreak: { duration: 5 * 60, label: "Short Break", icon: <Coffee /> },
+  longBreak: { duration: 15 * 60, label: "Long Break", icon: <Coffee /> },
 };
 
-type TimerMode = keyof typeof PRESETS;
+type TimerModeKey = keyof typeof PRESETS;
 
 const mockTasks = [
   { id: "1", title: "Draft initial proposal", progress: 30 },
@@ -24,8 +25,8 @@ const mockTasks = [
 ];
 
 export default function TimerPage() {
-  const [mode, setMode] = useState<TimerMode>('pomodoro');
-  const [timeRemaining, setTimeRemaining] = useState(PRESETS[mode]);
+  const [mode, setMode] = useState<TimerModeKey>('pomodoro');
+  const [timeRemaining, setTimeRemaining] = useState(PRESETS[mode].duration);
   const [isActive, setIsActive] = useState(false);
   const [isPaused, setIsPaused] = useState(true); 
   const [pomodorosCompleted, setPomodorosCompleted] = useState(0);
@@ -44,9 +45,9 @@ export default function TimerPage() {
     audio?.play().catch(e => console.warn("Audio play failed:", e));
 
     toast({
-      title: `${mode === 'pomodoro' ? 'Work' : 'Break'} session complete!`,
+      title: `${PRESETS[mode].label} session complete!`,
       description: mode === 'pomodoro'
-        ? `Time for a ${pomodorosCompleted % 4 === 3 ? 'long' : 'short'} break.`
+        ? `Time for a ${pomodorosCompleted % 4 === 3 ? PRESETS.longBreak.label.toLowerCase() : PRESETS.shortBreak.label.toLowerCase()}.`
         : "Time to get back to work!",
     });
 
@@ -95,94 +96,79 @@ export default function TimerPage() {
   const resetTimer = () => {
     setIsActive(false);
     setIsPaused(true);
-    setTimeRemaining(PRESETS[mode]);
+    setTimeRemaining(PRESETS[mode].duration);
   };
 
-  const selectMode = (newMode: TimerMode) => {
+  const selectMode = (newMode: TimerModeKey) => {
     setMode(newMode);
-    setTimeRemaining(PRESETS[newMode]);
+    setTimeRemaining(PRESETS[newMode].duration);
     setIsActive(false);
     setIsPaused(true);
   };
 
   return (
     <div className="flex flex-col items-center gap-8 p-4 md:p-6">
-      <div className="flex flex-col items-center gap-8 w-full max-w-md">
-        <Card className="w-full bg-gradient-to-br from-secondary to-orange-400 dark:from-secondary dark:to-orange-500 shadow-2xl p-6 md:p-8 text-secondary-foreground rounded-xl">
-          <CardHeader className="text-center pb-6">
-            <CardTitle className="text-3xl md:text-4xl font-bold font-headline">
-              {mode === 'pomodoro' ? 'Focus Session' : mode === 'shortBreak' ? 'Short Break' : 'Long Break'}
+      <Card className="w-full max-w-md bg-card shadow-xl rounded-xl">
+          <CardHeader className="text-center pb-4 pt-6">
+            <CardTitle className="text-2xl md:text-3xl font-bold font-headline text-foreground">
+              {PRESETS[mode].label}
             </CardTitle>
           </CardHeader>
-          <CardContent className="flex flex-col items-center gap-8">
+          <CardContent className="flex flex-col items-center gap-6">
             <TimerCircle 
               timeRemaining={timeRemaining} 
-              duration={PRESETS[mode]} 
-              isPaused={isPaused} 
-              className="bg-background/20 dark:bg-black/20 text-secondary-foreground"
-              circleColor="text-secondary-foreground" // Use foreground for better contrast on orange
-              progressColor="text-white" // White progress on orange
+              duration={PRESETS[mode].duration} 
+              isPaused={isPaused}
+              circleColor="text-primary/20"
+              progressColor="text-primary"
+              textColor="text-foreground"
             />
             
-            <div className="flex space-x-2 md:space-x-4">
+            <div className="flex space-x-3">
               {!isActive || isPaused ? (
-                <Button size="lg" onClick={startTimer} className="bg-white hover:bg-white/90 text-secondary px-8 py-3 text-lg shadow-md transition-transform hover:scale-105">
+                <Button size="lg" onClick={startTimer} className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 text-lg shadow-md transition-transform hover:scale-105">
                   <Play className="mr-2 h-5 w-5" /> Start
                 </Button>
               ) : (
-                <Button size="lg" onClick={pauseTimer} variant="outline" className="bg-white/80 hover:bg-white text-secondary border-white/50 hover:border-white px-8 py-3 text-lg shadow-md transition-transform hover:scale-105">
+                <Button size="lg" onClick={pauseTimer} variant="outline" className="border-primary/50 text-primary hover:bg-primary/10 px-8 py-3 text-lg shadow-md transition-transform hover:scale-105">
                   <Pause className="mr-2 h-5 w-5" /> Pause
                 </Button>
               )}
-              <Button size="lg" onClick={resetTimer} variant="outline" className="bg-white/80 hover:bg-white text-secondary border-white/50 hover:border-white px-8 py-3 text-lg shadow-md transition-transform hover:scale-105">
+              <Button size="lg" onClick={resetTimer} variant="outline" className="text-muted-foreground hover:text-foreground hover:border-muted-foreground/50 px-8 py-3 text-lg shadow-md transition-transform hover:scale-105">
                 <RotateCcw className="mr-2 h-5 w-5" /> Reset
               </Button>
             </div>
 
-            <div className="flex flex-wrap justify-center gap-2 md:gap-3 pt-4">
-              <Button 
-                variant={mode === 'pomodoro' ? 'default' : 'outline'} 
-                onClick={() => selectMode('pomodoro')} 
-                className="shadow-sm text-sm bg-white/20 hover:bg-white/30 border-white/30 text-white data-[state=active]:bg-white data-[state=active]:text-secondary"
-              >
-                <Briefcase className="mr-2 h-4 w-4" /> Focus (25m)
-              </Button>
-              <Button 
-                variant={mode === 'shortBreak' ? 'default' : 'outline'} 
-                onClick={() => selectMode('shortBreak')} 
-                 className="shadow-sm text-sm bg-white/20 hover:bg-white/30 border-white/30 text-white data-[state=active]:bg-white data-[state=active]:text-secondary"
-              >
-                <Coffee className="mr-2 h-4 w-4" /> Short Break (5m)
-              </Button>
-              <Button 
-                variant={mode === 'longBreak' ? 'default' : 'outline'} 
-                onClick={() => selectMode('longBreak')} 
-                 className="shadow-sm text-sm bg-white/20 hover:bg-white/30 border-white/30 text-white data-[state=active]:bg-white data-[state=active]:text-secondary"
-              >
-                <Coffee className="mr-2 h-4 w-4" /> Long Break (15m)
-              </Button>
-            </div>
-             <p className="text-sm text-secondary-foreground/90 pt-2">Pomodoros completed: {pomodorosCompleted}</p>
+            <Tabs defaultValue={mode} onValueChange={(value) => selectMode(value as TimerModeKey)} className="w-full pt-4">
+              <TabsList className="grid w-full grid-cols-3 bg-muted/50 dark:bg-muted/20">
+                {(Object.keys(PRESETS) as TimerModeKey[]).map((key) => (
+                    <TabsTrigger key={key} value={key} className="flex items-center gap-1.5 text-xs sm:text-sm data-[state=active]:bg-card data-[state=active]:shadow-sm">
+                       {React.cloneElement(PRESETS[key].icon, {className: "h-4 w-4"})}
+                       {PRESETS[key].label}
+                    </TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
+             <p className="text-sm text-muted-foreground pt-2">Pomodoros completed: {pomodorosCompleted}</p>
           </CardContent>
         </Card>
-      </div>
 
       <Card className="w-full max-w-md shadow-lg bg-card rounded-xl">
         <CardHeader>
-          <CardTitle className="text-card-foreground">Associated Tasks</CardTitle>
-          <CardDescription className="text-muted-foreground">What are you working on?</CardDescription>
+          <CardTitle className="text-card-foreground">Focus Task</CardTitle>
+          <CardDescription className="text-muted-foreground">Link a task to this focus session.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {mockTasks.length > 0 ? mockTasks.map(task => (
-            <div key={task.id} className="p-3 bg-muted/50 dark:bg-muted/20 rounded-md transition-colors hover:bg-muted">
+          {mockTasks.length > 0 ? mockTasks.slice(0,1).map(task => ( // Show only one task for focus
+            <div key={task.id} className="p-3 bg-muted/50 dark:bg-muted/20 rounded-md">
               <div className="flex justify-between items-center mb-1">
                 <span className="font-medium text-card-foreground">{task.title}</span>
                 <span className="text-xs text-muted-foreground">{task.progress}%</span>
               </div>
-              <Progress value={task.progress} aria-label={`${task.title} progress`} className="h-2 [&>div]:bg-secondary" />
+              <Progress value={task.progress} aria-label={`${task.title} progress`} className="h-2"/>
             </div>
-          )) : <p className="text-muted-foreground text-center py-4">No tasks currently associated.</p>}
-           <Button variant="outline" className="w-full mt-4">Link Tasks</Button>
+          )) : <p className="text-muted-foreground text-center py-4">No task currently linked.</p>}
+           <Button variant="outline" className="w-full mt-4">Link Task</Button>
         </CardContent>
       </Card>
     </div>

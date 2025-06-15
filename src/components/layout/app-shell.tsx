@@ -42,9 +42,14 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }
   
   if (!isClient || (isClient && localStorage.getItem("prohub-auth-status") !== "loggedIn")) {
-     // This case should ideally be handled by the redirect, but as a fallback:
     return null; 
   }
+
+  // Define header height for calc in DocsPage and others if needed globally
+  // React.useEffect(() => {
+  //   document.documentElement.style.setProperty('--header-height', '3.5rem'); // 14 * 0.25rem for h-14
+  // }, []);
+
 
   return (
     <SidebarProvider defaultOpen>
@@ -53,26 +58,26 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       </Sidebar>
       <SidebarRail />
       <SidebarInset>
-        <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6 py-4">
+        <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-4 sm:px-6">
           <UiSidebarTrigger className="md:hidden" />
+          {/* Search can be added back if needed
           <div className="relative ml-auto flex-1 md:grow-0">
-            {/* Search bar can be added here if needed later */}
-            {/* <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
               placeholder="Search..."
               className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px]"
-            /> */}
+            />
           </div>
-          <div className="flex items-center gap-2 ml-auto">
+          */}
+          <div className="flex items-center gap-2 ml-auto"> {/* Ensures buttons are to the right */}
             <Button variant="ghost" size="icon" className="rounded-full">
               <Bell className="h-5 w-5" />
               <span className="sr-only">Toggle notifications</span>
             </Button>
-            {/* Profile Dropdown is now in SidebarFooter for desktop, could be duplicated here for mobile if needed */}
           </div>
         </header>
-        <main className="flex-1 p-6 overflow-auto">
+        <main className="flex-1 p-4 md:p-6 overflow-auto"> {/* Reduced top padding from p-6 to p-4 */}
           {children}
         </main>
       </SidebarInset>
