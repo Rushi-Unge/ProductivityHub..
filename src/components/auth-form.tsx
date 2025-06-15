@@ -126,6 +126,10 @@ export default function AuthForm() {
     );
   }
 
+  const inputBaseClasses = "pl-10 bg-background/70 dark:bg-muted/40 border-border/70 dark:border-border/60 text-foreground placeholder:text-muted-foreground/80 rounded-xl";
+  const inputFocusClasses = "focus:bg-background focus:dark:bg-muted/50 focus:ring-2 focus:ring-primary/50 focus:border-transparent";
+
+
   return (
     <Card className="w-full max-w-md bg-card/80 dark:bg-card/90 backdrop-blur-lg shadow-xl border-border/30 dark:border-border/50 rounded-2xl">
       <CardHeader className="flex flex-col items-center text-center p-6">
@@ -166,7 +170,7 @@ export default function AuthForm() {
                     <Label className="text-muted-foreground">Email</Label>
                     <div className="relative">
                        <Mail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground/70" />
-                       <Input placeholder="your.email@example.com" {...field} className="pl-10 bg-background/70 dark:bg-muted/40 border-border/70 dark:border-border/60 text-foreground placeholder:text-muted-foreground/80 focus:bg-background focus:dark:bg-muted/50 focus:border-primary/70 rounded-xl" />
+                       <Input placeholder="your.email@example.com" {...field} className={cn(inputBaseClasses, inputFocusClasses)} />
                     </div>
                     <FormMessage className="text-destructive" />
                   </FormItem>
@@ -180,7 +184,7 @@ export default function AuthForm() {
                     <Label className="text-muted-foreground">Password</Label>
                      <div className="relative">
                         <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground/70" />
-                        <Input type={showPassword ? "text" : "password"} placeholder="Enter your password" {...field} className="pl-10 pr-10 bg-background/70 dark:bg-muted/40 border-border/70 dark:border-border/60 text-foreground placeholder:text-muted-foreground/80 focus:bg-background focus:dark:bg-muted/50 focus:border-primary/70 rounded-xl" />
+                        <Input type={showPassword ? "text" : "password"} placeholder="Enter your password" {...field} className={cn(inputBaseClasses, inputFocusClasses, "pr-10")} />
                         <button type="button" onClick={togglePasswordVisibility} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/70 hover:text-foreground/90">
                             {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                         </button>
@@ -207,7 +211,7 @@ export default function AuthForm() {
                     <Label className="text-muted-foreground">Full Name</Label>
                     <div className="relative">
                         <User className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground/70" />
-                        <Input placeholder="Your Full Name" {...field} className="pl-10 bg-background/70 dark:bg-muted/40 border-border/70 dark:border-border/60 text-foreground placeholder:text-muted-foreground/80 focus:bg-background focus:dark:bg-muted/50 focus:border-primary/70 rounded-xl" />
+                        <Input placeholder="Your Full Name" {...field} className={cn(inputBaseClasses, inputFocusClasses)} />
                     </div>
                     <FormMessage className="text-destructive" />
                   </FormItem>
@@ -221,7 +225,7 @@ export default function AuthForm() {
                     <Label className="text-muted-foreground">Email</Label>
                      <div className="relative">
                         <Mail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground/70" />
-                        <Input placeholder="your.email@example.com" {...field} className="pl-10 bg-background/70 dark:bg-muted/40 border-border/70 dark:border-border/60 text-foreground placeholder:text-muted-foreground/80 focus:bg-background focus:dark:bg-muted/50 focus:border-primary/70 rounded-xl" />
+                        <Input placeholder="your.email@example.com" {...field} className={cn(inputBaseClasses, inputFocusClasses)} />
                     </div>
                     <FormMessage className="text-destructive" />
                   </FormItem>
@@ -235,7 +239,7 @@ export default function AuthForm() {
                     <Label className="text-muted-foreground">Password</Label>
                     <div className="relative">
                         <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground/70" />
-                        <Input type={showPassword ? "text" : "password"} placeholder="Create a password" {...field} className="pl-10 pr-10 bg-background/70 dark:bg-muted/40 border-border/70 dark:border-border/60 text-foreground placeholder:text-muted-foreground/80 focus:bg-background focus:dark:bg-muted/50 focus:border-primary/70 rounded-xl" />
+                        <Input type={showPassword ? "text" : "password"} placeholder="Create a password" {...field} className={cn(inputBaseClasses, inputFocusClasses, "pr-10")} />
                         <button type="button" onClick={togglePasswordVisibility} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/70 hover:text-foreground/90">
                             {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                         </button>
@@ -252,7 +256,7 @@ export default function AuthForm() {
                     <Label className="text-muted-foreground">Confirm Password</Label>
                     <div className="relative">
                         <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground/70" />
-                        <Input type={showConfirmPassword ? "text" : "password"} placeholder="Confirm your password" {...field} className="pl-10 pr-10 bg-background/70 dark:bg-muted/40 border-border/70 dark:border-border/60 text-foreground placeholder:text-muted-foreground/80 focus:bg-background focus:dark:bg-muted/50 focus:border-primary/70 rounded-xl" />
+                        <Input type={showConfirmPassword ? "text" : "password"} placeholder="Confirm your password" {...field} className={cn(inputBaseClasses, inputFocusClasses, "pr-10")} />
                         <button type="button" onClick={toggleConfirmPasswordVisibility} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/70 hover:text-foreground/90">
                             {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                         </button>
@@ -305,3 +309,5 @@ export default function AuthForm() {
     </Card>
   );
 }
+
+    
