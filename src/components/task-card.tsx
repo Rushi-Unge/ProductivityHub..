@@ -6,9 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MoreVertical, Edit3, Trash2, CheckCircle, Circle, Zap, AlertTriangle, Info } from "lucide-react";
+import { MoreVertical, Edit3, Trash2, CheckCircle, Circle, Zap, AlertTriangle, Info, CalendarDays } from "lucide-react";
 import type { Task } from "@/app/(authenticated)/tasks/page"; 
 import { cn } from "@/lib/utils";
+import { format, parseISO } from "date-fns";
 
 interface TaskCardProps {
   task: Task;
@@ -24,20 +25,20 @@ export default function TaskCard({ task, onToggleComplete, onEdit, onDelete }: T
       case 'low':
         return {
           variant: "info" as const, 
-          icon: <Info className="mr-1 h-3 w-3" />, // text-info should be handled by variant
+          icon: <Info className="mr-1.5 h-3.5 w-3.5" />,
           className: "bg-info/10 text-info-foreground border-info/30",
         };
       case 'medium':
         return {
           variant: "warning" as const,
-          icon: <AlertTriangle className="mr-1 h-3 w-3" />, // text-warning should be handled by variant
+          icon: <AlertTriangle className="mr-1.5 h-3.5 w-3.5" />, 
           className: "bg-warning/10 text-warning-foreground border-warning/30",
         };
       case 'high':
         return {
           variant: "destructive" as const,
-          icon: <Zap className="mr-1 h-3 w-3" />, 
-          className: "bg-destructive/10 text-destructive-foreground border-destructive/30", // Adjusted for more subtle destructive badge
+          icon: <Zap className="mr-1.5 h-3.5 w-3.5" />, 
+          className: "bg-destructive/10 text-destructive-foreground border-destructive/30",
         };
       default:
         return {
@@ -52,22 +53,17 @@ export default function TaskCard({ task, onToggleComplete, onEdit, onDelete }: T
   
   return (
     <Card className={cn(
-        "shadow-md hover:shadow-lg transition-all duration-300 ease-in-out flex flex-col rounded-2xl", 
-        task.status === 'completed' ? 'opacity-60 bg-muted/30 dark:bg-muted/10' : 'bg-card hover:scale-[1.01]'
+        "shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out flex flex-col rounded-2xl", 
+        task.status === 'completed' ? 'opacity-70 bg-muted/50 dark:bg-muted/20' : 'bg-card hover:scale-[1.01]'
       )}>
       <CardHeader className="flex flex-row items-start justify-between pb-3 px-4 pt-4">
-        <div className="space-y-1 flex-1 min-w-0">
+        <div className="space-y-1 flex-1 min-w-0 pr-2">
           <CardTitle className={cn(
               "text-lg font-semibold break-words", 
               task.status === 'completed' ? 'line-through text-muted-foreground' : 'text-card-foreground'
             )}>
             {task.title}
           </CardTitle>
-          {task.description && (
-            <CardDescription className="text-sm leading-relaxed line-clamp-2 text-muted-foreground">
-              {task.description}
-            </CardDescription>
-          )}
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -86,32 +82,40 @@ export default function TaskCard({ task, onToggleComplete, onEdit, onDelete }: T
         </DropdownMenu>
       </CardHeader>
       <CardContent className="pb-4 px-4 space-y-3 flex-grow">
-        {task.dueDate && (
-          <p className="text-xs text-muted-foreground">
-            Due: {new Date(task.dueDate).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
-          </p>
+        {task.description && (
+            <CardDescription className="text-sm leading-relaxed line-clamp-3 text-muted-foreground">
+              {task.description}
+            </CardDescription>
         )}
-        {task.priority && (
-          <Badge variant={priorityStyles.variant} className={cn("capitalize text-xs flex items-center w-fit rounded-md", priorityStyles.className)}>
-            {priorityStyles.icon}
-            {task.priority}
-          </Badge>
-        )}
+        <div className="flex flex-wrap gap-2 items-center">
+            {task.dueDate && (
+            <Badge variant="outline" className="text-xs flex items-center rounded-lg py-1">
+                <CalendarDays className="mr-1.5 h-3.5 w-3.5 text-muted-foreground" />
+                Due: {format(parseISO(task.dueDate), "MMM d, yyyy")}
+            </Badge>
+            )}
+            {task.priority && (
+            <Badge variant={priorityStyles.variant} className={cn("capitalize text-xs flex items-center rounded-lg py-1", priorityStyles.className)}>
+                {priorityStyles.icon}
+                {task.priority}
+            </Badge>
+            )}
+        </div>
          {task.aiReason && (
-          <div className="mt-2 p-2 bg-primary/10 rounded-lg border border-primary/20">
-            <p className="text-xs text-primary font-semibold">AI Suggestion:</p>
-            <p className="text-xs text-primary/80">{task.aiReason}</p>
+          <div className="mt-2 p-2.5 bg-primary/10 rounded-lg border border-primary/20">
+            <p className="text-xs text-primary font-semibold">AI Suggestion (Priority {task.aiPriority}):</p>
+            <p className="text-xs text-primary/80 mt-0.5">{task.aiReason}</p>
           </div>
         )}
       </CardContent>
-      <CardFooter className="flex items-center justify-between pt-4 pb-4 px-4 border-t">
+      <CardFooter className="flex items-center justify-between pt-4 pb-4 px-4 border-t mt-auto">
         <div className="flex items-center space-x-2">
           <Checkbox
             id={`complete-${task.id}`}
             checked={task.status === 'completed'}
             onCheckedChange={() => onToggleComplete(task.id)}
             aria-label={task.status === 'completed' ? "Mark task as incomplete" : "Mark task as complete"}
-            className="transition-transform hover:scale-110"
+            className="transition-transform hover:scale-110 rounded-sm"
           />
           <label
             htmlFor={`complete-${task.id}`}

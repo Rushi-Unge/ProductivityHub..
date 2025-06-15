@@ -88,17 +88,17 @@ export default {
         },
       },
       borderRadius: {
-        '2xl': "calc(var(--radius) + 0.5rem)", 
-        xl: 'var(--radius)', 
-        lg: 'calc(var(--radius) - 0.25rem)', 
-        md: 'calc(var(--radius) - 0.375rem)', 
-        sm: 'calc(var(--radius) - 0.5rem)', 
+        '2xl': "1rem",      // For main cards and dialogs
+        xl: "0.75rem",    // For buttons, inputs
+        lg: "0.5rem",      // For smaller interactive elements like badges
+        md: "0.375rem",
+        sm: "0.25rem",
       },
       boxShadow: { 
-        'sm': '0 1px 2px 0 rgba(0, 0, 0, 0.03)', 
-        'md': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05)', 
-        'lg': '0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -4px rgba(0, 0, 0, 0.07)', 
-        'xl': '0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.08)', 
+        'sm': '0 1px 2px 0 hsla(var(--foreground), 0.03)', 
+        'md': '0 4px 6px -1px hsla(var(--foreground), 0.05), 0 2px 4px -2px hsla(var(--foreground), 0.05)', 
+        'lg': '0 10px 15px -3px hsla(var(--foreground), 0.07), 0 4px 6px -4px hsla(var(--foreground), 0.07)', 
+        'xl': '0 20px 25px -5px hsla(var(--foreground), 0.08), 0 8px 10px -6px hsla(var(--foreground), 0.08)', 
       },
       keyframes: {
         'accordion-down': {

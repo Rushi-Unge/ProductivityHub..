@@ -5,14 +5,14 @@ import * as React from "react";
 import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, Star, Archive, Trash2, StickyNote, Tag as TagIcon, Filter, Check } from "lucide-react";
+import { Plus, Search, Star, Archive, Trash2, StickyNote, Tag as TagIcon, Check, FilterX } from "lucide-react";
 import NoteCard from "@/components/note-card";
 import AddNoteDialog from "@/components/add-note-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 
 
 export interface Note {
@@ -30,7 +30,6 @@ export interface Note {
 }
 
 type NoteCategory = "all" | "starred" | "archived" | "trash";
-type SortOption = "updatedAt_desc" | "updatedAt_asc" | "createdAt_desc" | "createdAt_asc" | "title_asc" | "title_desc";
 
 const initialNotesData: Note[] = [
   { id: "n1", title: "Project Ideas for ProductivePro", content: "1. AI-driven task suggestions.\n2. Team collaboration module.\n3. Customizable dashboard widgets for Pro features.\n\n## Meeting Notes (2024-07-29)\n- Discussed ProductivePro v2 roadmap.\n- Key features: Advanced Notes, Trading Integrations.", createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), tags: ["project", "ideas", "productivepro"], isStarred: true, isArchived: false, isTrashed: false, imageUrl: "https://placehold.co/600x400.png", imageFilename: "mindmap.png" },
@@ -49,7 +48,6 @@ export default function NotesPage() {
   const [isClient, setIsClient] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeCategory, setActiveCategory] = useState<NoteCategory>("all");
-  const [sortOption, setSortOption] = useState<SortOption>("updatedAt_desc");
   const [activeTags, setActiveTags] = useState<string[]>([]);
 
   useEffect(() => setIsClient(true), []);
@@ -120,13 +118,17 @@ export default function NotesPage() {
   }, [notes]);
 
   const toggleTagFilter = (tagToToggle: string) => {
-    setActiveCategory("all"); // When a tag is selected, switch to "all" notes to apply tag filter
+    setActiveCategory("all"); 
     setActiveTags(prev =>
       prev.includes(tagToToggle)
         ? prev.filter(t => t !== tagToToggle)
         : [...prev, tagToToggle]
     );
   };
+
+  const clearTagFilters = () => {
+    setActiveTags([]);
+  }
 
   const filteredAndSortedNotes = useMemo(() => {
     let processedNotes = [...notes];
@@ -155,34 +157,25 @@ export default function NotesPage() {
       );
     }
 
-    if (activeTags.length > 0 && activeCategory === "all") { // Apply tag filter only on "all" notes view
+    if (activeTags.length > 0 && activeCategory === "all") { 
       processedNotes = processedNotes.filter(note =>
         activeTags.every(activeTag => note.tags.includes(activeTag))
       );
     }
 
+    // Default sort: Starred first, then by updatedAt descending
     processedNotes.sort((a, b) => {
-      if (activeCategory !== "trash" && activeCategory !== "archived" && !sortOption.startsWith("title")) {
+      if (activeCategory !== "trash" && activeCategory !== "archived") {
         if (a.isStarred && !b.isStarred) return -1;
         if (!a.isStarred && b.isStarred) return 1;
       }
-
-      switch (sortOption) {
-        case "updatedAt_desc": return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-        case "updatedAt_asc": return new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime();
-        case "createdAt_desc": return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-        case "createdAt_asc": return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-        case "title_asc": return a.title.localeCompare(b.title);
-        case "title_desc": return b.title.localeCompare(a.title);
-        default: return 0;
-      }
+      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
     });
 
     return processedNotes;
-  }, [notes, activeCategory, searchTerm, sortOption, activeTags]);
+  }, [notes, activeCategory, searchTerm, activeTags]);
 
   if (!isClient) {
-    // Skeleton Loader
     return (
       <div className="flex flex-col md:flex-row h-[calc(100vh-var(--header-height)-1px)]">
         <aside className="w-full md:w-60 p-4 border-b md:border-b-0 md:border-r bg-card dark:bg-card/80 space-y-4">
@@ -193,12 +186,12 @@ export default function NotesPage() {
         </aside>
         <main className="flex-1 p-4 md:p-6 space-y-4">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-2">
-             <Skeleton className="h-10 w-24 rounded-xl hidden sm:block" /> {/* Title Placeholder */}
+            <Skeleton className="h-10 w-24 rounded-xl hidden sm:block" />
             <Skeleton className="h-10 w-full sm:w-1/2 max-w-sm rounded-xl" />
             <Skeleton className="h-10 w-24 rounded-xl hidden sm:block" />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(3)].map((_,i) => <Skeleton key={i} className="h-56 w-full rounded-xl" />)}
+            {[...Array(3)].map((_,i) => <Skeleton key={i} className="h-56 w-full rounded-2xl" />)}
           </div>
         </main>
       </div>
@@ -206,17 +199,16 @@ export default function NotesPage() {
   }
 
   const sidebarLinkClasses = "flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-colors";
-  const activeSidebarLinkClasses = "bg-primary/10 text-primary dark:bg-primary/20"; // Removed dark:text-primary-foreground to use theme default
+  const activeSidebarLinkClasses = "bg-primary/10 text-primary dark:bg-primary/20";
   const inactiveSidebarLinkClasses = "hover:bg-muted dark:hover:bg-muted/50";
 
   return (
-    <div className="flex flex-col md:flex-row h-[calc(100vh-var(--header-height)-1px)]"> {/* -1px for border */}
-      {/* Sidebar */}
-      <aside className="w-full md:w-60 border-b md:border-b-0 md:border-r bg-card dark:bg-card/90 p-4 flex-col">
+    <div className="flex flex-col md:flex-row h-[calc(100vh-var(--header-height)-1px)]">
+      <aside className="w-full md:w-60 border-b md:border-b-0 md:border-r bg-card dark:bg-card/90 p-4 flex flex-col">
         <Button onClick={openNewNoteDialog} className="w-full mb-6 shadow-sm rounded-xl py-3 text-base bg-primary hover:bg-primary/90 text-primary-foreground">
           <Plus className="mr-2 h-5 w-5" /> New Note
         </Button>
-        <ScrollArea className="flex-grow md:h-[calc(100%-120px)]"> {/* Adjust height for button and tags */}
+        <ScrollArea className="flex-grow md:h-[calc(100%-120px)]">
           <nav className="space-y-1.5">
             {(["all", "starred", "archived", "trash"] as NoteCategory[]).map(cat => {
               const count = cat === "all" ? notes.filter(n => !n.isArchived && !n.isTrashed).length :
@@ -246,7 +238,14 @@ export default function NotesPage() {
           {allUniqueTags.length > 0 && (
             <>
               <DropdownMenuSeparator className="my-3"/>
-              <h3 className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Tags</h3>
+              <div className="flex justify-between items-center px-3 py-2">
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Tags</h3>
+                {activeTags.length > 0 && (
+                    <Button variant="ghost" size="sm" onClick={clearTagFilters} className="h-auto p-1 text-xs text-muted-foreground hover:text-primary">
+                        <FilterX className="h-3 w-3 mr-1"/> Clear
+                    </Button>
+                )}
+              </div>
               <nav className="space-y-1.5">
                 {allUniqueTags.map(tag => (
                   <button
@@ -260,7 +259,7 @@ export default function NotesPage() {
                   >
                     <TagIcon className="h-4 w-4" />
                     <span className="capitalize truncate flex-1 text-left">{tag}</span>
-                    {activeTags.includes(tag) && activeCategory === "all" && <Plus className="h-4 w-4 rotate-45 text-primary transition-transform duration-200" />}
+                    {activeTags.includes(tag) && activeCategory === "all" && <Check className="h-4 w-4 text-primary"/>}
                   </button>
                 ))}
               </nav>
@@ -269,11 +268,9 @@ export default function NotesPage() {
         </ScrollArea>
       </aside>
 
-      {/* Main Content Area */}
       <main className="flex-1 flex flex-col bg-background overflow-hidden">
-        {/* Page-specific Header */}
         <header className="sticky top-0 z-10 flex flex-col sm:flex-row items-center justify-between gap-2 p-4 border-b bg-card/95 dark:bg-card/80 backdrop-blur-sm">
-          <h1 className="text-2xl font-bold text-foreground font-headline hidden sm:block">Notes</h1>
+          <h1 className="text-2xl font-bold text-foreground font-headline">Notes</h1>
           <div className="relative w-full sm:max-w-xs md:max-w-sm lg:max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
@@ -284,30 +281,12 @@ export default function NotesPage() {
               className="pl-10 rounded-xl shadow-sm bg-background focus:bg-card"
             />
           </div>
-          <div className="flex items-center gap-2">
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="rounded-xl shadow-sm">
-                    <Filter className="mr-2 h-4 w-4" /> Sort
-                </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56 rounded-xl shadow-lg">
-                <DropdownMenuLabel>Sort by</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuRadioGroup value={sortOption} onValueChange={(value) => setSortOption(value as SortOption)}>
-                    <DropdownMenuRadioItem value="updatedAt_desc">Last Modified (Newest)</DropdownMenuRadioItem>
-                    <DropdownMenuRadioItem value="updatedAt_asc">Last Modified (Oldest)</DropdownMenuRadioItem>
-                    <DropdownMenuRadioItem value="createdAt_desc">Date Created (Newest)</DropdownMenuRadioItem>
-                    <DropdownMenuRadioItem value="createdAt_asc">Date Created (Oldest)</DropdownMenuRadioItem>
-                    <DropdownMenuRadioItem value="title_asc">Title (A-Z)</DropdownMenuRadioItem>
-                    <DropdownMenuRadioItem value="title_desc">Title (Z-A)</DropdownMenuRadioItem>
-                </DropdownMenuRadioGroup>
-                </DropdownMenuContent>
-            </DropdownMenu>
-            <Button onClick={openNewNoteDialog} className="rounded-xl shadow-sm bg-primary hover:bg-primary/90 text-primary-foreground sm:hidden">
+           <Button onClick={openNewNoteDialog} className="rounded-xl shadow-sm bg-primary hover:bg-primary/90 text-primary-foreground hidden sm:flex">
+              <Plus className="mr-2 h-5 w-5" /> New Note
+            </Button>
+            <Button onClick={openNewNoteDialog} size="icon" className="rounded-xl shadow-sm bg-primary hover:bg-primary/90 text-primary-foreground sm:hidden">
               <Plus className="h-5 w-5" />
             </Button>
-          </div>
         </header>
 
         <ScrollArea className="flex-1">

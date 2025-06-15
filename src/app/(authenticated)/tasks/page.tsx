@@ -24,11 +24,11 @@ export interface Task {
 }
 
 const initialTasks: Task[] = [
-  { id: "1", title: "Submit quarterly report", description: "Finalize and submit the Q3 financial report.", dueDate: "2024-08-10", priority: "high", status: "pending" },
-  { id: "2", title: "Plan team retreat", description: "Organize logistics for the upcoming team building event.", dueDate: "2024-09-15", priority: "medium", status: "pending" },
-  { id: "3", title: "Update website FAQs", description: "Review and update the FAQ section based on recent customer queries.", dueDate: "2024-08-05", priority: "low", status: "completed" },
-  { id: "4", title: "Client onboarding call", description: "Onboard new client Acme Corp.", dueDate: "2024-08-01", priority: "high", status: "pending" },
-  { id: "5", title: "Research new marketing tools", description: "Explore new tools for social media management.", dueDate: "2024-08-25", priority: "medium", status: "pending" },
+  { id: "1", title: "Submit quarterly report", description: "Finalize and submit the Q3 financial report. Ensure all data is cross-checked with the finance team and supporting documents are attached.", dueDate: "2024-08-10", priority: "high", status: "pending" },
+  { id: "2", title: "Plan team retreat", description: "Organize logistics for the upcoming team building event. This includes venue booking, catering, activities, and travel arrangements for all members.", dueDate: "2024-09-15", priority: "medium", status: "pending" },
+  { id: "3", title: "Update website FAQs", description: "Review and update the FAQ section based on recent customer queries and product updates. Coordinate with support team for common questions.", dueDate: "2024-08-05", priority: "low", status: "completed" },
+  { id: "4", title: "Client onboarding call", description: "Onboard new client Acme Corp. Prepare presentation materials, system access, and initial project scope discussion points.", dueDate: "2024-08-01", priority: "high", status: "pending" },
+  { id: "5", title: "Research new marketing tools", description: "Explore new tools for social media management, email marketing automation, and analytics. Prepare a comparison report.", dueDate: "2024-08-25", priority: "medium", status: "pending" },
 ];
 
 export default function TasksPage() {
@@ -180,7 +180,7 @@ export default function TasksPage() {
           </div>
         </div>
         <Skeleton className="h-10 w-full max-w-xs sm:max-w-sm rounded-xl" />
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {[1,2,3,4].map(i => <Skeleton key={i} className="h-64 w-full rounded-2xl" />)}
         </div>
       </div>
@@ -208,13 +208,13 @@ export default function TasksPage() {
 
       <Tabs defaultValue="pending" className="w-full">
         <TabsList className={cn("grid w-full grid-cols-2 mb-4 bg-muted/50 dark:bg-muted/20 rounded-xl p-1 max-w-xs sm:max-w-sm")}>
-          <TabsTrigger value="pending" className="flex items-center gap-2 data-[state=active]:bg-card data-[state=active]:shadow-md rounded-lg"><ListChecks className="h-4 w-4"/>Pending ({pendingTasksOriginal.length})</TabsTrigger>
-          <TabsTrigger value="completed" className="flex items-center gap-2 data-[state=active]:bg-card data-[state=active]:shadow-md rounded-lg"><CheckSquare className="h-4 w-4"/>Completed ({completedTasks.length})</TabsTrigger>
+          <TabsTrigger value="pending" className="flex items-center gap-2 data-[state=active]:bg-card data-[state=active]:shadow-sm rounded-lg"><ListChecks className="h-4 w-4"/>Pending ({pendingTasksOriginal.length})</TabsTrigger>
+          <TabsTrigger value="completed" className="flex items-center gap-2 data-[state=active]:bg-card data-[state=active]:shadow-sm rounded-lg"><CheckSquare className="h-4 w-4"/>Completed ({completedTasks.length})</TabsTrigger>
         </TabsList>
         
         {isLoadingAi && (
            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mt-4">
-             {Array.from({length: Math.min(pendingTasksOriginal.length, 4)}).map((_, i) => <Skeleton key={i} className="h-64 w-full rounded-2xl" />)}
+             {Array.from({length: Math.min(pendingTasksOriginal.length, 4)}).map((_, i) => <Skeleton key={i} className="h-[280px] w-full rounded-2xl" />)}
            </div>
         )}
 

@@ -105,10 +105,10 @@ export default function AuthForm() {
         <Card className="w-full max-w-md bg-card/10 dark:bg-card/20 backdrop-blur-md shadow-xl border-border/30 animate-pulse rounded-2xl">
             <CardHeader className="flex flex-col items-center text-center p-6">
                 <div className="h-8 w-8 bg-primary/30 rounded-xl mb-2"></div>
-                <div className="h-7 w-32 bg-foreground/30 rounded-xl mb-4"></div>
-                <div className="flex w-full rounded-lg bg-muted/20 p-1">
-                    <div className="h-10 flex-1 bg-primary/20 rounded-md m-0.5"></div>
-                    <div className="h-10 flex-1 bg-transparent rounded-md m-0.5"></div>
+                <div className="h-7 w-32 bg-foreground/30 rounded-lg mb-4"></div>
+                <div className="flex w-full rounded-xl bg-muted/20 p-1">
+                    <div className="h-10 flex-1 bg-primary/20 rounded-lg m-0.5"></div>
+                    <div className="h-10 flex-1 bg-transparent rounded-lg m-0.5"></div>
                 </div>
             </CardHeader>
             <CardContent className="p-6 md:p-8 pt-0">
@@ -270,7 +270,7 @@ export default function AuthForm() {
                       <Checkbox
                         checked={field.value}
                         onCheckedChange={field.onChange}
-                        className="border-muted-foreground data-[state=checked]:bg-primary data-[state=checked]:border-primary data-[state=checked]:text-primary-foreground mt-0.5"
+                        className="border-muted-foreground data-[state=checked]:bg-primary data-[state=checked]:border-primary data-[state=checked]:text-primary-foreground mt-0.5 rounded-sm"
                         id="terms"
                       />
                     </FormControl>

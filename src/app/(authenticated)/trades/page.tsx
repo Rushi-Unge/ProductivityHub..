@@ -16,7 +16,6 @@ import Image from "next/image";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 
-// Represents an individual trade
 export interface Trade {
   id: string;
   asset: string;
@@ -35,77 +34,99 @@ export interface Trade {
   screenshotFilename?: string;
 }
 
-// For the summary cards at the top
 interface SummaryStat {
   title: string;
   value: string;
   change?: string;
   icon: React.ReactNode;
-  colorClass?: string; // For text color of value
+  colorClass?: string; 
 }
 
-// Component for individual trade cards in the grid
 function TradeDetailCard({ trade, onEdit, onDelete }: { trade: Trade; onEdit: (trade: Trade) => void; onDelete: (id: string) => void; }) {
-  const getOutcome = (pnl: number | undefined) => {
-    if (pnl === undefined || pnl === null) return { text: "OPEN", color: "bg-info/20 text-info-foreground dark:text-blue-400" };
-    if (pnl > 0) return { text: "PROFIT", color: "bg-success/20 text-success-foreground dark:text-green-400" };
-    if (pnl < 0) return { text: "LOSS", color: "bg-destructive/20 text-destructive-foreground dark:text-red-400" };
+  const getOutcome = (pnl: number | undefined, status: "open" | "closed") => {
+    if (status === "open") return { text: "OPEN", color: "bg-info/20 text-info-foreground dark:text-info" };
+    if (pnl === undefined || pnl === null) return { text: "N/A", color: "bg-muted text-muted-foreground" };
+    if (pnl > 0) return { text: "PROFIT", color: "bg-success/20 text-success-foreground dark:text-success" };
+    if (pnl < 0) return { text: "LOSS", color: "bg-destructive/20 text-destructive-foreground dark:text-destructive" };
     return { text: "BREAKEVEN", color: "bg-muted text-muted-foreground" };
   };
 
-  const tradeOutcome = getOutcome(trade.pnl);
+  const tradeOutcome = getOutcome(trade.pnl, trade.status);
   const formattedEntryDate = trade.entryTimestamp ? format(parseISO(trade.entryTimestamp), "MMM d, HH:mm") : "N/A";
   const formattedExitDate = trade.exitTimestamp ? format(parseISO(trade.exitTimestamp), "MMM d, HH:mm") : "N/A";
 
   return (
     <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out flex flex-col rounded-2xl">
-      <CardHeader className="pt-4 pb-2 px-4">
-        <div className="flex justify-between items-start">
-          <div className="flex items-center gap-2">
-            <CardTitle className="text-lg font-semibold">{trade.asset}</CardTitle>
-            <span className={cn("px-2 py-0.5 text-xs font-semibold rounded-full whitespace-nowrap", tradeOutcome.color)}>
+      <CardHeader className="pt-4 pb-3 px-4">
+        <div className="flex justify-between items-start mb-1">
+            <CardTitle className="text-xl font-semibold text-foreground">{trade.asset}</CardTitle>
+            <span className={cn("px-2.5 py-1 text-xs font-semibold rounded-full whitespace-nowrap", tradeOutcome.color)}>
               {tradeOutcome.text}
             </span>
-          </div>
-          <p className={cn("text-lg font-semibold", (trade.pnl ?? 0) >= 0 ? "text-success" : "text-destructive")}>
-            {(trade.pnl ?? 0) >= 0 ? "+" : ""}{trade.pnl?.toLocaleString(undefined, { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }) ?? "N/A"}
-          </p>
         </div>
-        <div className="flex justify-between items-center text-xs text-muted-foreground mt-1">
-          <p>Entry: ${trade.entryPrice.toFixed(2)} <span className="text-xs opacity-70">({formattedEntryDate})</span></p>
-          <p>Exit: {trade.exitPrice ? `$${trade.exitPrice.toFixed(2)}` : 'N/A'} {trade.exitTimestamp ? <span className="text-xs opacity-70">({formattedExitDate})</span> : 'N/A'}</p>
+        <div className="flex justify-between items-center">
+            <p className={cn("text-2xl font-bold", (trade.pnl ?? 0) >= 0 && trade.status === 'closed' ? "text-success" : (trade.pnl ?? 0) < 0 && trade.status === 'closed' ? "text-destructive" : "text-muted-foreground")}>
+            {trade.status === 'closed' ? `${(trade.pnl ?? 0) >= 0 ? "+" : ""}${trade.pnl?.toLocaleString(undefined, { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "Active"}
+            </p>
+            <p className="text-sm text-muted-foreground">{trade.position === "long" ? "Long" : "Short"} Trade</p>
         </div>
       </CardHeader>
+      
       <CardContent className="px-4 pb-3 flex-grow space-y-3">
-        <div className="aspect-[2/1] bg-muted rounded-md overflow-hidden my-2 flex items-center justify-center">
+        <div className="aspect-[16/9] bg-muted rounded-lg overflow-hidden my-2 flex items-center justify-center">
           <Image 
             src={trade.chartPlaceholderUrl} 
             alt={`${trade.asset} trade chart placeholder`} 
-            width={300} 
-            height={150} 
+            width={600} 
+            height={338} 
             className="w-full h-full object-cover"
             data-ai-hint="trade chart stock" 
           />
         </div>
+        
+        <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm border-t pt-3">
+            <div className="text-muted-foreground">Entry:</div>
+            <div className="text-right text-foreground font-medium">${trade.entryPrice.toFixed(2)} <span className="text-xs opacity-70">({formattedEntryDate})</span></div>
+            
+            <div className="text-muted-foreground">Exit:</div>
+            <div className="text-right text-foreground font-medium">
+                {trade.exitPrice ? `$${trade.exitPrice.toFixed(2)}` : 'N/A'} 
+                {trade.exitTimestamp ? <span className="text-xs opacity-70"> ({formattedExitDate})</span> : ''}
+            </div>
+
+            <div className="text-muted-foreground">Quantity:</div>
+            <div className="text-right text-foreground font-medium">{trade.quantity}</div>
+            
+            <div className="text-muted-foreground">Risk:</div>
+            <div className="text-right text-foreground font-medium">{trade.riskPercentage ? `${trade.riskPercentage}%` : "N/A"}</div>
+        </div>
+
+        {trade.strategy && (
+            <div className="border-t pt-3">
+                <h4 className="text-xs font-semibold text-muted-foreground mb-0.5">Strategy:</h4>
+                <p className="text-sm text-foreground">{trade.strategy}</p>
+            </div>
+        )}
+
+        {trade.reflection && (
+             <div className="border-t pt-3">
+                <h4 className="text-xs font-semibold text-muted-foreground mb-0.5">Reflection:</h4>
+                <p className="text-sm text-foreground line-clamp-3">{trade.reflection}</p>
+            </div>
+        )}
+
         {trade.screenshotFilename && (
-          <div className="text-xs text-muted-foreground flex items-center gap-1 border-t pt-2 mt-2">
-            <ImageIcon className="h-3 w-3" /> 
+          <div className="text-xs text-muted-foreground flex items-center gap-1.5 border-t pt-3 mt-2">
+            <ImageIcon className="h-4 w-4" /> 
             <span>Screenshot: {trade.screenshotFilename}</span>
           </div>
         )}
-        <div>
-          <h4 className="text-xs font-semibold text-muted-foreground mb-0.5">Reflection:</h4>
-          <p className="text-sm line-clamp-2">{trade.reflection || "No reflection provided."}</p>
-        </div>
-        <div className="flex justify-between items-center text-xs">
-            <p><span className="font-semibold text-muted-foreground">Strategy:</span> {trade.strategy || "N/A"}</p>
-            <p><span className="font-semibold text-muted-foreground">Risk:</span> {trade.riskPercentage ? `${trade.riskPercentage}%` : "N/A"}</p>
-        </div>
+
       </CardContent>
-       <CardFooter className="px-4 pb-4 pt-2 border-t">
+       <CardFooter className="px-4 pb-4 pt-3 border-t mt-auto">
          <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="ml-auto text-muted-foreground hover:text-foreground gap-1 rounded-lg">
+              <Button variant="ghost" size="sm" className="ml-auto text-muted-foreground hover:text-foreground gap-1.5 rounded-lg">
                 <MoreHorizontal className="h-4 w-4" /> Manage
               </Button>
             </DropdownMenuTrigger>
@@ -123,7 +144,6 @@ function TradeDetailCard({ trade, onEdit, onDelete }: { trade: Trade; onEdit: (t
   );
 }
 
-// Component for summary stat cards
 function SummaryStatCard({ stat }: { stat: SummaryStat }) {
   return (
     <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out rounded-2xl">
@@ -149,11 +169,11 @@ const calculatePnl = (trade: Omit<Trade, 'id' | 'pnl' | 'status' | 'chartPlaceho
 };
 
 const initialTrades: Trade[] = [
-  { id: "t1", asset: "AAPL", entryTimestamp: new Date(2024, 6, 5, 9, 30).toISOString(), exitTimestamp: new Date(2024, 6, 7, 15, 0).toISOString(), position: "long", entryPrice: 175.20, exitPrice: 182.45, quantity: 10, strategy: "Breakout", reflection: "Perfect breakout trade. Entered after confirmation above resistance. Took profits at 4% gain as planned.", riskPercentage: 2, status: "closed", chartPlaceholderUrl: "https://placehold.co/300x150.png", screenshotFilename: "aapl_trade_setup.png" },
-  { id: "t2", asset: "TSLA", entryTimestamp: new Date(2024, 6, 3, 10, 0).toISOString(), exitTimestamp: new Date(2024, 6, 4, 12, 0).toISOString(), position: "short", entryPrice: 245.80, exitPrice: 238.30, quantity: 5, strategy: "Earnings Play", reflection: "Stop loss triggered correctly. Market sentiment changed after earnings miss. Stuck to risk management rules.", riskPercentage: 1.5, status: "closed", chartPlaceholderUrl: "https://placehold.co/300x150.png"},
-  { id: "t3", asset: "MSFT", entryTimestamp: new Date(2024, 6, 1, 14, 0).toISOString(), exitTimestamp: new Date(2024, 6, 6, 10,0).toISOString(), position: "long", entryPrice: 338.50, exitPrice: 345.20, quantity: 8, strategy: "Momentum", reflection: "Strong momentum trade. Good volume confirmation on breakout. Held for 5 days as trend continued.", riskPercentage: 2, status: "closed", chartPlaceholderUrl: "https://placehold.co/300x150.png", screenshotFilename: "msft_breakout.jpg" },
-  { id: "t4", asset: "NVDA", entryTimestamp: new Date(2024, 5, 28, 11,0).toISOString(), exitTimestamp: new Date(2024, 5, 29, 15,0).toISOString(), position: "long", entryPrice: 485.30, exitPrice: 486.20, quantity: 3, strategy: "Scalp", reflection: "Choppy market conditions. Exited early due to lack of momentum. Small profit after commissions.", riskPercentage: 1, status: "closed", chartPlaceholderUrl: "https://placehold.co/300x150.png" },
-  { id: "t5", asset: "GOOGL", entryTimestamp: new Date(2024, 6, 8, 9,45).toISOString(), position: "long", entryPrice: 140.50, quantity: 10, strategy: "Value Dip Buy", reflection: "Monitoring for bounce from support.", riskPercentage: 2.5, status: "open", chartPlaceholderUrl: "https://placehold.co/300x150.png" },
+  { id: "t1", asset: "AAPL", entryTimestamp: new Date(2024, 6, 5, 9, 30).toISOString(), exitTimestamp: new Date(2024, 6, 7, 15, 0).toISOString(), position: "long", entryPrice: 175.20, exitPrice: 182.45, quantity: 10, strategy: "Breakout", reflection: "Perfect breakout trade. Entered after confirmation above resistance. Took profits at 4% gain as planned.", riskPercentage: 2, status: "closed", chartPlaceholderUrl: "https://placehold.co/600x338.png", screenshotFilename: "aapl_trade_setup.png" },
+  { id: "t2", asset: "TSLA", entryTimestamp: new Date(2024, 6, 3, 10, 0).toISOString(), exitTimestamp: new Date(2024, 6, 4, 12, 0).toISOString(), position: "short", entryPrice: 245.80, exitPrice: 238.30, quantity: 5, strategy: "Earnings Play", reflection: "Stop loss triggered correctly. Market sentiment changed after earnings miss. Stuck to risk management rules.", riskPercentage: 1.5, status: "closed", chartPlaceholderUrl: "https://placehold.co/600x338.png"},
+  { id: "t3", asset: "MSFT", entryTimestamp: new Date(2024, 6, 1, 14, 0).toISOString(), exitTimestamp: new Date(2024, 6, 6, 10,0).toISOString(), position: "long", entryPrice: 338.50, exitPrice: 345.20, quantity: 8, strategy: "Momentum", reflection: "Strong momentum trade. Good volume confirmation on breakout. Held for 5 days as trend continued.", riskPercentage: 2, status: "closed", chartPlaceholderUrl: "https://placehold.co/600x338.png", screenshotFilename: "msft_breakout.jpg" },
+  { id: "t4", asset: "NVDA", entryTimestamp: new Date(2024, 5, 28, 11,0).toISOString(), exitTimestamp: new Date(2024, 5, 29, 15,0).toISOString(), position: "long", entryPrice: 485.30, exitPrice: 486.20, quantity: 3, strategy: "Scalp", reflection: "Choppy market conditions. Exited early due to lack of momentum. Small profit after commissions.", riskPercentage: 1, status: "closed", chartPlaceholderUrl: "https://placehold.co/600x338.png" },
+  { id: "t5", asset: "GOOGL", entryTimestamp: new Date(2024, 6, 8, 9,45).toISOString(), position: "long", entryPrice: 140.50, quantity: 10, strategy: "Value Dip Buy", reflection: "Monitoring for bounce from support.", riskPercentage: 2.5, status: "open", chartPlaceholderUrl: "https://placehold.co/600x338.png" },
 ];
 
 initialTrades.forEach(trade => {
@@ -178,7 +198,7 @@ export default function TradesPage() {
     let newPnl: number | undefined = undefined;
     let finalStatus: 'open' | 'closed' = tradeData.status || (tradeData.exitPrice && tradeData.exitTimestamp ? 'closed' : 'open');
     
-    let chartUrl = "https://placehold.co/300x150.png";
+    let chartUrl = "https://placehold.co/600x338.png";
 
 
     if (finalStatus === 'closed' && tradeData.exitPrice && tradeData.exitTimestamp) {
@@ -268,10 +288,10 @@ export default function TradesPage() {
         </div>
         <Skeleton className="h-10 w-full max-w-md rounded-xl" /> 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {[1,2,3,4].map(i => <Skeleton key={i} className="h-28 w-full rounded-2xl" />)}
+            {[1,2,3,4].map(i => <Skeleton key={i} className="h-32 w-full rounded-2xl" />)}
         </div>
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {[1,2,3].map(i => <Skeleton key={i} className="h-[420px] w-full rounded-2xl" />)}
+        <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
+            {[1,2,3].map(i => <Skeleton key={i} className="h-[520px] w-full rounded-2xl" />)}
         </div>
       </div>
     );
@@ -296,9 +316,9 @@ export default function TradesPage() {
 
       <Tabs defaultValue="trade-journal" className="w-full">
         <TabsList className="mb-6 bg-muted/50 dark:bg-muted/20 rounded-xl p-1">
-          <TabsTrigger value="trade-journal" className="data-[state=active]:bg-card data-[state=active]:shadow-md rounded-lg">Trade Journal</TabsTrigger>
-          <TabsTrigger value="weekly-insights" disabled className="data-[state=active]:bg-card data-[state=active]:shadow-md rounded-lg">Weekly Insights</TabsTrigger>
-          <TabsTrigger value="strategy-notes" disabled className="data-[state=active]:bg-card data-[state=active]:shadow-md rounded-lg">Strategy Notes</TabsTrigger>
+          <TabsTrigger value="trade-journal" className="data-[state=active]:bg-card data-[state=active]:shadow-sm rounded-lg">Trade Journal</TabsTrigger>
+          <TabsTrigger value="weekly-insights" disabled className="data-[state=active]:bg-card data-[state=active]:shadow-sm rounded-lg">Weekly Insights</TabsTrigger>
+          <TabsTrigger value="strategy-notes" disabled className="data-[state=active]:bg-card data-[state=active]:shadow-sm rounded-lg">Strategy Notes</TabsTrigger>
         </TabsList>
         
         <TabsContent value="trade-journal" className="space-y-6">
@@ -347,4 +367,3 @@ export default function TradesPage() {
     </div>
   );
 }
-

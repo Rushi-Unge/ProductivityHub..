@@ -12,6 +12,7 @@ import type { Task } from "@/app/(authenticated)/tasks/page";
 import type { Note } from "@/app/(authenticated)/notes/page";
 import type { Trade } from "@/app/(authenticated)/trades/page";
 import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // --- Data Duplication for Dashboard Display (Simulating Fetched Data) ---
 const initialDashboardTasks: Task[] = [
@@ -78,16 +79,15 @@ export default function DashboardPage() {
 
 
   if (!isClient) {
-    // Basic skeleton loader for the dashboard
     return (
       <div className="space-y-6 p-4 md:p-6 animate-pulse">
         <div className="h-10 bg-muted rounded-xl w-3/4"></div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {[...Array(4)].map((_, i) => <div key={i} className="h-28 bg-muted rounded-2xl"></div>)}
+          {[...Array(4)].map((_, i) => <div key={i} className="h-32 bg-muted rounded-2xl"></div>)}
         </div>
         <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
-          <div className="h-64 bg-muted rounded-2xl"></div>
-          <div className="h-64 bg-muted rounded-2xl"></div>
+          <div className="h-72 bg-muted rounded-2xl"></div>
+          <div className="h-72 bg-muted rounded-2xl"></div>
         </div>
       </div>
     );
@@ -100,22 +100,19 @@ export default function DashboardPage() {
           <h1 className="text-3xl font-bold font-headline tracking-tight">Welcome to ProHub!</h1>
           <p className="text-muted-foreground">Here's your productivity pulse for today.</p>
         </div>
-        {/* Optional: Add a primary action button here if needed, e.g., "+ New Task" */}
       </div>
 
-      {/* Trade Performance Summary */}
       <section>
         <h2 className="text-xl font-semibold mb-3 font-headline">Trading Snapshot</h2>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {tradeStats.map((stat) => (
-            <Card key={stat.title} className="shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out hover:scale-[1.02] rounded-2xl">
+            <Card key={stat.title} className="shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out hover:scale-[1.01] rounded-2xl">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">{stat.title}</CardTitle>
                 {stat.icon}
                 </CardHeader>
                 <CardContent>
                 <div className={cn("text-2xl font-bold", stat.colorClass)}>{stat.value}</div>
-                {/* Optional: stat.change can be displayed here if relevant for dashboard */}
                 </CardContent>
             </Card>
             ))}
@@ -124,7 +121,6 @@ export default function DashboardPage() {
 
 
       <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
-        {/* Recent Tasks */}
         <Card className="shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out rounded-2xl">
           <CardHeader>
             <div className="flex justify-between items-center">
@@ -164,7 +160,6 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Recent Notes */}
         <Card className="shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out rounded-2xl">
           <CardHeader>
              <div className="flex justify-between items-center">

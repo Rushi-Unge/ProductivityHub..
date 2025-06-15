@@ -13,7 +13,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format, parseISO } from "date-fns";
 import type { Trade } from "@/app/(authenticated)/trades/page"; 
-import { UploadCloud } from "lucide-react";
+import { UploadCloud, Trash2 } from "lucide-react";
 
 const MAX_FILE_SIZE_MB = 5;
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
@@ -150,7 +150,10 @@ export default function AddTradeDialog({ open, onOpenChange, onSave, tradeToEdit
     let screenshotFilenameToSave = data.screenshotFilename; 
     if (data.screenshot && data.screenshot.length > 0) {
       screenshotFilenameToSave = data.screenshot[0].name;
+    } else if (!data.screenshot && !tradeToEdit?.screenshotFilename) {
+        screenshotFilenameToSave = undefined;
     }
+
 
     const dataToSave = {
         ...data,
@@ -167,9 +170,25 @@ export default function AddTradeDialog({ open, onOpenChange, onSave, tradeToEdit
     if (files && files.length > 0) {
       form.setValue("screenshot", files, { shouldValidate: true });
       setSelectedFileName(files[0].name);
+      form.setValue("screenshotFilename", files[0].name);
     } else {
       form.setValue("screenshot", null, { shouldValidate: true });
-      setSelectedFileName(tradeToEdit?.screenshotFilename && !form.getValues("screenshot") ? tradeToEdit.screenshotFilename : null);
+       if (tradeToEdit?.screenshotFilename && !form.getValues("screenshot")) {
+           setSelectedFileName(tradeToEdit.screenshotFilename);
+           form.setValue("screenshotFilename", tradeToEdit.screenshotFilename);
+       } else {
+           setSelectedFileName(null);
+           form.setValue("screenshotFilename", undefined);
+       }
+    }
+  };
+
+  const handleRemoveScreenshot = () => {
+    form.setValue("screenshot", null, { shouldValidate: true });
+    form.setValue("screenshotFilename", undefined);
+    setSelectedFileName(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""; 
     }
   };
 
@@ -335,19 +354,25 @@ export default function AddTradeDialog({ open, onOpenChange, onSave, tradeToEdit
                   <FormItem>
                     <FormLabel>Trade Screenshot (Optional, Max {MAX_FILE_SIZE_MB}MB)</FormLabel>
                     <FormControl>
-                      <div className="flex items-center gap-2">
-                        <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()} className="flex-shrink-0 rounded-xl">
-                          <UploadCloud className="mr-2 h-4 w-4" /> {selectedFileName ? "Change File" : "Upload Image"}
-                        </Button>
-                        <input
-                          type="file"
-                          ref={fileInputRef}
-                          className="hidden"
-                          accept={ACCEPTED_IMAGE_TYPES.join(",")}
-                          onChange={handleFileChange}
-                        />
-                        {selectedFileName && <span className="text-sm text-muted-foreground truncate" title={selectedFileName}>{selectedFileName}</span>}
-                      </div>
+                        <div className="flex items-center gap-2">
+                            <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()} className="flex-shrink-0 rounded-xl">
+                            <UploadCloud className="mr-2 h-4 w-4" /> {selectedFileName ? "Change File" : "Upload Image"}
+                            </Button>
+                            <input
+                            type="file"
+                            ref={fileInputRef}
+                            className="hidden"
+                            accept={ACCEPTED_IMAGE_TYPES.join(",")}
+                            onChange={handleFileChange}
+                            />
+                            {selectedFileName && <span className="text-sm text-muted-foreground truncate flex-1" title={selectedFileName}>{selectedFileName}</span>}
+                             {selectedFileName && (
+                                <Button type="button" variant="ghost" size="icon" onClick={handleRemoveScreenshot} className="h-8 w-8 rounded-lg text-destructive hover:text-destructive hover:bg-destructive/10">
+                                    <Trash2 className="h-4 w-4"/>
+                                    <span className="sr-only">Remove screenshot</span>
+                                </Button>
+                            )}
+                        </div>
                     </FormControl>
                     <FormMessage />
                     {form.formState.errors.screenshot && <FormMessage>{form.formState.errors.screenshot.message as string}</FormMessage>}

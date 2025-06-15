@@ -4,7 +4,7 @@
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
-import { MoreVertical, Edit3, Trash2, Archive, ArchiveRestore, Star, Clock, RotateCcw, MessageSquareWarning } from "lucide-react";
+import { MoreVertical, Edit3, Trash2, Archive, ArchiveRestore, Star, Clock, RotateCcw, MessageSquareWarning, Image as ImageIcon } from "lucide-react";
 import { formatDistanceToNow, parseISO } from "date-fns";
 import type { Note } from "@/app/(authenticated)/notes/page";
 import { cn } from "@/lib/utils";
@@ -26,18 +26,18 @@ interface NoteCardProps {
 export default function NoteCard({ note, onEdit, onToggleStar, onToggleArchive, onToggleTrash, onRestore, isTrashedView = false }: NoteCardProps) {
   const lastModified = note.updatedAt || note.createdAt;
 
-  const contentPreview = note.content.length > 150 
-    ? note.content.substring(0, 150) + "..." 
+  const contentPreview = note.content.length > 180 
+    ? note.content.substring(0, 180) + "..." 
     : note.content;
 
   return (
     <Card className={cn(
-        "shadow-sm hover:shadow-md transition-all duration-300 ease-in-out flex flex-col rounded-xl border hover:scale-[1.01] focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 break-inside-avoid-page", 
-        "bg-card text-card-foreground", // Standard card colors from theme
+        "shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out flex flex-col rounded-2xl border hover:scale-[1.01] focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 break-inside-avoid-page", 
+        "bg-card text-card-foreground",
         note.isTrashed ? "opacity-60" : ""
       )}>
       {note.imageUrl && (
-        <div className="relative w-full aspect-[16/9] rounded-t-xl overflow-hidden">
+        <div className="relative w-full aspect-[16/9] rounded-t-2xl overflow-hidden">
             <NextImage 
                 src={note.imageUrl} 
                 alt={note.title || "Note image"} 
@@ -49,14 +49,14 @@ export default function NoteCard({ note, onEdit, onToggleStar, onToggleArchive, 
         </div>
       )}
       <CardHeader className="flex flex-row items-start justify-between pb-2 pt-4 px-4">
-        <CardTitle className="text-md font-semibold break-words text-foreground flex-1">
+        <CardTitle className="text-md font-semibold break-words text-foreground flex-1 line-clamp-2">
           {note.title || <span className="italic text-muted-foreground">Untitled Note</span>}
         </CardTitle>
         <div className="flex items-center gap-1 ml-2">
           {note.isStarred && !note.isArchived && !note.isTrashed && <Star className="h-4 w-4 text-yellow-500 fill-yellow-400" />}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-7 w-7 flex-shrink-0 rounded-md text-muted-foreground hover:bg-muted">
+              <Button variant="ghost" size="icon" className="h-7 w-7 flex-shrink-0 rounded-lg text-muted-foreground hover:bg-muted">
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -95,7 +95,7 @@ export default function NoteCard({ note, onEdit, onToggleStar, onToggleArchive, 
           </DropdownMenu>
         </div>
       </CardHeader>
-      <CardContent className="pb-3 px-4 flex-grow min-h-[50px]">
+      <CardContent className="pb-3 px-4 flex-grow min-h-[60px]">
         {note.content ? (
             <div className="text-sm text-muted-foreground prose prose-sm dark:prose-invert max-w-none line-clamp-4">
               <ReactMarkdown remarkPlugins={[remarkGfm]}
@@ -109,7 +109,7 @@ export default function NoteCard({ note, onEdit, onToggleStar, onToggleArchive, 
                   h3: ({node, ...props}) => <h3 className="text-[0.9em] font-medium my-1" {...props} />,
                   input: ({ node, type, checked, ...props }) => {
                     if (type === 'checkbox') {
-                      return <input type="checkbox" checked={checked} readOnly className="mr-1.5 rounded-sm border-muted-foreground text-primary focus:ring-primary disabled:opacity-100" />;
+                      return <input type="checkbox" checked={checked as boolean | undefined} readOnly className="mr-1.5 rounded-sm border-muted-foreground text-primary focus:ring-primary disabled:opacity-100" />;
                     }
                     return <input type={type} {...props} />;
                   },
@@ -131,9 +131,9 @@ export default function NoteCard({ note, onEdit, onToggleStar, onToggleArchive, 
         </div>
         <div className="flex gap-1 flex-wrap justify-end max-w-[50%] overflow-hidden">
             {note.tags.slice(0, 2).map(tag => (
-                <Badge key={tag} variant="secondary" className="text-xs px-1.5 py-0.5 capitalize">{tag}</Badge>
+                <Badge key={tag} variant="secondary" className="text-xs px-1.5 py-0.5 capitalize rounded-md">{tag}</Badge>
             ))}
-            {note.tags.length > 2 && <Badge variant="secondary" className="text-xs px-1.5 py-0.5">+{note.tags.length - 2}</Badge>}
+            {note.tags.length > 2 && <Badge variant="secondary" className="text-xs px-1.5 py-0.5 rounded-md">+{note.tags.length - 2}</Badge>}
         </div>
       </CardFooter>
     </Card>
